@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "test": "vitest run",
     "seed": "npx tsx prisma/seed.ts",
     "reset": "npx tsx prisma/reset.ts",
