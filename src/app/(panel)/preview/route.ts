@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { auth } from '@/lib/auth'
 import { getTenantScopedClient } from '@/lib/tenant/client'
 import { renderPage } from '@/lib/cms/renderer/index'
