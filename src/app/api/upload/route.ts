@@ -30,7 +30,7 @@ function err(status: number, message: string): Response {
 }
 
 function publicUrl(key: string): string {
-  return `https://pub-${process.env.R2_ACCOUNT_ID}.r2.dev/${key}`
+  return `${process.env.R2_PUBLIC_BASE_URL}/${key}`
 }
 
 export async function POST(req: Request): Promise<Response> {
