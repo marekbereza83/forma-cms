@@ -1,0 +1,57 @@
+{
+  "hero.subheadlinePrefix": {
+    "—": 1
+  },
+  "problem.symptomCards": {
+    "—": 1
+  },
+  "solution.body1": {
+    "—": 1
+  },
+  "solution.body2": {
+    "—": 1
+  },
+  "portfolio.lead": {
+    "—": 1
+  },
+  "portfolio.cards": {
+    "•": 2
+  },
+  "process.steps": {
+    "≥": 1
+  },
+  "pricing.sectionLead": {
+    "—": 1
+  },
+  "cta-finale.lead": {
+    "—": 1
+  },
+  "footer.copyright": {
+    "©": 1
+  },
+  "portfolio-grid.cards": {
+    "•": 2
+  },
+  "proces-hero.lead": {
+    "—": 1
+  },
+  "timeline.steps": {
+    "—": 4,
+    "≥": 1
+  },
+  "deliverables.items": {
+    "—": 1
+  },
+  "technologie.headline": {
+    "—": 1
+  },
+  "technologie.lead": {
+    "—": 1
+  },
+  "faq.items": {
+    "—": 7
+  },
+  "kontakt-hero.body": {
+    "—": 1
+  }
+}
