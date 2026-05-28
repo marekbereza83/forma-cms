@@ -1,9 +1,23 @@
 import { auth } from '@/lib/auth'
 import { exportSite } from '@/lib/cms/export'
-import { rmSync, existsSync, readFileSync, createWriteStream } from 'fs'
+import { rmSync, existsSync, readFileSync, readdirSync, statSync } from 'fs'
 import { tmpdir } from 'os'
-import { join } from 'path'
-import archiver from 'archiver'
+import { join, relative } from 'path'
+import { zipSync, type Zippable } from 'fflate'
+
+// Recursively collect all files under `dir` into a fflate Zippable map.
+// Keys are POSIX-style relative paths (ZIP entries).
+function collectFiles(dir: string, root: string, out: Zippable): void {
+  for (const entry of readdirSync(dir)) {
+    const abs = join(dir, entry)
+    const key = relative(root, abs).replaceAll('\\', '/')  // ZIP uses forward slashes
+    if (statSync(abs).isDirectory()) {
+      collectFiles(abs, root, out)
+    } else {
+      out[key] = new Uint8Array(readFileSync(abs))
+    }
+  }
+}
 
 export async function POST(): Promise<Response> {
   const session = await auth()
@@ -15,24 +29,17 @@ export async function POST(): Promise<Response> {
   }
 
   const tenantId = session.user.tenantId
-  const ts = Date.now()
-  const exportDir = join(tmpdir(), `forma-export-${tenantId}-${ts}`)
-  const zipPath   = join(tmpdir(), `forma-export-${tenantId}-${ts}.zip`)
+  const exportDir = join(tmpdir(), `forma-export-${tenantId}-${Date.now()}`)
 
   try {
     await exportSite(tenantId, exportDir)
 
-    await new Promise<void>((resolve, reject) => {
-      const output  = createWriteStream(zipPath)
-      const archive = archiver('zip', { zlib: { level: 6 } })
-      output.on('close', resolve)
-      archive.on('error', reject)
-      archive.pipe(output)
-      archive.directory(exportDir, false)
-      void archive.finalize()
-    })
-
-    const buffer = readFileSync(zipPath)
+    // Build ZIP entirely in memory — no WriteStream, no tmp ZIP file.
+    // fflate.zipSync() is synchronous and works on any runtime (Vercel, Edge, Node).
+    const files: Zippable = {}
+    collectFiles(exportDir, exportDir, files)
+    const zipped = zipSync(files, { level: 6 })
+    const buffer = Buffer.from(zipped)
 
     return new Response(buffer, {
       status: 200,
@@ -48,7 +55,7 @@ export async function POST(): Promise<Response> {
       headers: { 'Content-Type': 'application/json' },
     })
   } finally {
+    // Clean up /tmp export dir regardless of outcome
     try { if (existsSync(exportDir)) rmSync(exportDir, { recursive: true }) } catch { /* ignore */ }
-    try { if (existsSync(zipPath))   rmSync(zipPath) } catch { /* ignore */ }
   }
 }
