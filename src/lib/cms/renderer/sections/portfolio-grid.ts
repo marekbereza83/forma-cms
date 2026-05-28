@@ -4,8 +4,10 @@ const ARROW_ICON_SM = `<svg width="14" height="14" viewBox="0 0 24 24" fill="non
 
 function resolveImageSrc(src: string | undefined, basePath: string, linkMode: 'static' | 'preview'): string {
   const imgSrc = src || 'assets/images/wojtas-hero.png'
+  // R2/CDN absolute URL — use directly in both static and preview
+  if (imgSrc.startsWith('http')) return imgSrc
+  // Legacy local upload (pre-R2) — backward compat
   if (imgSrc.startsWith('/uploads/')) {
-    // static export: uploaded files are copied to assets/images/{filename}
     if (linkMode === 'static') return `assets/images/${imgSrc.split('/').pop()!}`
     return imgSrc  // preview: Next.js serves /uploads/
   }

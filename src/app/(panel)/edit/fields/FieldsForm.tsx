@@ -100,6 +100,46 @@ function PriceEditor({
   )
 }
 
+// ── ZIP download ─────────────────────────────────────────────────────────────
+
+function DownloadZipButton() {
+  const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
+
+  async function handleDownload() {
+    setStatus('loading')
+    try {
+      const res = await fetch('/api/export', { method: 'POST' })
+      if (!res.ok) throw new Error('Export failed')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'forma-site.zip'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      setStatus('idle')
+    } catch {
+      setStatus('error')
+      setTimeout(() => setStatus('idle'), 3000)
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      className="btn btn-ghost"
+      onClick={() => void handleDownload()}
+      disabled={status === 'loading'}
+    >
+      {status === 'loading' ? 'Pakowanie…' : status === 'error' ? 'Błąd — spróbuj ponownie' : 'Pobierz stronę (ZIP)'}
+    </button>
+  )
+}
+
+// ── Portfolio card editor ─────────────────────────────────────────────────────
+
 function PortfolioCardEditor({
   card,
   onChange,
@@ -224,10 +264,10 @@ function PortfolioCardsEditor({
 
   async function removeCard(i: number) {
     const card = cards[i]
-    // Best-effort delete of uploaded file — accept orphan if network fails
-    if (card.image?.startsWith('/uploads/')) {
-      const urlPath = card.image.split('?')[0]
-      const filename = urlPath.split('/').pop() ?? ''
+    // Best-effort delete of uploaded file from R2 (or legacy /uploads/) — accept orphan if network fails.
+    // DELETE endpoint validates filename format (FILENAME_RE) and rejects invalid keys with 400.
+    if (card.image && card.image.length > 0) {
+      const filename = card.image.split('?')[0].split('/').pop() ?? ''
       if (filename) {
         try {
           await fetch(`/api/upload?filename=${encodeURIComponent(filename)}`, { method: 'DELETE' })
@@ -605,6 +645,7 @@ export default function FieldsForm({ initialModel }: Props) {
           {isPending ? 'Zapisywanie…' : 'Zapisz zmiany'}
         </button>
         <a href="/preview" target="_blank" className="btn btn-ghost">Podgląd</a>
+        <DownloadZipButton />
         {saveStatus === 'saved' && <span className="save-status">Zapisano.</span>}
       </div>
     </form>

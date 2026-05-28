@@ -31,11 +31,7 @@ export function renderStaticSite(
   }
 
   copyDir(join(publicDir, 'assets'), join(outputDir, 'assets'))
-
-  const uploadsDir = join(publicDir, 'uploads', model.tenantId)
-  if (existsSync(uploadsDir)) {
-    copyDir(uploadsDir, join(outputDir, 'assets', 'images'))
-  }
+  // Images uploaded to R2/CDN appear as absolute URLs in rendered HTML — no local copy needed.
 }
 
 export async function exportSite(

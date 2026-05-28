@@ -1,32 +1,38 @@
 /**
  * Upload API — server-side tests (node env, no DOM).
- * Tests call POST() and DELETE() handlers directly, auth() is mocked.
- * afterAll cleans up test tenant's upload directory.
+ * Tests call POST() and DELETE() handlers directly.
+ * Both auth() and the S3 client are mocked — no real R2 calls.
  *
- * ID_A — used only by the basic POST test (sharp.metadata() opens the file;
- *         on Windows the handle may linger briefly, so isolation tests use
- *         separate ISO_* UUIDs to avoid EBUSY / UNKNOWN write errors).
+ * Post-R2 migration: uploads go to Cloudflare R2, not public/uploads/.
+ * URL returned by POST is an absolute R2 CDN URL.
+ * DELETE always returns 200 for valid keys (S3 DeleteObject is idempotent —
+ * it succeeds even when the key does not exist).
  */
-import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest'
-import { existsSync } from 'fs'
-import { rm } from 'fs/promises'
-import { join } from 'path'
+import { describe, it, expect, vi, beforeAll } from 'vitest'
 import { deflateSync } from 'zlib'
 
 // ── Mock auth BEFORE importing route handler ──────────────────────────────────
 vi.mock('@/lib/auth', () => ({ auth: vi.fn() }))
+
+// ── Mock S3 client — no real R2 calls in tests ────────────────────────────────
+// vi.hoisted() runs before module imports so the mock factory can reference it.
+const { mockS3Send } = vi.hoisted(() => ({
+  mockS3Send: vi.fn().mockResolvedValue({}),
+}))
+vi.mock('@aws-sdk/client-s3', () => ({
+  S3Client: vi.fn().mockImplementation(() => ({ send: mockS3Send })),
+  PutObjectCommand: vi.fn().mockImplementation((args: unknown) => args),
+  DeleteObjectCommand: vi.fn().mockImplementation((args: unknown) => args),
+}))
 
 import { auth } from '@/lib/auth'
 import { POST, DELETE } from '../src/app/api/upload/route'
 import type { Session } from 'next-auth'
 
 const TEST_TENANT = 'upload-test-tenant'
-const UPLOAD_DIR = join(process.cwd(), 'public', 'uploads', TEST_TENANT)
+const R2_BASE     = 'https://pub-test.r2.dev'
 
-// Basic POST test — only ID_A used here; sharp.metadata() may briefly lock it
-const ID_A = '11111111-1111-4111-a111-111111111111'
-
-// Isolation suite — completely separate UUIDs, no overlap with ID_A
+const ID_A  = '11111111-1111-4111-a111-111111111111'
 const ISO_A = 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa'
 const ISO_B = 'bbbbbbbb-bbbb-4bbb-abbb-bbbbbbbbbbbb'
 const ISO_C = 'cccccccc-cccc-4ccc-accc-cccccccccccc'
@@ -83,14 +89,17 @@ function makeDeleteRequest(filename: string): Request {
 // ── Setup ─────────────────────────────────────────────────────────────────────
 
 beforeAll(() => {
+  // R2 env vars — used by the route handler; values are test stubs
+  process.env.R2_PUBLIC_BASE_URL  = R2_BASE
+  process.env.R2_BUCKET           = 'test-bucket'
+  process.env.R2_ACCOUNT_ID       = 'test-account'
+  process.env.R2_ACCESS_KEY_ID    = 'test-key'
+  process.env.R2_SECRET_ACCESS_KEY = 'test-secret'
+
   vi.mocked(auth).mockResolvedValue({
     user: { tenantId: TEST_TENANT, userId: 'u1', id: 'u1', email: 'test@test.pl', role: 'admin' },
     expires: new Date(Date.now() + 86_400_000).toISOString(),
   } as Session)
-})
-
-afterAll(async () => {
-  try { await rm(UPLOAD_DIR, { recursive: true, force: true }) } catch { /* ok */ }
 })
 
 // ── POST tests ────────────────────────────────────────────────────────────────
@@ -141,21 +150,21 @@ describe('POST /api/upload', () => {
     expect(res.status).toBe(400)
   })
 
-  it('poprawny PNG z cardId A → 200, url z ?v=, plik webp 800×450 na dysku', async () => {
+  it('poprawny PNG z cardId A → 200, absolutny URL R2, plik webp 800×450', async () => {
+    mockS3Send.mockResolvedValueOnce({})  // PutObject succeeds
     const file = new File([minimalPng()], 'photo.png', { type: 'image/png' })
     const res = await POST(makePostRequest(file, ID_A))
     expect(res.status).toBe(200)
 
     const json = await res.json() as { url: string }
-    expect(json.url).toMatch(
-      new RegExp(`^/uploads/${TEST_TENANT}/portfolio-card-${ID_A}\\.webp\\?v=\\d+$`),
-    )
+    const expectedKey = `${TEST_TENANT}/portfolio-card-${ID_A}.webp`
+    expect(json.url).toBe(`${R2_BASE}/${expectedKey}`)
 
-    const diskPath = join(UPLOAD_DIR, `portfolio-card-${ID_A}.webp`)
-    expect(existsSync(diskPath)).toBe(true)
-
+    // Verify the uploaded buffer is webp 800×450
+    const callArgs = mockS3Send.mock.calls.at(-1)?.[0] as { Body: Buffer; ContentType: string }
+    expect(callArgs.ContentType).toBe('image/webp')
     const sharpModule = await import('sharp')
-    const meta = await sharpModule.default(diskPath).metadata()
+    const meta = await sharpModule.default(callArgs.Body).metadata()
     expect(meta.format).toBe('webp')
     expect(meta.width).toBe(800)
     expect(meta.height).toBe(450)
@@ -163,11 +172,11 @@ describe('POST /api/upload', () => {
 })
 
 // ── Isolation tests ───────────────────────────────────────────────────────────
-// Uses ISO_* UUIDs (distinct from ID_A used above) to avoid Windows file-handle
-// conflicts caused by sharp.metadata() holding a read lock on ID_A.
+// Verify that each cardId maps to its own stable R2 key and operations
+// on one key do not affect others.
 
 describe('Izolacja slotów — stabilne cardId', () => {
-  it('upload ISO_A, ISO_B, ISO_C → każdy ma swój plik, poprzednie nieruszone', async () => {
+  it('upload ISO_A, ISO_B, ISO_C → 200 każdy, klucze R2 są izolowane', async () => {
     const png = new File([minimalPng()], 'p.png', { type: 'image/png' })
 
     const rA = await POST(makePostRequest(png, ISO_A))
@@ -178,29 +187,29 @@ describe('Izolacja slotów — stabilne cardId', () => {
     expect(rB.status).toBe(200)
     expect(rC.status).toBe(200)
 
-    expect(existsSync(join(UPLOAD_DIR, `portfolio-card-${ISO_A}.webp`))).toBe(true)
-    expect(existsSync(join(UPLOAD_DIR, `portfolio-card-${ISO_B}.webp`))).toBe(true)
-    expect(existsSync(join(UPLOAD_DIR, `portfolio-card-${ISO_C}.webp`))).toBe(true)
+    const urlA = ((await rA.json()) as { url: string }).url
+    const urlB = ((await rB.json()) as { url: string }).url
+    const urlC = ((await rC.json()) as { url: string }).url
+
+    // Each card gets its own distinct R2 key
+    expect(urlA).toContain(`portfolio-card-${ISO_A}.webp`)
+    expect(urlB).toContain(`portfolio-card-${ISO_B}.webp`)
+    expect(urlC).toContain(`portfolio-card-${ISO_C}.webp`)
+    expect(urlA).not.toBe(urlB)
+    expect(urlB).not.toBe(urlC)
   })
 
-  it('DELETE ISO_B (środkowa karta) → B usunięty, A i C nadal istnieją', async () => {
+  it('DELETE ISO_B → 200 (S3 DeleteObject idempotent)', async () => {
     const res = await DELETE(makeDeleteRequest(`portfolio-card-${ISO_B}.webp`))
     expect(res.status).toBe(200)
-
-    expect(existsSync(join(UPLOAD_DIR, `portfolio-card-${ISO_B}.webp`))).toBe(false)
-    expect(existsSync(join(UPLOAD_DIR, `portfolio-card-${ISO_A}.webp`))).toBe(true)
-    expect(existsSync(join(UPLOAD_DIR, `portfolio-card-${ISO_C}.webp`))).toBe(true)
   })
 
-  it('upload ISO_D (nowa karta po usunięciu B) → D istnieje, A i C nietknięte, B nie wraca', async () => {
+  it('upload ISO_D (nowa karta) → 200, URL zawiera ISO_D', async () => {
     const png = new File([minimalPng()], 'p.png', { type: 'image/png' })
     const res = await POST(makePostRequest(png, ISO_D))
     expect(res.status).toBe(200)
-
-    expect(existsSync(join(UPLOAD_DIR, `portfolio-card-${ISO_D}.webp`))).toBe(true)
-    expect(existsSync(join(UPLOAD_DIR, `portfolio-card-${ISO_A}.webp`))).toBe(true)
-    expect(existsSync(join(UPLOAD_DIR, `portfolio-card-${ISO_C}.webp`))).toBe(true)
-    expect(existsSync(join(UPLOAD_DIR, `portfolio-card-${ISO_B}.webp`))).toBe(false)
+    const json = await res.json() as { url: string }
+    expect(json.url).toContain(`portfolio-card-${ISO_D}.webp`)
   })
 })
 
@@ -223,17 +232,20 @@ describe('DELETE /api/upload', () => {
     expect(res.status).toBe(400)
   })
 
-  it('plik nie istnieje → 404', async () => {
+  it('klucz nie istnieje w R2 → 200 (S3 DeleteObject jest idempotentny)', async () => {
+    // S3 DeleteObjectCommand returns 204/success even when the key does not exist —
+    // this is standard S3/R2 behavior. The handler returns 200 in all valid-key cases.
     const nonExistent = 'eeeeeeee-eeee-4eee-aeee-eeeeeeeeeeee'
     const res = await DELETE(makeDeleteRequest(`portfolio-card-${nonExistent}.webp`))
-    expect(res.status).toBe(404)
+    expect(res.status).toBe(200)
   })
 
-  it('DELETE istniejącego pliku ISO_A → 200, plik usunięty', async () => {
-    // ISO_A uploaded in isolation suite, not yet deleted
-    expect(existsSync(join(UPLOAD_DIR, `portfolio-card-${ISO_A}.webp`))).toBe(true)
+  it('DELETE prawidłowego klucza → 200, S3 wywołany z poprawnym kluczem', async () => {
+    mockS3Send.mockClear()
     const res = await DELETE(makeDeleteRequest(`portfolio-card-${ISO_A}.webp`))
     expect(res.status).toBe(200)
-    expect(existsSync(join(UPLOAD_DIR, `portfolio-card-${ISO_A}.webp`))).toBe(false)
+    // Verify S3 was called with the tenant-scoped key
+    const callArgs = mockS3Send.mock.calls[0]?.[0] as { Key: string }
+    expect(callArgs?.Key).toBe(`${TEST_TENANT}/portfolio-card-${ISO_A}.webp`)
   })
 })
