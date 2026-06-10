@@ -151,6 +151,18 @@ Fields with `editable: false` are never shown in the panel. Adding new fields to
 
 **Test DB:** `prisma/test.db`. Created by `tests/globalSetup.ts` which calls `prisma migrate deploy`. Tests share this DB and run sequentially (`fileParallelism: false` in `vitest.config.ts`).
 
+### Dual-schema sync checklist
+
+Two schema files must stay in sync — `prisma/schema.prisma` (PostgreSQL, production) and `prisma/schema.sqlite.prisma` (SQLite, tests). They differ **only** in the `datasource db` block. Every other change must be applied to **both** files.
+
+**When adding or changing a model field:**
+1. Edit `prisma/schema.prisma` — add/change the field.
+2. Mirror the identical change in `prisma/schema.sqlite.prisma`.
+3. Run `npx vitest tests/schema-sync.test.ts` — the test compares model blocks and fails on drift.
+4. After commit: run `prisma db push --schema=prisma/schema.prisma` against Supabase (needs `DATABASE_URL` + `DIRECT_URL` env vars from `.env`).
+
+`tests/schema-sync.test.ts` is the automated guard — it will catch any drift before it reaches CI.
+
 **Seed credentials:**
 - `kowalski@test.pl` / `haslo123` → Kancelaria Kowalski
 - `nowak@test.pl` / `haslo123` → Kancelaria Nowak
