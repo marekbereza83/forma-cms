@@ -470,6 +470,11 @@ export default function FieldsForm({ initialModel }: Props) {
     setSaveStatus('idle')
   }
 
+  function updateMeta(key: 'contactPhone' | 'contactPhoneDisplay' | 'contactEmail', value: string) {
+    setModel(m => ({ ...m, meta: { ...m.meta, [key]: value } }))
+    setSaveStatus('idle')
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setFieldErrors({})
@@ -548,6 +553,47 @@ export default function FieldsForm({ initialModel }: Props) {
           </ul>
         </div>
       )}
+
+      {/* ── Dane kontaktowe ── */}
+      <div className="section-block">
+        <p className="section-title">Dane kontaktowe</p>
+
+        <div className="field-row">
+          <label className="field-label">Numer telefonu (tel: link)</label>
+          <input
+            type="text"
+            placeholder="+48123456789"
+            value={model.meta.contactPhone}
+            onChange={e => updateMeta('contactPhone', e.target.value)}
+          />
+          <p style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '4px' }}>
+            Używany w href=&quot;tel:…&quot; — bez spacji, np. +48123456789
+          </p>
+        </div>
+
+        <div className="field-row">
+          <label className="field-label">Numer telefonu (wyświetlany)</label>
+          <input
+            type="text"
+            placeholder="123 456 789"
+            value={model.meta.contactPhoneDisplay}
+            onChange={e => updateMeta('contactPhoneDisplay', e.target.value)}
+          />
+          <p style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '4px' }}>
+            Tekst widoczny dla użytkownika, np. 123 456 789
+          </p>
+        </div>
+
+        <div className="field-row">
+          <label className="field-label">Adres e-mail</label>
+          <input
+            type="text"
+            placeholder="kontakt@kancelaria.pl"
+            value={model.meta.contactEmail}
+            onChange={e => updateMeta('contactEmail', e.target.value)}
+          />
+        </div>
+      </div>
 
       {model.pages.map(page =>
         page.sections.map(section => {
