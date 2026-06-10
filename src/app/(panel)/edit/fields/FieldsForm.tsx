@@ -1,6 +1,6 @@
 'use client'
 import { useState, useTransition, useRef } from 'react'
-import type { SiteModel, PricingPackage, ProcessStep, StatCard, PortfolioCard } from '@/lib/cms/types'
+import type { SiteModel, PricingPackage, ProcessStep, StatCard, PortfolioCard, FaqItem } from '@/lib/cms/types'
 import type { Violation } from '@/lib/cms/validation/types'
 import { setFieldValue } from '@/lib/cms/fields'
 import { saveFields } from './actions'
@@ -329,6 +329,50 @@ function PortfolioCardsEditor({
   )
 }
 
+function FaqEditor({
+  items,
+  onChange,
+}: {
+  items: FaqItem[]
+  onChange: (v: FaqItem[]) => void
+}) {
+  function update(i: number, updated: FaqItem) {
+    const next = [...items]
+    next[i] = updated
+    onChange(next)
+  }
+
+  return (
+    <div className="list-editor">
+      {items.map((item, i) => (
+        <div key={item.id} style={{ borderTop: i > 0 ? '1px solid var(--border)' : 'none', paddingTop: i > 0 ? '16px' : 0, marginTop: i > 0 ? '16px' : 0 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--accent)', marginBottom: '8px', marginTop: 0 }}>
+            Pytanie {item.id}
+          </p>
+          <div className="list-item">
+            <div>
+              <p className="list-item-label">Pytanie</p>
+              <input
+                type="text"
+                value={item.question}
+                onChange={e => update(i, { ...item, question: e.target.value })}
+              />
+            </div>
+            <div>
+              <p className="list-item-label">Odpowiedź</p>
+              <textarea
+                value={item.answer}
+                onChange={e => update(i, { ...item, answer: e.target.value })}
+                rows={3}
+              />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function ListEditor({
   value,
   onChange,
@@ -339,6 +383,11 @@ function ListEditor({
   if (value.length === 0) return null
 
   const first = value[0]
+
+  // FaqItem: { id, question, answer }
+  if (typeof first === 'object' && first !== null && 'question' in first && 'answer' in first && 'id' in first) {
+    return <FaqEditor items={value as FaqItem[]} onChange={onChange as (v: FaqItem[]) => void} />
+  }
 
   // ProcessStep: { num, title, body }
   if (typeof first === 'object' && first !== null && 'num' in first && 'title' in first) {
