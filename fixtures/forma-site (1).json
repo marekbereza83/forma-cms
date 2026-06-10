@@ -3,15 +3,13 @@
   "archetype": "trust-led",
   "designSystem": "forma",
   "meta": {
-    "title": "Strony dla kancelarii prawnych | FORMA Wizerunku",
+    "title": "Strony dla kancelarii prawnych | FORMA",
     "description": "Projektuję strony internetowe dla kancelarii radców prawnych i adwokatów. System PACTA. Strona gotowa w 14 dni. Od 4 500 zł netto. Solo. Bez pośredników.",
     "ogDescription": "Projektuję strony dla kancelarii. System PACTA. 14 dni. Od 4 500 zł netto.",
     "canonical": "https://formawiz.pl/",
     "ogImage": "https://formawiz.pl/assets/images/og-image.jpg",
     "brandName": "Forma Wizerunku",
-    "contactEmail": "kontakt@formawizerunku.pl",
-    "contactPhone": "+48668902855",
-    "contactPhoneDisplay": "+48 668 902 855"
+    "contactEmail": "kontakt@formawiz.pl"
   },
   "pages": [
     {
@@ -24,6 +22,16 @@
             "logoText": {
               "type": "text",
               "value": "Forma Wizerunku",
+              "editable": false
+            },
+            "phoneRaw": {
+              "type": "contact",
+              "value": "+48500100200",
+              "editable": false
+            },
+            "phoneDisplay": {
+              "type": "contact",
+              "value": "+48 500 100 200",
               "editable": false
             },
             "ctaLabel": {
@@ -65,6 +73,16 @@
             "ctaSecondaryLabel": {
               "type": "cta",
               "value": "Zobacz portfolio",
+              "editable": true
+            },
+            "phoneRaw": {
+              "type": "contact",
+              "value": "+48500100200",
+              "editable": true
+            },
+            "phoneDisplay": {
+              "type": "contact",
+              "value": "+48 500 100 200",
               "editable": true
             }
           }
@@ -334,6 +352,16 @@
               "type": "cta",
               "value": "Napisz do mnie",
               "editable": true
+            },
+            "phoneRaw": {
+              "type": "contact",
+              "value": "+48500100200",
+              "editable": true
+            },
+            "phoneDisplay": {
+              "type": "contact",
+              "value": "+48 500 100 200",
+              "editable": true
             }
           }
         },
@@ -345,6 +373,21 @@
               "type": "text",
               "value": "Forma Wizerunku",
               "editable": false
+            },
+            "phoneRaw": {
+              "type": "contact",
+              "value": "+48500100200",
+              "editable": true
+            },
+            "phoneDisplay": {
+              "type": "contact",
+              "value": "+48 500 100 200",
+              "editable": true
+            },
+            "email": {
+              "type": "contact",
+              "value": "kontakt@formawizerunku.pl",
+              "editable": true
             },
             "links": {
               "type": "list",
@@ -385,10 +428,10 @@
       "slug": "portfolio",
       "navLabel": "Portfolio",
       "meta": {
-        "title": "Portfolio — realizacje | FORMA Wizerunku",
-        "description": "Realizacje FORMA Wizerunku: strony internetowe dla kancelarii prawnych i firm B2B. Case studies z liczbami.",
+        "title": "Portfolio — realizacje | FORMA",
+        "description": "Realizacje FORMA: strony internetowe dla kancelarii prawnych i firm B2B. Case studies z liczbami.",
         "canonical": "https://formawiz.pl/portfolio.html",
-        "ogTitle": "Portfolio — realizacje | FORMA Wizerunku",
+        "ogTitle": "Portfolio — realizacje | FORMA",
         "ogDescription": "Strony dla kancelarii prawnych i firm B2B. Case studies z liczbami.",
         "ogUrl": "https://formawiz.pl/portfolio.html"
       },
@@ -400,6 +443,16 @@
             "logoText": {
               "type": "text",
               "value": "Forma Wizerunku",
+              "editable": false
+            },
+            "phoneRaw": {
+              "type": "contact",
+              "value": "+48500100200",
+              "editable": false
+            },
+            "phoneDisplay": {
+              "type": "contact",
+              "value": "+48 500 100 200",
               "editable": false
             },
             "ctaLabel": {
@@ -485,6 +538,21 @@
               "value": "Forma Wizerunku",
               "editable": false
             },
+            "phoneRaw": {
+              "type": "contact",
+              "value": "+48500100200",
+              "editable": true
+            },
+            "phoneDisplay": {
+              "type": "contact",
+              "value": "+48 500 100 200",
+              "editable": true
+            },
+            "email": {
+              "type": "contact",
+              "value": "kontakt@formawizerunku.pl",
+              "editable": true
+            },
             "links": {
               "type": "list",
               "value": [
@@ -531,6 +599,16 @@
             "logoText": {
               "type": "text",
               "value": "Forma Wizerunku",
+              "editable": false
+            },
+            "phoneRaw": {
+              "type": "contact",
+              "value": "+48500100200",
+              "editable": false
+            },
+            "phoneDisplay": {
+              "type": "contact",
+              "value": "+48 500 100 200",
               "editable": false
             },
             "ctaLabel": {
@@ -788,6 +866,21 @@
               "value": "Forma Wizerunku",
               "editable": false
             },
+            "phoneRaw": {
+              "type": "contact",
+              "value": "+48500100200",
+              "editable": true
+            },
+            "phoneDisplay": {
+              "type": "contact",
+              "value": "+48 500 100 200",
+              "editable": true
+            },
+            "email": {
+              "type": "contact",
+              "value": "kontakt@formawizerunku.pl",
+              "editable": true
+            },
             "links": {
               "type": "list",
               "value": [
@@ -823,10 +916,10 @@
         }
       ],
       "meta": {
-        "title": "Jak pracuję — proces i cennik | FORMA Wizerunku",
+        "title": "Jak pracuję — proces i cennik | FORMA",
         "description": "Proces projektowania stron dla kancelarii prawnych. 6 kroków, 14 dni. Cennik: Standard 4500 zł, Rozszerzony 6500 zł. FAQ — odpowiedzi na pytania przed zamówieniem.",
         "canonical": "https://formawiz.pl/proces.html",
-        "ogTitle": "Jak pracuję — proces i cennik | FORMA Wizerunku",
+        "ogTitle": "Jak pracuję — proces i cennik | FORMA",
         "ogDescription": "6 kroków, 14 dni, transparentny cennik. Dowiedz się jak wygląda współpraca.",
         "ogUrl": "https://formawiz.pl/proces.html"
       }
@@ -835,10 +928,10 @@
       "slug": "kontakt",
       "navLabel": "Kontakt",
       "meta": {
-        "title": "Kontakt — zamów wycenę | FORMA Wizerunku",
+        "title": "Kontakt — zamów wycenę | FORMA",
         "description": "Zamów wycenę strony dla kancelarii prawnej. Odpowiadam w ciągu 24h. Strona gotowa w 14 dni od briefu. Od 4 500 zł netto.",
         "canonical": "https://formawiz.pl/kontakt.html",
-        "ogTitle": "Kontakt — zamów wycenę | FORMA Wizerunku",
+        "ogTitle": "Kontakt — zamów wycenę | FORMA",
         "ogDescription": "Zamów wycenę strony dla kancelarii prawnej. Odpowiadam w ciągu 24h.",
         "ogUrl": "https://formawiz.pl/kontakt.html"
       },
@@ -850,6 +943,16 @@
             "logoText": {
               "type": "text",
               "value": "Forma Wizerunku",
+              "editable": false
+            },
+            "phoneRaw": {
+              "type": "contact",
+              "value": "+48500100200",
+              "editable": false
+            },
+            "phoneDisplay": {
+              "type": "contact",
+              "value": "+48 500 100 200",
               "editable": false
             },
             "ctaLabel": {
@@ -883,7 +986,28 @@
         {
           "id": "formularz",
           "recipe": "K1",
-          "fields": {}
+          "fields": {
+            "emailDisplay": {
+              "type": "contact",
+              "value": "kontakt@formawiz.pl",
+              "editable": false
+            },
+            "emailHref": {
+              "type": "contact",
+              "value": "mailto:kontakt@formawiz.pl",
+              "editable": false
+            },
+            "phoneRaw": {
+              "type": "contact",
+              "value": "+48500100200",
+              "editable": false
+            },
+            "phoneDisplay": {
+              "type": "contact",
+              "value": "+48 500 100 200",
+              "editable": false
+            }
+          }
         },
         {
           "id": "footer",
@@ -894,236 +1018,20 @@
               "value": "Forma Wizerunku",
               "editable": false
             },
-            "links": {
-              "type": "list",
-              "value": [
-                {
-                  "label": "Portfolio",
-                  "href": "portfolio.html"
-                },
-                {
-                  "label": "Jak pracuję",
-                  "href": "proces.html"
-                },
-                {
-                  "label": "Kontakt",
-                  "href": "kontakt.html"
-                },
-                {
-                  "label": "Polityka prywatności",
-                  "href": "privacy-policy.html"
-                },
-                {
-                  "label": "Nota prawna",
-                  "href": "legal-notice.html"
-                }
-              ],
-              "editable": false
+            "phoneRaw": {
+              "type": "contact",
+              "value": "+48500100200",
+              "editable": true
             },
-            "copyright": {
-              "type": "text",
-              "value": "© 2026 Forma Wizerunku. Wszelkie prawa zastrzeżone.",
-              "editable": false
-            }
-          }
-        }
-      ]
-    },
-    {
-      "slug": "legal-notice",
-      "meta": {
-        "title": "Nota Prawna | FORMA Wizerunku",
-        "description": "Nota prawna serwisu Forma Wizerunku.",
-        "canonical": "https://formawiz.pl/legal-notice.html",
-        "ogTitle": "Nota Prawna | FORMA Wizerunku",
-        "ogDescription": "Nota prawna serwisu Forma Wizerunku.",
-        "ogUrl": "https://formawiz.pl/legal-notice.html",
-        "variant": "legal"
-      },
-      "sections": [
-        {
-          "id": "nav",
-          "recipe": "A1",
-          "fields": {
-            "logoText": {
-              "type": "text",
-              "value": "Forma Wizerunku",
-              "editable": false
+            "phoneDisplay": {
+              "type": "contact",
+              "value": "+48 500 100 200",
+              "editable": true
             },
-            "ctaLabel": {
-              "type": "cta",
-              "value": "Zamów stronę",
-              "editable": false
-            }
-          }
-        },
-        {
-          "id": "legal-notice",
-          "recipe": "L1",
-          "fields": {}
-        },
-        {
-          "id": "footer",
-          "recipe": "A9",
-          "fields": {
-            "logoText": {
-              "type": "text",
-              "value": "Forma Wizerunku",
-              "editable": false
-            },
-            "links": {
-              "type": "list",
-              "value": [
-                {
-                  "label": "Portfolio",
-                  "href": "portfolio.html"
-                },
-                {
-                  "label": "Jak pracuję",
-                  "href": "proces.html"
-                },
-                {
-                  "label": "Kontakt",
-                  "href": "kontakt.html"
-                },
-                {
-                  "label": "Polityka prywatności",
-                  "href": "privacy-policy.html"
-                },
-                {
-                  "label": "Nota prawna",
-                  "href": "legal-notice.html"
-                }
-              ],
-              "editable": false
-            },
-            "copyright": {
-              "type": "text",
-              "value": "© 2026 Forma Wizerunku. Wszelkie prawa zastrzeżone.",
-              "editable": false
-            }
-          }
-        }
-      ]
-    },
-    {
-      "slug": "privacy-policy",
-      "meta": {
-        "title": "Polityka Prywatności | FORMA Wizerunku",
-        "description": "Polityka prywatnosci serwisu Forma Wizerunku.",
-        "canonical": "https://formawiz.pl/privacy-policy.html",
-        "ogTitle": "Polityka Prywatnosci | FORMA Wizerunku",
-        "ogDescription": "Polityka prywatnosci serwisu Forma Wizerunku.",
-        "ogUrl": "https://formawiz.pl/privacy-policy.html",
-        "variant": "legal"
-      },
-      "sections": [
-        {
-          "id": "nav",
-          "recipe": "A1",
-          "fields": {
-            "logoText": {
-              "type": "text",
-              "value": "Forma Wizerunku",
-              "editable": false
-            },
-            "ctaLabel": {
-              "type": "cta",
-              "value": "Zamów stronę",
-              "editable": false
-            }
-          }
-        },
-        {
-          "id": "privacy-policy",
-          "recipe": "L2",
-          "fields": {}
-        },
-        {
-          "id": "footer",
-          "recipe": "A9",
-          "fields": {
-            "logoText": {
-              "type": "text",
-              "value": "Forma Wizerunku",
-              "editable": false
-            },
-            "links": {
-              "type": "list",
-              "value": [
-                {
-                  "label": "Portfolio",
-                  "href": "portfolio.html"
-                },
-                {
-                  "label": "Jak pracuję",
-                  "href": "proces.html"
-                },
-                {
-                  "label": "Kontakt",
-                  "href": "kontakt.html"
-                },
-                {
-                  "label": "Polityka prywatności",
-                  "href": "privacy-policy.html"
-                },
-                {
-                  "label": "Nota prawna",
-                  "href": "legal-notice.html"
-                }
-              ],
-              "editable": false
-            },
-            "copyright": {
-              "type": "text",
-              "value": "© 2026 Forma Wizerunku. Wszelkie prawa zastrzeżone.",
-              "editable": false
-            }
-          }
-        }
-      ]
-    },
-    {
-      "slug": "404",
-      "meta": {
-        "title": "404 — Strona nie istnieje | FORMA",
-        "description": "Strona nie znaleziona.",
-        "canonical": "https://formawiz.pl/404.html",
-        "ogTitle": "404 — Strona nie istnieje | FORMA",
-        "ogDescription": "Strona nie znaleziona.",
-        "ogUrl": "https://formawiz.pl/404.html",
-        "variant": "404"
-      },
-      "sections": [
-        {
-          "id": "nav",
-          "recipe": "A1",
-          "fields": {
-            "logoText": {
-              "type": "text",
-              "value": "Forma Wizerunku",
-              "editable": false
-            },
-            "ctaLabel": {
-              "type": "cta",
-              "value": "Zamów stronę",
-              "editable": false
-            }
-          }
-        },
-        {
-          "id": "not-found",
-          "recipe": "E1",
-          "fields": {}
-        },
-        {
-          "id": "footer",
-          "recipe": "A9",
-          "fields": {
-            "logoText": {
-              "type": "text",
-              "value": "Forma Wizerunku",
-              "editable": false
+            "email": {
+              "type": "contact",
+              "value": "kontakt@formawizerunku.pl",
+              "editable": true
             },
             "links": {
               "type": "list",

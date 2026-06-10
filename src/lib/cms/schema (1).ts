@@ -23,7 +23,6 @@ const PageMetaSchema = z.object({
   ogTitle: z.string(),
   ogDescription: z.string(),
   ogUrl: z.string(),
-  variant: z.enum(['legal', '404']).optional(),
 })
 
 const PageSchema = z.object({
@@ -41,8 +40,6 @@ const SiteMetaSchema = z.object({
   ogImage: z.string(),
   brandName: z.string(),
   contactEmail: z.string(),
-  contactPhone: z.string(),
-  contactPhoneDisplay: z.string(),
 })
 
 export const EventItemSchema = z.object({

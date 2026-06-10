@@ -1,4 +1,5 @@
 import type { Section } from '../../types'
+import type { RenderContext } from '../context'
 import { pageHref } from '../utils'
 
 const EMAIL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -27,11 +28,7 @@ const CHECK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20
                     <polyline points="20,6 9,17 4,12"/>
                   </svg>`
 
-export function renderKontaktFormularz(section: Section, linkMode: 'static' | 'preview' = 'static'): string {
-  const emailDisplay = section.fields['emailDisplay']?.value as string
-  const emailHref = section.fields['emailHref']?.value as string
-  const phoneRaw = section.fields['phoneRaw']?.value as string
-  const phoneDisplay = section.fields['phoneDisplay']?.value as string
+export function renderKontaktFormularz(section: Section, ctx: RenderContext): string {
 
   return `<!-- SEKCJA: formularz i dane kontaktowe -->
 <section class="section bg-surface" id="formularz" aria-labelledby="formularz-heading">
@@ -149,7 +146,7 @@ export function renderKontaktFormularz(section: Section, linkMode: 'static' | 'p
               Wyrażam zgodę na przetwarzanie moich danych osobowych przez Forma Wizerunku
               w celu udzielenia odpowiedzi na wiadomość. Dane nie będą przekazywane
               podmiotom trzecim. Mogę wycofać zgodę w dowolnym momencie.
-              Zapoznałem/am się z <a href="${pageHref('privacy-policy', linkMode)}">Polityką Prywatności</a>. <span aria-hidden="true">*</span>
+              Zapoznałem/am się z <a href="${pageHref('privacy-policy', ctx.linkMode)}">Polityką Prywatności</a>. <span aria-hidden="true">*</span>
             </label>
           </div>
 
@@ -174,8 +171,8 @@ export function renderKontaktFormularz(section: Section, linkMode: 'static' | 'p
             </span>
             <div>
               <span class="contact-info-label">E-mail</span>
-              <a href="${emailHref}" class="contact-info-value" aria-label="Napisz na adres ${emailDisplay}">
-                ${emailDisplay}
+              <a href="${ctx.contactEmailHref}" class="contact-info-value" aria-label="Napisz na adres ${ctx.contactEmail}">
+                ${ctx.contactEmail}
               </a>
             </div>
           </div>
@@ -186,8 +183,8 @@ export function renderKontaktFormularz(section: Section, linkMode: 'static' | 'p
             </span>
             <div>
               <span class="contact-info-label">Telefon</span>
-              <a href="tel:${phoneRaw}" class="contact-info-value" aria-label="Zadzwoń pod numer ${phoneDisplay}">
-                ${phoneDisplay}
+              <a href="tel:${ctx.contactPhone}" class="contact-info-value" aria-label="Zadzwoń pod numer ${ctx.contactPhoneDisplay}">
+                ${ctx.contactPhoneDisplay}
               </a>
             </div>
           </div>

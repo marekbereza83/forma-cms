@@ -1,31 +1,37 @@
 import type { Section } from '../../types'
-import type { RenderContext } from '../context'
 import { pageHref } from '../utils'
 
-export function renderNav(section: Section, ctx: RenderContext): string {
+export function renderNav(
+  section: Section,
+  currentPage: string,
+  linkMode: 'static' | 'preview',
+  navPages: Array<{ slug: string; navLabel: string }>
+): string {
+  const phoneRaw = section.fields['phoneRaw']?.value as string
+  const phoneDisplay = section.fields['phoneDisplay']?.value as string
   const logoText = section.fields['logoText']?.value as string
   const ctaLabel = section.fields['ctaLabel']?.value as string
 
-  const logoHref = pageHref('index',   ctx.linkMode)
-  const ctaHref  = pageHref('kontakt', ctx.linkMode)
+  const logoHref = pageHref('index', linkMode)
+  const ctaHref  = pageHref('kontakt', linkMode)
 
-  const navLinksHtml = ctx.navPages
+  const navLinksHtml = navPages
     .map(p => {
-      const href = pageHref(p.slug, ctx.linkMode)
-      const current = p.slug === ctx.currentPage ? ' aria-current="page"' : ''
+      const href = pageHref(p.slug, linkMode)
+      const current = p.slug === currentPage ? ' aria-current="page"' : ''
       return `        <li><a href="${href}"${current}>${p.navLabel}</a></li>`
     })
     .join('\n')
 
-  const overlayLinksHtml = ctx.navPages
+  const overlayLinksHtml = navPages
     .map(p => {
-      const href = pageHref(p.slug, ctx.linkMode)
-      const current = p.slug === ctx.currentPage ? ' aria-current="page"' : ''
+      const href = pageHref(p.slug, linkMode)
+      const current = p.slug === currentPage ? ' aria-current="page"' : ''
       return `    <li><a href="${href}"${current}>${p.navLabel}</a></li>`
     })
     .join('\n')
 
-  if (ctx.showCurrentInFooter) {
+  if (currentPage === 'kontakt') {
     return `<!-- SEKCJA: nawigacja -->
 <header class="nav" role="banner">
   <div class="container nav-inner">
@@ -72,8 +78,8 @@ ${overlayLinksHtml}
 
   // nav-tel pojawia się tylko na stronie głównej (index.html).
   // proces.html i inne podstrony nie mają nav-tel — zgodnie z referencją.
-  const navTelHtml = ctx.currentPage === 'index'
-    ? `\n    <a href="tel:${ctx.contactPhone}" class="nav-tel" aria-label="Zadzwoń: ${ctx.contactPhoneDisplay}">${ctx.contactPhoneDisplay}</a>`
+  const navTelHtml = currentPage === 'index' && phoneRaw
+    ? `\n    <a href="tel:${phoneRaw}" class="nav-tel" aria-label="Zadzwoń: ${phoneDisplay}">${phoneDisplay}</a>`
     : ''
 
   return `<!-- SEKCJA: nawigacja -->

@@ -11,10 +11,9 @@ const ROOT = resolve(process.cwd())
 // --- Fixture-based export (real public/) ---
 const FIXTURE_OUT = join(ROOT, 'tmp-export-fixture')
 
-// --- R2-image export test (isolated fake public/) ---
+// --- Upload-path test (isolated fake public/) ---
 const UPLOAD_TENANT = 'export-test-tenant'
 const UPLOAD_FILE   = 'portfolio-card-abc123.webp'
-const R2_IMAGE_URL  = `https://pub-test.r2.dev/${UPLOAD_TENANT}/${UPLOAD_FILE}`
 const UPLOAD_PUB    = join(ROOT, 'tmp-export-pub')
 const UPLOAD_OUT    = join(ROOT, 'tmp-export-upload')
 
@@ -24,8 +23,7 @@ const UPLOAD_MODEL: SiteModel = {
   designSystem: 'forma',
   meta: {
     title: 'Test', description: 'Test', ogDescription: 'Test',
-    canonical: 'https://test.pl/', ogImage: '', brandName: 'Test',
-    contactEmail: 'test@test.pl', contactPhone: '+48000000000', contactPhoneDisplay: '+48 000 000 000',
+    canonical: 'https://test.pl/', ogImage: '', brandName: 'Test', contactEmail: 'test@test.pl',
   },
   pages: [
     {
@@ -42,7 +40,7 @@ const UPLOAD_MODEL: SiteModel = {
               label: 'Case study',
               title: 'Kancelaria Test',
               desc:  'Opis.',
-              image: R2_IMAGE_URL,   // R2 absolute URL — not rewritten in static export
+              image: `/uploads/${UPLOAD_TENANT}/${UPLOAD_FILE}`,
             }], editable: false },
           },
         },
@@ -64,15 +62,17 @@ beforeAll(() => {
   const { model } = parseSiteModel(fixtureJson)
   renderStaticSite(model, FIXTURE_OUT)
 
-  // Build fake public/ for R2-image export test (no uploads/ dir — R2 images are CDN URLs)
+  // Build fake public/ for upload test
   mkdirSync(join(UPLOAD_PUB, 'assets', 'css'),    { recursive: true })
   mkdirSync(join(UPLOAD_PUB, 'assets', 'js'),     { recursive: true })
   mkdirSync(join(UPLOAD_PUB, 'assets', 'images'), { recursive: true })
+  mkdirSync(join(UPLOAD_PUB, 'uploads', UPLOAD_TENANT), { recursive: true })
   writeFileSync(join(UPLOAD_PUB, 'assets', 'css', 'forma-layout.css'),         '/* css */')
   writeFileSync(join(UPLOAD_PUB, 'assets', 'css', 'forma-components.css'),     '/* css */')
   writeFileSync(join(UPLOAD_PUB, 'assets', 'css', 'design-system-agency.css'), '/* css */')
   writeFileSync(join(UPLOAD_PUB, 'assets', 'js',  'main.js'),                  '/* js */')
   writeFileSync(join(UPLOAD_PUB, 'assets', 'images', 'wojtas-hero.png'),       'PNG')
+  writeFileSync(join(UPLOAD_PUB, 'uploads', UPLOAD_TENANT, UPLOAD_FILE),       'WEBP')
 
   // Upload export
   renderStaticSite(UPLOAD_MODEL, UPLOAD_OUT, UPLOAD_PUB)
@@ -137,23 +137,22 @@ describe('renderStaticSite (fixture)', () => {
   })
 })
 
-// ---- R2-image export tests ----
+// ---- upload-path tests ----
 
-describe('renderStaticSite — R2 image URL handling', () => {
-  it('R2 img src is preserved as absolute URL in static export (no path rewriting)', () => {
+describe('renderStaticSite — upload image path', () => {
+  it('img src is relative assets/images/, not /uploads/', () => {
     const html = readFileSync(join(UPLOAD_OUT, 'index.html'), 'utf-8')
     const doc  = new JSDOM(html).window.document
     const img  = doc.querySelector('.portfolio-thumb img')
     expect(img).not.toBeNull()
-    expect(img!.getAttribute('src')).toBe(R2_IMAGE_URL)
+    expect(img!.getAttribute('src')).toBe(`assets/images/${UPLOAD_FILE}`)
   })
 
-  it('no local copy of R2 image in exports assets/images/', () => {
-    // R2 images link to CDN — they are NOT copied to the export directory
-    expect(existsSync(join(UPLOAD_OUT, 'assets', 'images', UPLOAD_FILE))).toBe(false)
+  it('uploaded image file is present in exports assets/images/', () => {
+    expect(existsSync(join(UPLOAD_OUT, 'assets', 'images', UPLOAD_FILE))).toBe(true)
   })
 
-  it('HTML has no broken relative image references (R2 URLs are absolute, skipped)', () => {
+  it('HTML and copied files are coherent — no broken image references', () => {
     const html    = readFileSync(join(UPLOAD_OUT, 'index.html'), 'utf-8')
     const doc     = new JSDOM(html).window.document
     const missing: string[] = []

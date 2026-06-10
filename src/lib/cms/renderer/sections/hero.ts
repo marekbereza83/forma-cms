@@ -1,21 +1,21 @@
 import type { Section } from '../../types'
+import type { RenderContext } from '../context'
 import { pageHref } from '../utils'
 
-export function renderHero(section: Section, pricingStandardAmount: string, linkMode: 'static' | 'preview' = 'static'): string {
+export function renderHero(section: Section, ctx: RenderContext): string {
   const tag = section.fields['tag']?.value as string
   const headline = section.fields['headline']?.value as string
   const subheadlinePrefix = section.fields['subheadlinePrefix']?.value as string
   const ctaPrimaryLabel = section.fields['ctaPrimaryLabel']?.value as string
   const ctaMicrocopy = section.fields['ctaMicrocopy']?.value as string
   const ctaSecondaryLabel = section.fields['ctaSecondaryLabel']?.value as string
-  const phoneRaw = section.fields['phoneRaw']?.value as string
-  const phoneDisplay = section.fields['phoneDisplay']?.value as string
 
-  // single source: "4 500" -> "4 500 zł" to match &nbsp; in reference HTML
-  const formattedAmount = pricingStandardAmount.replace(/ /g, ' ') + ' zł'
+  // single source: "4 500" -> "4 500 zł" to match &nbsp; in reference HTML
+  const pricingAmount = ctx.pricingStandardAmount ?? '4 500'
+  const formattedAmount = pricingAmount.replace(/ /g, ' ') + ' zł'
 
-  const ctaPrimaryHref   = pageHref('kontakt',   linkMode)
-  const ctaSecondaryHref = pageHref('portfolio',  linkMode)
+  const ctaPrimaryHref   = pageHref('kontakt',   ctx.linkMode)
+  const ctaSecondaryHref = pageHref('portfolio',  ctx.linkMode)
 
   return `<!-- SEKCJA: hero -->
 <section id="hero" class="hero-section bg-base" aria-labelledby="hero-heading">
@@ -49,7 +49,7 @@ export function renderHero(section: Section, pricingStandardAmount: string, link
             ${ctaSecondaryLabel}
           </a>
         </div>
-        <p class="hero-tel-row">lub zadzwoń: <a href="tel:${phoneRaw}" aria-label="Zadzwoń pod numer ${phoneDisplay}">${phoneDisplay}</a></p>
+        <p class="hero-tel-row">lub zadzwoń: <a href="tel:${ctx.contactPhone}" aria-label="Zadzwoń pod numer ${ctx.contactPhoneDisplay}">${ctx.contactPhoneDisplay}</a></p>
       </div>
 
       <div class="hero-visual stagger-item stagger-3 interactive-card"

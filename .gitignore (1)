@@ -1,0 +1,4 @@
+
+# uploaded tenant assets (written at runtime, not tracked)
+public/uploads/*
+!public/uploads/.gitkeep

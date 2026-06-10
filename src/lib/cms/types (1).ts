@@ -72,7 +72,7 @@ export interface PortfolioCard {
   title: string
   desc: string
   image?: string
-  link?: string   // optional URL to live site; rendered as "Zobacz na żywo" in both portfolio (home) and portfolio-grid (full page)
+  link?: string   // optional URL to live site (portfolio-grid only; portfolio section ignores it)
 }
 
 export interface FooterLink {
@@ -93,11 +93,6 @@ export interface PageMeta {
   ogTitle: string
   ogDescription: string
   ogUrl: string
-  /** Rendering variant — drives head, preMain, and footer style.
-   *  'legal': simplified head (no OG/canonical), noindex robot tag, no preMain, utility footer.
-   *  '404':   reserved for future error page.
-   */
-  variant?: 'legal' | '404'
 }
 
 export interface Page {
@@ -132,8 +127,6 @@ export interface SiteMeta {
   ogImage: string
   brandName: string
   contactEmail: string
-  contactPhone: string
-  contactPhoneDisplay: string
 }
 
 export interface SiteModel {

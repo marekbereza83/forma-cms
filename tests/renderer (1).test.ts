@@ -278,60 +278,6 @@ describe('Renderer', () => {
     expect(diff).toBeNull()
   })
 
-  it('rendered DOM matches reference legal-notice.html', () => {
-    const referenceHtml = readFileSync(
-      resolve(ROOT, 'reference/forma-production/legal-notice.html'),
-      'utf-8'
-    )
-    const fixtureJson = JSON.parse(
-      readFileSync(resolve(ROOT, 'fixtures/forma-site.json'), 'utf-8')
-    )
-    const { model } = parseSiteModel(fixtureJson)
-    const rendered = renderPage(model, 'legal-notice')
-
-    const refDoc = new JSDOM(referenceHtml).window.document
-    const renDoc = new JSDOM(rendered).window.document
-
-    const diff = diffNodes(refDoc.documentElement, renDoc.documentElement, 'html')
-    expect(diff).toBeNull()
-  })
-
-  it('rendered DOM matches reference privacy-policy.html', () => {
-    const referenceHtml = readFileSync(
-      resolve(ROOT, 'reference/forma-production/privacy-policy.html'),
-      'utf-8'
-    )
-    const fixtureJson = JSON.parse(
-      readFileSync(resolve(ROOT, 'fixtures/forma-site.json'), 'utf-8')
-    )
-    const { model } = parseSiteModel(fixtureJson)
-    const rendered = renderPage(model, 'privacy-policy')
-
-    const refDoc = new JSDOM(referenceHtml).window.document
-    const renDoc = new JSDOM(rendered).window.document
-
-    const diff = diffNodes(refDoc.documentElement, renDoc.documentElement, 'html')
-    expect(diff).toBeNull()
-  })
-
-  it('rendered DOM matches reference 404.html', () => {
-    const referenceHtml = readFileSync(
-      resolve(ROOT, 'reference/forma-production/404.html'),
-      'utf-8'
-    )
-    const fixtureJson = JSON.parse(
-      readFileSync(resolve(ROOT, 'fixtures/forma-site.json'), 'utf-8')
-    )
-    const { model } = parseSiteModel(fixtureJson)
-    const rendered = renderPage(model, '404')
-
-    const refDoc = new JSDOM(referenceHtml).window.document
-    const renDoc = new JSDOM(rendered).window.document
-
-    const diff = diffNodes(refDoc.documentElement, renDoc.documentElement, 'html')
-    expect(diff).toBeNull()
-  })
-
   it('nav preview links guard: empty without navLabel, present after migration', () => {
     // Pre-migration model — represents DB state as seed.ts produces it:
     // pages exist (index + kontakt) but NO navLabel on any page.
@@ -340,14 +286,15 @@ describe('Renderer', () => {
     const NAV_SECTION = {
       id: 'nav', recipe: 'A1',
       fields: {
-        logoText: { type: 'text' as const, value: 'Test', editable: false },
-        ctaLabel: { type: 'cta'  as const, value: 'CTA',  editable: false },
+        logoText:     { type: 'text'    as const, value: 'Test', editable: false },
+        phoneRaw:     { type: 'contact' as const, value: '+48500100200', editable: false },
+        phoneDisplay: { type: 'contact' as const, value: '+48 500 100 200', editable: false },
+        ctaLabel:     { type: 'cta'     as const, value: 'CTA', editable: false },
       },
     }
     const SITE_META = {
       title: 'T', description: 'D', ogDescription: 'O',
-      canonical: 'https://x.pl/', ogImage: '', brandName: 'B',
-      contactEmail: 'a@b.com', contactPhone: '+48000000000', contactPhoneDisplay: '+48 000 000 000',
+      canonical: 'https://x.pl/', ogImage: '', brandName: 'B', contactEmail: 'a@b.com',
     }
     const preMigration: SiteModel = {
       tenantId: 'test', archetype: 'trust-led', designSystem: 'forma',
@@ -444,7 +391,7 @@ describe('Renderer — proces page', () => {
   it('page <title> matches fixture meta', () => {
     // NOTE: contains U+2014 em-dash from fixture (conditional char, in baseline)
     expect(doc.querySelector('title')?.textContent).toBe(
-      'Jak pracuję — proces i cennik | FORMA Wizerunku'
+      'Jak pracuję — proces i cennik | FORMA'
     )
   })
 

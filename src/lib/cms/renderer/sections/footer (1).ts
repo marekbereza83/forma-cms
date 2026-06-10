@@ -1,5 +1,4 @@
 import type { Section, FooterLink } from '../../types'
-import type { RenderContext } from '../context'
 import { pageHref } from '../utils'
 
 function transformFooterHref(href: string, linkMode: 'static' | 'preview'): string {
@@ -9,23 +8,21 @@ function transformFooterHref(href: string, linkMode: 'static' | 'preview'): stri
   return `/preview?page=${match[1]}`
 }
 
-/**
- * @param ctx.showCurrentInFooter — gdy true: bez <nav> wrappera, aria-current="page" na bieżącej stronie.
- *   Używane przez: kontakt, legal-notice, privacy-policy.
- *   Gdy false: <nav aria-label="Nawigacja stopki"> wrapper, bez aria-current (index, portfolio, proces).
- */
-export function renderFooter(section: Section, ctx: RenderContext): string {
-  const logoText  = section.fields['logoText']?.value as string
-  const links     = section.fields['links']?.value as FooterLink[]
+export function renderFooter(section: Section, currentPage: string, linkMode: 'static' | 'preview'): string {
+  const logoText = section.fields['logoText']?.value as string
+  const phoneRaw = section.fields['phoneRaw']?.value as string
+  const phoneDisplay = section.fields['phoneDisplay']?.value as string
+  const email = section.fields['email']?.value as string
+  const links = section.fields['links']?.value as FooterLink[]
   const copyright = section.fields['copyright']?.value as string
 
-  const logoHref = pageHref('index', ctx.linkMode)
+  const logoHref = pageHref('index', linkMode)
 
-  if (ctx.showCurrentInFooter) {
+  if (currentPage === 'kontakt') {
     const linksHtml = links
       .map(l => {
-        const href = transformFooterHref(l.href, ctx.linkMode)
-        const isCurrent = l.href.replace(/\.html$/, '') === ctx.currentPage
+        const href = transformFooterHref(l.href, linkMode)
+        const isCurrent = l.href.replace(/\.html$/, '') === currentPage
         return `      <li><a href="${href}"${isCurrent ? ' aria-current="page"' : ''}>${l.label}</a></li>`
       })
       .join('\n')
@@ -38,8 +35,8 @@ export function renderFooter(section: Section, ctx: RenderContext): string {
 ${linksHtml}
     </ul>
     <div class="footer-contact">
-      <a href="tel:${ctx.contactPhone}" aria-label="Zadzwoń: ${ctx.contactPhoneDisplay}">${ctx.contactPhoneDisplay}</a>
-      <a href="${ctx.contactEmailHref}" aria-label="Napisz: ${ctx.contactEmail}">${ctx.contactEmail}</a>
+      <a href="tel:${phoneRaw}" aria-label="Zadzwoń: ${phoneDisplay}">${phoneDisplay}</a>
+      <a href="mailto:${email}" aria-label="Napisz: ${email}">${email}</a>
     </div>
     <p class="footer-copy">${copyright}</p>
   </div>
@@ -48,7 +45,7 @@ ${linksHtml}
 
   const linksHtml = links
     .map(l => {
-      const href = transformFooterHref(l.href, ctx.linkMode)
+      const href = transformFooterHref(l.href, linkMode)
       return `        <li><a href="${href}">${l.label}</a></li>`
     })
     .join('\n')
@@ -65,8 +62,8 @@ ${linksHtml}
       </ul>
     </nav>
     <div class="footer-contact">
-      <a href="tel:${ctx.contactPhone}" aria-label="Zadzwoń: ${ctx.contactPhoneDisplay}">${ctx.contactPhoneDisplay}</a>
-      <a href="${ctx.contactEmailHref}" aria-label="Napisz: ${ctx.contactEmail}">${ctx.contactEmail}</a>
+      <a href="tel:${phoneRaw}" aria-label="Zadzwoń: ${phoneDisplay}">${phoneDisplay}</a>
+      <a href="mailto:${email}" aria-label="Napisz: ${email}">${email}</a>
     </div>
     <p class="footer-copy">${copyright}</p>
   </div>
