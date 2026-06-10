@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync, copyFileSync, readdirSync, existsSync, statSy
 import { join, resolve } from 'path'
 import type { SiteModel } from './types'
 import { renderPage } from './renderer/index'
+import { prisma } from '../db/prisma'
 
 function copyDir(src: string, dest: string): void {
   if (!existsSync(src)) return
@@ -39,17 +40,11 @@ export async function exportSite(
   outputDir?: string,
   publicDir?: string
 ): Promise<string> {
-  const { PrismaClient } = await import('@prisma/client')
   const { parseSiteModel } = await import('./schema')
-  const prisma = new PrismaClient()
-  try {
-    const site = await prisma.site.findFirst({ where: { tenantId } })
-    if (!site) throw new Error(`Site not found: ${tenantId}`)
-    const { model } = parseSiteModel(JSON.parse(site.model as string))
-    const outDir = outputDir ?? resolve(process.cwd(), 'exports', tenantId)
-    renderStaticSite(model, outDir, publicDir)
-    return outDir
-  } finally {
-    await prisma.$disconnect()
-  }
+  const site = await prisma.site.findFirst({ where: { tenantId } })
+  if (!site) throw new Error(`Site not found: ${tenantId}`)
+  const { model } = parseSiteModel(JSON.parse(site.model as string))
+  const outDir = outputDir ?? resolve(process.cwd(), 'exports', tenantId)
+  renderStaticSite(model, outDir, publicDir)
+  return outDir
 }
