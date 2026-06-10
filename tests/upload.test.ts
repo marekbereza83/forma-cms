@@ -26,6 +26,8 @@ vi.mock('@aws-sdk/client-s3', () => ({
 }))
 
 import { auth } from '@/lib/auth'
+type AuthMock = { mockResolvedValue(v: Session | null): void; mockResolvedValueOnce(v: Session | null): void }
+const authMock = auth as unknown as AuthMock
 import { POST, DELETE } from '../src/app/api/upload/route'
 import type { Session } from 'next-auth'
 
@@ -56,7 +58,7 @@ function pngChunk(tag: string, data: Buffer): Buffer {
   return Buffer.concat([lenBuf, tagBuf, data, crcBuf])
 }
 
-function minimalPng(): Buffer {
+function minimalPng(): Uint8Array<ArrayBuffer> {
   const W = 10, H = 10
   const ihdr = Buffer.allocUnsafe(13)
   ihdr.writeUInt32BE(W, 0); ihdr.writeUInt32BE(H, 4)
@@ -64,12 +66,15 @@ function minimalPng(): Buffer {
   ihdr.fill(0, 10)
   const row = Buffer.concat([Buffer.from([0]), Buffer.alloc(W * 3, 0xAA)])
   const idat = deflateSync(Buffer.concat(Array.from({ length: H }, () => row)))
-  return Buffer.concat([
+  const buf = Buffer.concat([
     Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]),
     pngChunk('IHDR', ihdr),
     pngChunk('IDAT', idat),
     pngChunk('IEND', Buffer.alloc(0)),
   ])
+  const result = new Uint8Array(buf.byteLength)
+  result.set(buf)
+  return result
 }
 
 function makePostRequest(file: File, cardId: string): Request {
@@ -96,7 +101,7 @@ beforeAll(() => {
   process.env.R2_ACCESS_KEY_ID    = 'test-key'
   process.env.R2_SECRET_ACCESS_KEY = 'test-secret'
 
-  vi.mocked(auth).mockResolvedValue({
+  authMock.mockResolvedValue({
     user: { tenantId: TEST_TENANT, userId: 'u1', id: 'u1', email: 'test@test.pl', role: 'admin' },
     expires: new Date(Date.now() + 86_400_000).toISOString(),
   } as Session)
@@ -106,27 +111,27 @@ beforeAll(() => {
 
 describe('POST /api/upload', () => {
   it('brak sesji → 401', async () => {
-    vi.mocked(auth).mockResolvedValueOnce(null)
+    authMock.mockResolvedValueOnce(null)
     const file = new File([minimalPng()], 'test.png', { type: 'image/png' })
     const res = await POST(makePostRequest(file, ID_A))
     expect(res.status).toBe(401)
   })
 
   it('zły typ (text/plain, złe magic bytes) → 400', async () => {
-    const file = new File([Buffer.from('hello world')], 'test.txt', { type: 'text/plain' })
+    const file = new File(['hello world'], 'test.txt', { type: 'text/plain' })
     const res = await POST(makePostRequest(file, ID_A))
     expect(res.status).toBe(400)
   })
 
   it('SVG → 400', async () => {
-    const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>')
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>'
     const file = new File([svg], 'icon.svg', { type: 'image/svg+xml' })
     const res = await POST(makePostRequest(file, ID_A))
     expect(res.status).toBe(400)
   })
 
   it('za duży plik (6 MB) → 413', async () => {
-    const big = Buffer.alloc(6 * 1024 * 1024)
+    const big = new Uint8Array(6 * 1024 * 1024)
     big[0] = 0x89; big[1] = 0x50; big[2] = 0x4E; big[3] = 0x47
     const file = new File([big], 'big.png', { type: 'image/png' })
     const res = await POST(makePostRequest(file, ID_A))
@@ -217,7 +222,7 @@ describe('Izolacja slotów — stabilne cardId', () => {
 
 describe('DELETE /api/upload', () => {
   it('brak sesji → 401', async () => {
-    vi.mocked(auth).mockResolvedValueOnce(null)
+    authMock.mockResolvedValueOnce(null)
     const res = await DELETE(makeDeleteRequest(`portfolio-card-${ISO_A}.webp`))
     expect(res.status).toBe(401)
   })
