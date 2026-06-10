@@ -6,6 +6,7 @@ export default defineConfig({
     environment: 'node',
     fileParallelism: false,   // test files share SQLite — run sequentially
     globalSetup: ['./tests/globalSetup.ts'],
+    exclude: ['tests/**/*[(][1][)]*', '**/node_modules/**'],  // ignore Windows duplicate files
     env: {
       DATABASE_URL: 'file:./test.db',
     },
