@@ -13,6 +13,7 @@
     "migrate:add-proces": "npx tsx prisma/migrate-add-proces.ts",
     "migrate:fix-cennik-detail": "npx tsx prisma/migrate-fix-cennik-detail.ts",
     "migrate:add-legal-pages": "npx tsx prisma/migrate-add-legal-pages.ts",
+    "migrate:remove-contact-fields": "npx tsx prisma/migrate-remove-contact-fields.ts",
     "create-tenant": "npx tsx scripts/create-tenant.ts"
   },
   "prisma": {
