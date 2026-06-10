@@ -122,7 +122,7 @@
 .hero-cta-row {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-6);
   flex-wrap: wrap;
 }
 @media (max-width: 639px) {
@@ -649,9 +649,9 @@
 /* ─── Hero tel row ───────────────────────────────────────────────── */
 .hero-tel-row {
   font-family: var(--font-body);
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
   color: var(--text-muted);
-  margin-top: var(--space-3);
+  margin-top: var(--space-4);
 }
 .hero-tel-row a {
   color: var(--text-secondary);

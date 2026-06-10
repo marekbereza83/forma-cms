@@ -37,19 +37,16 @@ export function renderHero(section: Section, ctx: RenderContext): string {
         </p>
 
         <div class="hero-cta-row stagger-item stagger-3">
-          <div class="hero-cta-group">
-            <a href="${ctaPrimaryHref}" class="btn-primary btn-shimmer btn-pulse btn-magnetic"
-              aria-label="${ctaPrimaryLabel} — wypełnij formularz kontaktowy">
-              ${ctaPrimaryLabel}
-            </a>
-            <span class="btn-micro pulse-text">${ctaMicrocopy}</span>
-          </div>
+          <a href="${ctaPrimaryHref}" class="btn-primary btn-shimmer btn-pulse btn-magnetic"
+            aria-label="${ctaPrimaryLabel} — wypełnij formularz kontaktowy">
+            ${ctaPrimaryLabel}
+          </a>
           <a href="${ctaSecondaryHref}" class="btn-ghost"
             aria-label="${ctaSecondaryLabel} — case study Kancelaria Wojtas">
             ${ctaSecondaryLabel}
           </a>
         </div>
-        <p class="hero-tel-row">lub zadzwoń: <a href="tel:${ctx.contactPhone}" aria-label="Zadzwoń pod numer ${ctx.contactPhoneDisplay}">${ctx.contactPhoneDisplay}</a></p>
+        <p class="hero-tel-row">Zadzwoń: <a href="tel:${ctx.contactPhone}" aria-label="Zadzwoń pod numer ${ctx.contactPhoneDisplay}">${ctx.contactPhoneDisplay}</a></p>
       </div>
 
       <div class="hero-visual stagger-item stagger-3 interactive-card"
