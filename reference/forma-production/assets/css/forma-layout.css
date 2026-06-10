@@ -122,7 +122,7 @@
 .hero-cta-row {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-6);
   flex-wrap: wrap;
 }
 @media (max-width: 639px) {
@@ -134,18 +134,6 @@
   .hero-cta-row .btn-ghost {
     width: 100%;
     justify-content: center;
-  }
-}
-
-.hero-cta-group {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-2);
-}
-@media (max-width: 639px) {
-  .hero-cta-group {
-    align-items: stretch;
   }
 }
 
@@ -198,6 +186,36 @@
 /* ─── Portfolio section ───────────────────────────────────── */
 .portfolio-single {
   max-width: 720px;
+}
+
+/* Portfolio grid — 2, 3 lub 4 karty */
+.portfolio-grid {
+  display: grid;
+  gap: var(--space-6);
+}
+.portfolio-grid--2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+/* 3 karty: 1 pełna u góry + 2 pod spodem */
+.portfolio-grid--3 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.portfolio-grid--3 .portfolio-card:first-child {
+  grid-column: 1 / -1;
+}
+/* 4 karty: siatka 2×2 */
+.portfolio-grid--4 {
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (max-width: 640px) {
+  .portfolio-grid--2,
+  .portfolio-grid--3,
+  .portfolio-grid--4 {
+    grid-template-columns: 1fr;
+  }
+  .portfolio-grid--3 .portfolio-card:first-child {
+    grid-column: auto;
+  }
 }
 
 /* ─── Process section ─────────────────────────────────────── */
@@ -619,9 +637,9 @@
 /* ─── Hero tel row ───────────────────────────────────────────────── */
 .hero-tel-row {
   font-family: var(--font-body);
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
   color: var(--text-muted);
-  margin-top: var(--space-3);
+  margin-top: var(--space-4);
 }
 .hero-tel-row a {
   color: var(--text-secondary);
