@@ -5,13 +5,25 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client
 const CARD_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const FILENAME_RE = /^portfolio-card-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.webp$/
 
+const {
+  R2_ACCOUNT_ID,
+  R2_ACCESS_KEY_ID,
+  R2_SECRET_ACCESS_KEY,
+  R2_BUCKET,
+  R2_PUBLIC_BASE_URL,
+} = process.env
+
+if (!R2_ACCOUNT_ID || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY || !R2_BUCKET || !R2_PUBLIC_BASE_URL) {
+  throw new Error('Missing R2 env vars: R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_PUBLIC_BASE_URL')
+}
+
 const s3 = new S3Client({
   region: 'auto',
-  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-   forcePathStyle: true,
+  endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  forcePathStyle: true,
   credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+    accessKeyId: R2_ACCESS_KEY_ID,
+    secretAccessKey: R2_SECRET_ACCESS_KEY,
   },
 })
 
@@ -30,7 +42,7 @@ function err(status: number, message: string): Response {
 }
 
 function publicUrl(key: string): string {
-  return `${process.env.R2_PUBLIC_BASE_URL}/${key}`
+  return `${R2_PUBLIC_BASE_URL}/${key}`
 }
 
 export async function POST(req: Request): Promise<Response> {
@@ -82,7 +94,7 @@ export async function POST(req: Request): Promise<Response> {
   try {
     await s3.send(
       new PutObjectCommand({
-        Bucket: process.env.R2_BUCKET!,
+        Bucket: R2_BUCKET,
         Key: key,
         Body: processed,
         ContentType: 'image/webp',
@@ -113,7 +125,7 @@ export async function DELETE(req: Request): Promise<Response> {
   try {
     await s3.send(
       new DeleteObjectCommand({
-        Bucket: process.env.R2_BUCKET!,
+        Bucket: R2_BUCKET,
         Key: `${tenantId}/${filename}`,
       })
     )
