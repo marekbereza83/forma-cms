@@ -54,6 +54,10 @@ async function main() {
     data: { name, slug, archetype: 'trust-led' },
   })
 
+  if (password.length < 10) {
+    console.error('Błąd: hasło musi mieć co najmniej 10 znaków.')
+    process.exit(1)
+  }
   const passwordHash = await bcrypt.hash(password, 10)
   const user = await prisma.user.create({
     data: { email, password: passwordHash, tenantId: tenant.id },
