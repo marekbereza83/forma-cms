@@ -115,25 +115,6 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
               placeholder="Czym zajmuje się Twoja kancelaria? Jakie masz oczekiwania wobec nowej strony? Co nie działa w obecnej? Nie musisz wiedzieć wszystkiego — po prostu opisz sytuację."></textarea>
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="budzet">
-              Orientacyjny budżet <span aria-hidden="true">*</span>
-              <span class="visually-hidden">(wymagane)</span>
-            </label>
-            <select
-              class="form-input form-select"
-              id="budzet"
-              name="budzet"
-              required
-              aria-required="true">
-              <option value="" disabled selected>Wybierz przedział</option>
-              <option value="do-5000">Do 5 000 zł netto (Standard)</option>
-              <option value="5000-8000">5 000–8 000 zł netto (Rozszerzony)</option>
-              <option value="powyzej-8000">Powyżej 8 000 zł netto (Projekt niestandardowy)</option>
-              <option value="nie-wiem">Nie wiem jeszcze — potrzebuję doradztwa</option>
-            </select>
-          </div>
-
           <div class="form-checkbox-group">
             <input
               class="form-checkbox"
