@@ -8,17 +8,17 @@ export function renderProcesHero(section: Section): string {
   const lead     = section.fields['lead']?.value as string
 
   return `<!-- SEKCJA: proces-hero -->
-<section id="proces-hero" class="section bg-base" aria-labelledby="proces-heading">
+<section id="proces-hero" class="section dot-grid-bg" aria-labelledby="proces-heading">
   <div class="container">
-    <div class="cta-finale-inner">
-      <span class="tag tag-inline">
+    <div class="section-header reveal">
+      <span class="tag">
         ${CHECK_ICON}
         ${tag}
       </span>
-      <h1 id="proces-heading" class="f-display">
+      <h1 id="proces-heading" class="f-headline max-58">
         ${headline}
       </h1>
-      <p class="f-lead max-58">
+      <p class="f-body max-54">
         ${lead}
       </p>
     </div>
