@@ -173,16 +173,6 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
             </div>
           </div>
 
-          <div class="contact-info-item">
-            <span class="contact-info-icon" aria-hidden="true">
-              ${CLOCK_SVG}
-            </span>
-            <div>
-              <span class="contact-info-label">Godziny odpowiedzi</span>
-              <span class="contact-info-value">Pn–Pt, 9:00–17:00</span>
-            </div>
-          </div>
-
         </div>
 
         <div class="mt-10">
