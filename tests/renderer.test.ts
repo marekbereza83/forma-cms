@@ -100,7 +100,7 @@ describe('Fixture integrity', () => {
     const polishChars = new Set('ąćęłńóśźżĄĆĘŁŃÓŚŹŻ')
     // CONDITIONAL_CHARS pass whitelist but are tracked per-field by baseline test below.
     // Banned: U+201C/D/E typographic quotes, U+2019 apostrophe, U+2013 en dash, U+2026 ellipsis.
-    const conditionalSet = new Set<string>(CONDITIONAL_CHARS)
+    const conditionalSet = new Set(CONDITIONAL_CHARS)
     const violations: string[] = []
 
     raw.split(/\r?\n/).forEach((line, i) => {

@@ -24,12 +24,10 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   password  String
-  role                String    @default("client")
-  tenantId            String
-  tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  createdAt           DateTime  @default(now())
-  failedLoginAttempts Int       @default(0)
-  lockedUntil         DateTime?
+  role      String   @default("client")
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 
   @@index([tenantId])
 }

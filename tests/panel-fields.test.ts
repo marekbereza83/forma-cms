@@ -18,8 +18,6 @@ vi.mock('@/lib/auth', () => ({
 }))
 
 import { auth } from '@/lib/auth'
-type AuthMock = { mockResolvedValue(v: Session | null): void; mockResolvedValueOnce(v: Session | null): void }
-const authMock = auth as unknown as AuthMock
 import { prisma } from '../src/lib/db/prisma'
 import { parseSiteModel } from '../src/lib/cms/schema'
 import { getEditableFields, setFieldValue } from '../src/lib/cms/fields'
@@ -63,7 +61,7 @@ beforeAll(async () => {
   })
 
   // Default mock: valid session
-  authMock.mockResolvedValue({
+  vi.mocked(auth).mockResolvedValue({
     user: { tenantId, userId, id: userId, email: 'panel@test.pl', role: 'admin' },
     expires: new Date(Date.now() + 86400_000).toISOString(),
   } as Session)
@@ -153,7 +151,7 @@ describe('saveFields — poprawny zapis', () => {
 // ────────────────────────────────────────────────────────────────────────────
 describe('saveFields — session guard', () => {
   it('auth() = null → throws Unauthorized', async () => {
-    authMock.mockResolvedValueOnce(null)
+    vi.mocked(auth).mockResolvedValueOnce(null)
     await expect(saveFields({})).rejects.toThrow('Unauthorized')
   })
 })

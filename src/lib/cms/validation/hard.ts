@@ -7,9 +7,6 @@ const PRICE_VAGUE = /wycen|zapytaj|kontakt/i
 const EMOJI_RE = /\p{Extended_Pictographic}/u
 // V15: only http:// and https:// are safe link schemes (blocks javascript:, data:, //, etc.)
 const SAFE_URL_RE = /^https?:\/\//i
-// V16: contact field formats
-const CONTACT_PHONE_RE = /^\+?[0-9]{9,15}$/
-const CONTACT_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 
 
@@ -218,21 +215,6 @@ export function validateHard(model: SiteModel): Violation[] {
   }
   validateCardLinks(portfolioSection, 'portfolio')
   validateCardLinks(portfolioGridSection, 'portfolio-grid')
-
-  // ── V16: contact fields must have valid format ──────────────────────────────
-  const { contactPhone = '', contactPhoneDisplay = '', contactEmail = '' } = model.meta
-  if (!CONTACT_PHONE_RE.test(contactPhone)) {
-    errors.push({ rule: 'V16', field: 'meta.contactPhone',
-      message: `Numer telefonu "${contactPhone}" musi zawierać 9-15 cyfr (opcjonalnie + na początku, np. +48668902855)` })
-  }
-  if (!contactPhoneDisplay.trim()) {
-    errors.push({ rule: 'V16', field: 'meta.contactPhoneDisplay',
-      message: 'Wyświetlana wersja numeru telefonu nie może być pusta' })
-  }
-  if (!CONTACT_EMAIL_RE.test(contactEmail)) {
-    errors.push({ rule: 'V16', field: 'meta.contactEmail',
-      message: `Adres e-mail "${contactEmail}" nie jest prawidłowy` })
-  }
 
   return errors
 }

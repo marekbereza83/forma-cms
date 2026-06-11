@@ -19,6 +19,9 @@ npm run dev              # Next.js dev server (localhost:3000)
 # Build & run production
 npm run build && npm run start
 
+# Type-check (no emit)
+npx tsc --noEmit
+
 # Tests (Vitest) — all files share SQLite, must run sequentially
 npx vitest               # full suite
 npx vitest tests/renderer.test.ts   # single file
@@ -27,20 +30,27 @@ npx vitest -t "rendered DOM matches reference index"  # single test by name
 # Database
 npx prisma migrate dev            # apply/create migrations (dev.db)
 npx prisma migrate deploy         # apply existing migrations (used by test globalSetup against test.db)
-npx ts-node prisma/seed.ts        # seed dev.db with tenants kowalski + nowak
+npx tsx prisma/seed.ts            # seed dev.db with tenants kowalski + nowak
 
-# One-off migration scripts (run after schema/fixture changes)
-npx ts-node prisma/migrate-nav-labels.ts
-npx ts-node prisma/migrate-add-proces.ts
-npx ts-node prisma/migrate-add-404-page.ts
-# ... etc. — check prisma/ for migration scripts by name
+# One-off migration scripts — use npm run migrate:* shortcuts (see package.json)
+# or invoke directly: npx tsx prisma/migrate-<name>.ts
 
 # Fixture maintenance
 node scripts/update-baseline.js   # re-snapshot conditional-char counts after intentional fixture edit
 node scripts/fix-fixture-quotes.js  # replace typographic quotes/dashes with ASCII equivalents
 ```
 
-**Environment:** create a `.env.local` with `DATABASE_URL=file:./prisma/dev.db` and `NEXTAUTH_SECRET=<any-string>`.
+**Environment:** create a `.env.local` with:
+```
+DATABASE_URL=file:./prisma/dev.db
+NEXTAUTH_SECRET=<any-string>
+R2_ACCOUNT_ID=<cloudflare-account-id>
+R2_ACCESS_KEY_ID=<r2-access-key>
+R2_SECRET_ACCESS_KEY=<r2-secret-key>
+R2_BUCKET=<bucket-name>
+R2_PUBLIC_BASE_URL=https://<custom-domain-or-r2-public-url>
+```
+R2 vars are required for image upload. The app will fail-fast at startup if they are absent.
 
 ---
 
@@ -135,7 +145,7 @@ Fields with `editable: false` are never shown in the panel. Adding new fields to
 
 ### Image uploads
 
-`POST /api/upload` (route: `src/app/api/upload/route.ts`) stores images at `public/uploads/<tenantId>/<filename>`. On static export, that directory is copied to `exports/<tenantId>/assets/images/`. `DELETE /api/upload?filename=<name>` removes an orphaned file; failures are accepted (best-effort).
+`POST /api/upload` accepts a `multipart/form-data` with `file` (PNG/JPEG/WebP, ≤5 MB) and `cardId` (UUID). The route resizes to 800×450 WebP via `sharp`, then stores at `<tenantId>/portfolio-card-<cardId>.webp` in **Cloudflare R2** (S3-compatible). Returns `{ url }` pointing to `R2_PUBLIC_BASE_URL/<key>`. `DELETE /api/upload?filename=<name>` removes the object from R2; failures are accepted (best-effort). SVG uploads are rejected.
 
 ### Static export
 
@@ -145,23 +155,17 @@ Fields with `editable: false` are never shown in the panel. Adding new fields to
 
 ## Database
 
-**Dev:** SQLite at `prisma/dev.db`. The Prisma schema uses `String` for `Site.model` (JSON serialized) because SQLite has no native `Json` type. On Postgres, change to `Json`.
+**Dual schema:** two Prisma schema files must be kept identical (models only — datasource block may differ):
+- `prisma/schema.prisma` — Postgres (production), `provider = "postgresql"`, `url + directUrl`
+- `prisma/schema.sqlite.prisma` — SQLite (dev/test), `provider = "sqlite"`, single `url`
 
-**Migrations:** manual TypeScript scripts in `prisma/migrate-*.ts`, not Prisma Migrate. Run them with `npx ts-node` after adding pages/sections to the fixture.
+`tests/schema-sync.test.ts` fails if the two schemas' model definitions diverge. After any schema change, update **both** files.
+
+**Dev:** SQLite at `prisma/dev.db`. `Site.model` is stored as `String` (JSON-serialized) because SQLite has no native `Json` type. On Postgres, change to `Json`.
+
+**Migrations:** manual TypeScript scripts in `prisma/migrate-*.ts`, not Prisma Migrate. Run them with `npx tsx` (or via `npm run migrate:<name>` shortcuts in `package.json`) after adding pages/sections to the fixture.
 
 **Test DB:** `prisma/test.db`. Created by `tests/globalSetup.ts` which calls `prisma migrate deploy`. Tests share this DB and run sequentially (`fileParallelism: false` in `vitest.config.ts`).
-
-### Dual-schema sync checklist
-
-Two schema files must stay in sync — `prisma/schema.prisma` (PostgreSQL, production) and `prisma/schema.sqlite.prisma` (SQLite, tests). They differ **only** in the `datasource db` block. Every other change must be applied to **both** files.
-
-**When adding or changing a model field:**
-1. Edit `prisma/schema.prisma` — add/change the field.
-2. Mirror the identical change in `prisma/schema.sqlite.prisma`.
-3. Run `npx vitest tests/schema-sync.test.ts` — the test compares model blocks and fails on drift.
-4. After commit: run `prisma db push --schema=prisma/schema.prisma` against Supabase (needs `DATABASE_URL` + `DIRECT_URL` env vars from `.env`).
-
-`tests/schema-sync.test.ts` is the automated guard — it will catch any drift before it reaches CI.
 
 **Seed credentials:**
 - `kowalski@test.pl` / `haslo123` → Kancelaria Kowalski
@@ -191,6 +195,7 @@ The canonical `SiteModel` instance. All tests read from it. Two constraints enfo
 | `export.test.ts` | `exportSite()` writes correct HTML files |
 | `upload.test.ts` | Image upload/delete API |
 | `tenant-isolation.test.ts` | `getTenantScopedClient()` never leaks cross-tenant data |
+| `schema-sync.test.ts` | Verifies `schema.prisma` and `schema.sqlite.prisma` have identical model definitions |
 | `globalSetup.ts` | Creates `prisma/test.db` before all tests run |
 
 ---

@@ -156,7 +156,7 @@
             "checklistTag": {
               "type": "text",
               "value": "System PACTA",
-              "editable": false
+              "editable": true
             },
             "checklistItems": {
               "type": "list",
@@ -166,12 +166,12 @@
                 "Typografia i CTA zoptymalizowane pod prawnika jako odbiorcę",
                 "Semantic HTML + Lighthouse 95+ jako warunek oddania"
               ],
-              "editable": false
+              "editable": true
             },
             "microcopy": {
               "type": "text",
               "value": "Inne agencje ukrywają ceny. Ja pokazuję je na stronie głównej.",
-              "editable": false
+              "editable": true
             }
           }
         },
@@ -749,7 +749,7 @@
                   "answer": "Mała zmiana (treść, zdjęcie, CTA) — bezpłatna przez 14 dni po dostawie. Duże zmiany (nowa podstrona, nowa sekcja, nowa funkcja) — wycena osobno od 300 zł. Pakiet Rozszerzony: 3 miesiące wsparcia technicznego wliczone w cenę."
                 }
               ],
-              "editable": true
+              "editable": false
             }
           }
         },
