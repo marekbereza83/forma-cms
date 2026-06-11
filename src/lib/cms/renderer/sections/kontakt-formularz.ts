@@ -29,6 +29,9 @@ const CHECK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20
                   </svg>`
 
 export function renderKontaktFormularz(section: Section, ctx: RenderContext): string {
+  const r1 = section.fields['reassurance1']?.value as string ?? 'Odpowiadam osobiście — bez automatycznych odpowiedzi'
+  const r2 = section.fields['reassurance2']?.value as string ?? 'Wstępna wycena bezpłatnie, w ciągu 24 godzin'
+  const r3 = section.fields['reassurance3']?.value as string ?? 'Specjalizuję się wyłącznie w stronach dla kancelarii prawnych'
 
   return `<!-- SEKCJA: formularz i dane kontaktowe -->
 <section class="section bg-surface" id="formularz" aria-labelledby="formularz-heading">
@@ -189,19 +192,19 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
               <span class="reassurance-icon" aria-hidden="true">
                 ${CHECK_SVG}
               </span>
-              <span class="reassurance-text">Odpowiadam osobiście — bez automatycznych odpowiedzi</span>
+              <span class="reassurance-text">${r1}</span>
             </li>
             <li class="reassurance-item">
               <span class="reassurance-icon" aria-hidden="true">
                 ${CHECK_SVG}
               </span>
-              <span class="reassurance-text">Wstępna wycena bezpłatnie, w ciągu 24 godzin</span>
+              <span class="reassurance-text">${r2}</span>
             </li>
             <li class="reassurance-item">
               <span class="reassurance-icon" aria-hidden="true">
                 ${CHECK_SVG}
               </span>
-              <span class="reassurance-text">Specjalizuję się wyłącznie w stronach dla kancelarii prawnych</span>
+              <span class="reassurance-text">${r3}</span>
             </li>
           </ul>
         </div>

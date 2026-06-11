@@ -883,7 +883,23 @@
         {
           "id": "formularz",
           "recipe": "K1",
-          "fields": {}
+          "fields": {
+            "reassurance1": {
+              "type": "text",
+              "value": "Odpowiadam osobiście — bez automatycznych odpowiedzi",
+              "editable": true
+            },
+            "reassurance2": {
+              "type": "text",
+              "value": "Wstępna wycena bezpłatnie, w ciągu 24 godzin",
+              "editable": true
+            },
+            "reassurance3": {
+              "type": "text",
+              "value": "Specjalizuję się wyłącznie w stronach dla kancelarii prawnych",
+              "editable": true
+            }
+          }
         },
         {
           "id": "footer",
