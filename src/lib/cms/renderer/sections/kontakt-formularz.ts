@@ -38,7 +38,7 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
       <!-- Formularz -->
       <div class="reveal">
         <h2 id="formularz-heading" class="f-headline mb-5">Napisz do mnie</h2>
-        <form class="form" action="#" method="post" novalidate aria-label="Formularz kontaktowy">
+        <form class="form" action="https://formspree.io/f/xaqzdazj" method="POST" novalidate aria-label="Formularz kontaktowy">
 
           <div class="form-group">
             <label class="form-label" for="imie-nazwisko">
