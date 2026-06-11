@@ -5,6 +5,7 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "test": "vitest run",
+    "schema:sqlite": "node scripts/gen-sqlite-schema.mjs",
     "seed": "npx tsx prisma/seed.ts",
     "reset": "npx tsx prisma/reset.ts",
     "migrate:portfolio-cards": "npx tsx prisma/migrate-portfolio-cards.ts",

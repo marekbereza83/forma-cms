@@ -1,10 +1,10 @@
-// Test-only schema — SQLite provider for local test.db.
-// Keep in sync with schema.prisma (models only, no directUrl).
+// AUTO-GENERATED from schema.prisma by scripts/gen-sqlite-schema.mjs — DO NOT EDIT.
+// Edit schema.prisma, then run:  npm run schema:sqlite
+
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -36,7 +36,7 @@ model User {
   @@index([tenantId])
 }
 
-// model: String (JSON) — SQLite does not support Json natively.
+// model: String (JSON) — SQLite nie obsluguje Json; na Postgres zmien na Json.
 model Site {
   id        String   @id @default(cuid())
   tenantId  String   @unique
@@ -73,7 +73,7 @@ model Post {
   @@index([tenantId, status])
 }
 
-// before/after: String (JSON) — SQLite does not support Json natively.
+// before/after: String (JSON) — SQLite nie obsluguje Json; na Postgres zmien na Json?.
 model EditLog {
   id        String   @id @default(cuid())
   tenantId  String

@@ -9,6 +9,8 @@ export default defineConfig({
     exclude: ['tests/**/*[(][1][)]*', '**/node_modules/**'],  // ignore Windows duplicate files
     env: {
       DATABASE_URL: 'file:./test.db',
+      // Hermetic: tests must not depend on a local .env (absent in CI).
+      AUTH_SECRET: 'forma-cms-test-secret',
       // R2 stubs — values unused (S3 client is mocked in upload.test.ts)
       R2_ACCOUNT_ID: 'test-account',
       R2_ACCESS_KEY_ID: 'test-key',

@@ -32,6 +32,12 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 
+# cloud-sync / browser-download duplicates ("schema (1).prisma" etc.)
+# These have silently clobbered tracked files — never commit them.
+*\ \(1\).*
+*\ \(2\).*
+prisma/prisma/
+
 # uploaded tenant assets
 public/uploads/*
 !public/uploads/.gitkeep

@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Generate the Postgres client and type-check — this is exactly what
+      # Vercel does in `npm run build`. Catches schema/code type drift
+      # (e.g. a field used in code but missing from schema.prisma) before deploy.
+      - name: Generate Prisma client (Postgres — mirrors Vercel build)
+        run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://user:pass@localhost:5432/db
+          DIRECT_URL: postgresql://user:pass@localhost:5432/db
+
+      - name: Type check (mirrors Vercel build)
+        run: npx tsc --noEmit
+
+      # schema.sqlite.prisma must be a faithful regeneration of schema.prisma.
+      # If it drifts, the build below or schema-sync.test.ts will fail here
+      # instead of in production.
+      - name: Verify SQLite schema is regenerated from schema.prisma
+        run: |
+          node scripts/gen-sqlite-schema.mjs
+          git diff --exit-code prisma/schema.sqlite.prisma
+
+      # Regenerate the SQLite client so the test DB (test.db) matches the
+      # client the tests run against.
+      - name: Generate Prisma client (SQLite — for tests)
+        run: npx prisma generate --schema=prisma/schema.sqlite.prisma
+        env:
+          DATABASE_URL: file:./test.db
+
+      - name: Run tests
+        run: npx vitest run

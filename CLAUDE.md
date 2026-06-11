@@ -22,6 +22,9 @@ npm run build && npm run start
 # Type-check (no emit)
 npx tsc --noEmit
 
+# Regenerate SQLite schema after editing prisma/schema.prisma
+npm run schema:sqlite
+
 # Tests (Vitest) — all files share SQLite, must run sequentially
 npx vitest               # full suite
 npx vitest tests/renderer.test.ts   # single file
@@ -155,11 +158,11 @@ Fields with `editable: false` are never shown in the panel. Adding new fields to
 
 ## Database
 
-**Dual schema:** two Prisma schema files must be kept identical (models only — datasource block may differ):
-- `prisma/schema.prisma` — Postgres (production), `provider = "postgresql"`, `url + directUrl`
-- `prisma/schema.sqlite.prisma` — SQLite (dev/test), `provider = "sqlite"`, single `url`
+**Dual schema — single source of truth:**
+- `prisma/schema.prisma` — Postgres (production/Vercel). **Edit this one only.**
+- `prisma/schema.sqlite.prisma` — SQLite (dev/test). **Generated** from `schema.prisma`; do not hand-edit (it carries a `DO NOT EDIT` header).
 
-`tests/schema-sync.test.ts` fails if the two schemas' model definitions diverge. After any schema change, update **both** files.
+After any change to `schema.prisma`, run `npm run schema:sqlite` to regenerate the SQLite copy, then commit both. `tests/schema-sync.test.ts` fails if they diverge, and CI re-runs the generator and fails on any diff. (Why this matters: the two used to be hand-synced; a cloud-sync tool silently reverted `schema.prisma` while the SQLite copy kept new fields → green local tests, broken Vercel build. The generator + CI gate remove that whole failure mode.)
 
 **Dev:** SQLite at `prisma/dev.db`. `Site.model` is stored as `String` (JSON-serialized) because SQLite has no native `Json` type. On Postgres, change to `Json`.
 
