@@ -491,6 +491,69 @@ function ListEditor({
   return null
 }
 
+// ── Labels ────────────────────────────────────────────────────────────────────
+
+const PAGE_LABELS: Record<string, string> = {
+  index:          'Strona główna',
+  kontakt:        'Kontakt',
+  portfolio:      'Portfolio',
+  proces:         'Jak pracuję',
+  'legal-notice': 'Nota prawna',
+  'privacy-policy': 'Polityka prywatności',
+}
+
+const PAGE_COLORS: Record<string, string> = {
+  index:          '#2563eb',
+  kontakt:        '#0891b2',
+  portfolio:      '#7c3aed',
+  proces:         '#059669',
+  'legal-notice': '#6b7280',
+  'privacy-policy': '#6b7280',
+}
+
+const SECTION_LABELS: Record<string, string> = {
+  hero:              'Nagłówek główny',
+  problem:           'Problem',
+  solution:          'Rozwiązanie (System PACTA)',
+  portfolio:         'Realizacje',
+  process:           'Proces współpracy',
+  pricing:           'Cennik',
+  'cta-finale':      'Blok końcowy CTA',
+  'kontakt-hero':    'Nagłówek kontaktowy',
+  'kontakt-formularz': 'Formularz kontaktowy',
+  faq:               'FAQ',
+  'portfolio-hero':  'Nagłówek portfolio',
+  'portfolio-grid':  'Siatka realizacji',
+  'proces-hero':     'Nagłówek procesu',
+  timeline:          'Oś czasu',
+  deliverables:      'Co dostarczam',
+  technologie:       'Technologie',
+  'cennik-detail':   'Szczegóły cennika',
+}
+
+const FIELD_LABELS: Record<string, string> = {
+  headline:            'Nagłówek',
+  subheadline:         'Podnagłówek',
+  lead:                'Lead',
+  body1:               'Treść (akapit 1)',
+  body2:               'Treść (akapit 2)',
+  ctaPrimaryLabel:     'CTA główny (tekst przycisku)',
+  ctaSecondaryLabel:   'CTA drugorzędny (tekst przycisku)',
+  ctaMicrocopy:        'Mikrokopia pod CTA',
+  microcopy:           'Mikrokopia',
+  sectionLabel:        'Etykieta sekcji',
+  checklistTag:        'Tag karty PACTA',
+  checklistItems:      'Elementy listy PACTA',
+  stats:               'Statystyki',
+  symptomCards:        'Karty problemów',
+  cards:               'Realizacje (karty)',
+  steps:               'Kroki procesu',
+  standard:            'Pakiet standardowy',
+  premium:             'Pakiet premium',
+  items:               'Elementy',
+  questions:           'Pytania FAQ',
+}
+
 // ── Main form ─────────────────────────────────────────────────────────────────
 
 export default function FieldsForm({ initialModel }: Props) {
@@ -644,96 +707,149 @@ export default function FieldsForm({ initialModel }: Props) {
         </div>
       </div>
 
-      {model.pages.map(page =>
-        page.sections.map(section => {
-          const editableEntries = Object.entries(section.fields).filter(([, f]) => f.editable)
-          if (editableEntries.length === 0) return null
+      {model.pages.map(page => {
+        const editableSections = page.sections.filter(s =>
+          Object.values(s.fields).some(f => f.editable)
+        )
+        if (editableSections.length === 0) return null
 
-          return (
-            <div key={`${page.slug}/${section.id}`} className="section-block">
-              <p className="section-title">{section.id}</p>
+        const pageColor = PAGE_COLORS[page.slug] ?? '#6b7280'
+        const pageLabel = PAGE_LABELS[page.slug] ?? page.slug
 
-              {editableEntries.map(([fieldName, field]) => {
-                const { row: rowError, sub: subErrors } = matchErrors(fieldErrors, section.id, fieldName)
-
-                return (
-                  <div key={fieldName} className="field-row">
-                    <label className="field-label">{fieldName}</label>
-
-                    {(field.type === 'text' || field.type === 'cta' || field.type === 'contact') && (
-                      <>
-                        <input
-                          type="text"
-                          className={rowError ? 'error' : ''}
-                          value={String(field.value ?? '')}
-                          onChange={e => updateField(page.slug, section.id, fieldName, e.target.value)}
-                        />
-                        {rowError && <p className="field-error">{rowError}</p>}
-                      </>
-                    )}
-
-                    {field.type === 'richtext' && (
-                      <>
-                        <textarea
-                          className={rowError ? 'error' : ''}
-                          value={String(field.value ?? '')}
-                          onChange={e => updateField(page.slug, section.id, fieldName, e.target.value)}
-                          rows={4}
-                        />
-                        {rowError && <p className="field-error">{rowError}</p>}
-                      </>
-                    )}
-
-                    {field.type === 'price' && (
-                      <PriceEditor
-                        value={field.value as PricingPackage}
-                        errors={subErrors}
-                        onChange={v => updateField(page.slug, section.id, fieldName, v)}
-                      />
-                    )}
-
-                    {field.type === 'list' && (
-                      <>
-                        {(() => {
-                          const arr = field.value as unknown[]
-                          const isPortfolioCards =
-                            Array.isArray(arr) &&
-                            arr.length > 0 &&
-                            typeof (arr[0] as PortfolioCard).label === 'string' &&
-                            typeof (arr[0] as PortfolioCard).title === 'string'
-                          if (isPortfolioCards) {
-                            const isGrid = section.id === 'portfolio-grid'
-                            // Show link field for both portfolio sections:
-                            // portfolio-grid (full page) and portfolio (home section).
-                            // Both render "Zobacz na żywo" when card.link is non-empty;
-                            // both are validated by V15 (http/https only).
-                            const showLink = isGrid || section.id === 'portfolio'
-                            return (
-                              <PortfolioCardsEditor
-                                cards={arr as PortfolioCard[]}
-                                onChange={v => updateField(page.slug, section.id, fieldName, v)}
-                                maxCards={isGrid ? 12 : 4}
-                                showLinkField={showLink}
-                              />
-                            )
-                          }
-                          return (
-                            <ListEditor
-                              value={arr}
-                              onChange={v => updateField(page.slug, section.id, fieldName, v)}
-                            />
-                          )
-                        })()}
-                        {rowError && <p className="field-error">{rowError}</p>}
-                      </>
-                    )}
-                  </div>
-                )
-              })}
+        return (
+          <div key={page.slug} style={{ marginBottom: '8px' }}>
+            {/* Page group header */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '18px 0 10px',
+              borderTop: '2px solid var(--border)',
+              marginTop: '8px',
+            }}>
+              <span style={{
+                display: 'inline-block',
+                width: '4px',
+                height: '20px',
+                background: pageColor,
+                borderRadius: '2px',
+                flexShrink: 0,
+              }} />
+              <span style={{
+                fontFamily: 'Georgia, serif',
+                fontSize: '1rem',
+                fontWeight: 400,
+                color: 'var(--fg)',
+                letterSpacing: '0.02em',
+              }}>
+                {pageLabel}
+              </span>
             </div>
-          )
-        })
-      )}
+
+            {editableSections.map(section => {
+              const editableEntries = Object.entries(section.fields).filter(([, f]) => f.editable)
+
+              return (
+                <div key={`${page.slug}/${section.id}`} style={{
+                  borderLeft: `3px solid ${pageColor}`,
+                  paddingLeft: '16px',
+                  marginBottom: '24px',
+                  paddingBottom: '4px',
+                }}>
+                  <p style={{
+                    fontFamily: 'Georgia, serif',
+                    fontSize: '0.75rem',
+                    letterSpacing: '0.07em',
+                    textTransform: 'uppercase',
+                    color: pageColor,
+                    marginBottom: '16px',
+                    marginTop: '16px',
+                    opacity: 0.85,
+                  }}>
+                    {SECTION_LABELS[section.id] ?? section.id}
+                  </p>
+
+                  {editableEntries.map(([fieldName, field]) => {
+                    const { row: rowError, sub: subErrors } = matchErrors(fieldErrors, section.id, fieldName)
+
+                    return (
+                      <div key={fieldName} className="field-row">
+                        <label className="field-label">
+                          {FIELD_LABELS[fieldName] ?? fieldName}
+                        </label>
+
+                        {(field.type === 'text' || field.type === 'cta' || field.type === 'contact') && (
+                          <>
+                            <input
+                              type="text"
+                              className={rowError ? 'error' : ''}
+                              value={String(field.value ?? '')}
+                              onChange={e => updateField(page.slug, section.id, fieldName, e.target.value)}
+                            />
+                            {rowError && <p className="field-error">{rowError}</p>}
+                          </>
+                        )}
+
+                        {field.type === 'richtext' && (
+                          <>
+                            <textarea
+                              className={rowError ? 'error' : ''}
+                              value={String(field.value ?? '')}
+                              onChange={e => updateField(page.slug, section.id, fieldName, e.target.value)}
+                              rows={4}
+                            />
+                            {rowError && <p className="field-error">{rowError}</p>}
+                          </>
+                        )}
+
+                        {field.type === 'price' && (
+                          <PriceEditor
+                            value={field.value as PricingPackage}
+                            errors={subErrors}
+                            onChange={v => updateField(page.slug, section.id, fieldName, v)}
+                          />
+                        )}
+
+                        {field.type === 'list' && (
+                          <>
+                            {(() => {
+                              const arr = field.value as unknown[]
+                              const isPortfolioCards =
+                                Array.isArray(arr) &&
+                                arr.length > 0 &&
+                                typeof (arr[0] as PortfolioCard).label === 'string' &&
+                                typeof (arr[0] as PortfolioCard).title === 'string'
+                              if (isPortfolioCards) {
+                                const isGrid = section.id === 'portfolio-grid'
+                                const showLink = isGrid || section.id === 'portfolio'
+                                return (
+                                  <PortfolioCardsEditor
+                                    cards={arr as PortfolioCard[]}
+                                    onChange={v => updateField(page.slug, section.id, fieldName, v)}
+                                    maxCards={isGrid ? 12 : 4}
+                                    showLinkField={showLink}
+                                  />
+                                )
+                              }
+                              return (
+                                <ListEditor
+                                  value={arr}
+                                  onChange={v => updateField(page.slug, section.id, fieldName, v)}
+                                />
+                              )
+                            })()}
+                            {rowError && <p className="field-error">{rowError}</p>}
+                          </>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            })}
+          </div>
+        )
+      })}
 
       <div className="form-actions">
         <button type="submit" className="btn" disabled={isPending}>
