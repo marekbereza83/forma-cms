@@ -485,7 +485,8 @@ describe('Renderer — proces page', () => {
   it('nav marks "Jak pracuję" as current page', () => {
     const currentLinks = Array.from(doc.querySelectorAll('.nav-links a[aria-current="page"]'))
     expect(currentLinks).toHaveLength(1)
-    expect(currentLinks[0].textContent?.trim()).toBe('Jak pracuję')
+    // navLabel = spacja + NBSP (U+00A0) -- podwojny odstep, NBSP nie zwija sie w HTML
+    expect(currentLinks[0].textContent?.trim()).toBe('Jak  pracuję')
   })
 
   it('cennik-detail renders identically to index.pricing packages (single source of truth)', () => {

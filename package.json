@@ -20,6 +20,7 @@
     "migrate:technologie-tags-editable": "npx tsx prisma/migrate-technologie-tags-editable.ts",
     "migrate:add-regulamin": "npx tsx prisma/migrate-add-regulamin.ts",
     "migrate:add-reassurance-fields": "npx tsx prisma/migrate-add-reassurance-fields.ts",
+    "migrate:nav-label-spacing": "npx tsx prisma/migrate-nav-label-spacing.ts",
     "create-tenant": "npx tsx scripts/create-tenant.ts"
   },
   "prisma": {
