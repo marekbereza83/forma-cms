@@ -1,5 +1,20 @@
 import type { Section, FaqItem } from '../../types'
 
+function faqJsonLd(items: FaqItem[]): string {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map(item => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    })),
+  }
+  return `<script type="application/ld+json">
+${JSON.stringify(schema, null, 2)}
+</script>`
+}
+
 export function renderFaq(section: Section): string {
   const headline = section.fields['headline']?.value as string
   const items    = section.fields['items']?.value as FaqItem[]
@@ -29,5 +44,6 @@ export function renderFaq(section: Section): string {
 ${itemsHtml}
     </div>
   </div>
-</section>`
+</section>
+${faqJsonLd(items)}`
 }

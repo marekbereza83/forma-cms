@@ -681,7 +681,7 @@
                 "WCAG 2.1 AA",
                 "mobile-first"
               ],
-              "editable": false
+              "editable": true
             }
           }
         },

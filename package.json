@@ -17,6 +17,7 @@
     "migrate:remove-contact-fields": "npx tsx prisma/migrate-remove-contact-fields.ts",
     "migrate:faq-editable": "npx tsx prisma/migrate-faq-editable.ts",
     "migrate:solution-editable": "npx tsx prisma/migrate-solution-editable.ts",
+    "migrate:technologie-tags-editable": "npx tsx prisma/migrate-technologie-tags-editable.ts",
     "create-tenant": "npx tsx scripts/create-tenant.ts"
   },
   "prisma": {

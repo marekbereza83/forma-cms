@@ -448,10 +448,14 @@ describe('Renderer — proces page', () => {
     )
   })
 
-  it('has no schema.org JSON-LD (no pricing section on proces)', () => {
-    // renderPage only injects schema.org when pricingStandardAmount is found;
-    // cennik-detail renderer uses id="cennik-detail", so extraction is skipped.
-    expect(doc.querySelectorAll('script[type="application/ld+json"]')).toHaveLength(0)
+  it('has FAQPage JSON-LD (no ProfessionalService — no pricing section on proces)', () => {
+    // ProfessionalService is only injected via renderHead when pricingStandardAmount is found.
+    // FAQPage JSON-LD is emitted by faq.ts regardless of pricing.
+    const scripts = doc.querySelectorAll('script[type="application/ld+json"]')
+    expect(scripts).toHaveLength(1)
+    const parsed = JSON.parse(scripts[0].textContent ?? '{}')
+    expect(parsed['@type']).toBe('FAQPage')
+    expect(parsed.mainEntity.length).toBeGreaterThan(0)
   })
 
   it('preMain: dot-grid-bg present and scroll-progress has role=progressbar', () => {

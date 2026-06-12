@@ -1,6 +1,6 @@
 'use client'
 import { useState, useTransition, useRef } from 'react'
-import type { SiteModel, PricingPackage, ProcessStep, StatCard, PortfolioCard, FaqItem } from '@/lib/cms/types'
+import type { SiteModel, PricingPackage, ProcessStep, StatCard, PortfolioCard, FaqItem, DeliverableItem } from '@/lib/cms/types'
 import type { Violation } from '@/lib/cms/validation/types'
 import { setFieldValue } from '@/lib/cms/fields'
 import { saveFields } from './actions'
@@ -477,6 +477,43 @@ function ListEditor({
     )
   }
 
+  // DeliverableItem: { title, body } — ProcessStep (num+title) already caught above,
+  // so anything left with title+body is a deliverable ("Co dostajesz").
+  if (typeof first === 'object' && first !== null && 'title' in first && 'body' in first) {
+    return (
+      <div className="list-editor">
+        {(value as DeliverableItem[]).map((item, i) => (
+          <div key={i} className="list-item">
+            <div>
+              <p className="list-item-label">Tytuł</p>
+              <input
+                type="text"
+                value={item.title}
+                onChange={e => {
+                  const updated = [...(value as DeliverableItem[])]
+                  updated[i] = { ...item, title: e.target.value }
+                  onChange(updated)
+                }}
+              />
+            </div>
+            <div>
+              <p className="list-item-label">Opis</p>
+              <textarea
+                value={item.body}
+                onChange={e => {
+                  const updated = [...(value as DeliverableItem[])]
+                  updated[i] = { ...item, body: e.target.value }
+                  onChange(updated)
+                }}
+                rows={2}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   // string[] — textarea newline-separated
   if (typeof first === 'string') {
     return (
@@ -555,6 +592,7 @@ const FIELD_LABELS: Record<string, string> = {
   premium:             'Pakiet premium',
   items:               'Elementy',
   questions:           'Pytania FAQ',
+  tags:                'Technologie (każda w osobnej linii)',
 }
 
 // ── Main form ─────────────────────────────────────────────────────────────────
