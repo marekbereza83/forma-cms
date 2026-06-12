@@ -41,6 +41,12 @@ npx tsx prisma/seed.ts            # seed dev.db with tenants kowalski + nowak
 # Fixture maintenance
 node scripts/update-baseline.js   # re-snapshot conditional-char counts after intentional fixture edit
 node scripts/fix-fixture-quotes.js  # replace typographic quotes/dashes with ASCII equivalents
+
+# Database reset (wipes dev.db and re-seeds from fixture)
+npm run reset && npm run seed
+
+# Create a new tenant
+npx tsx scripts/create-tenant.ts
 ```
 
 **Environment:** create a `.env.local` with:
@@ -104,7 +110,7 @@ Auth.js (NextAuth v5) with `Credentials` provider. JWT carries `tenantId`, `user
 
 ### Renderer contract
 
-`renderPage()` must produce HTML structurally identical to the reference files in `reference/forma-production/`. The acceptance test (`tests/renderer.test.ts`, "rendered DOM matches reference index.html") does a full DOM-diff. Always run this test after changing any section renderer.
+`renderPage()` must produce HTML structurally identical to the reference files in `reference/forma-production/`. The DOM-diff acceptance tests run against all seven reference pages: `index.html`, `kontakt.html`, `proces.html`, `portfolio.html`, `legal-notice.html`, `privacy-policy.html`, `404.html`. Always run `npx vitest tests/renderer.test.ts` after changing any section renderer, then update the matching reference file when the change is intentional.
 
 Three CSS files must be linked in every rendered page:
 - `assets/css/design-system-agency.css`
@@ -116,10 +122,11 @@ The live versions served to clients are in `public/assets/css/`. Exports copy fr
 ### Adding a new section renderer
 
 1. Create `src/lib/cms/renderer/sections/<id>.ts` exporting a `render<Name>(section, …ctx)` function.
-2. Register it in the `SECTION_REGISTRY` map in `renderer/index.ts`.
+2. Register it in the `SECTION_REGISTRY` map in `renderer/index.ts`. **Note:** the registry key is the section `id` from the fixture JSON, which may differ from the filename — e.g. key `'formularz'` → file `kontakt-formularz.ts`.
 3. Add the section to the fixture (`fixtures/forma-site.json`) with `editable: true` on any fields clients should edit.
-4. If the section needs pricing context from `index.pricing`, receive it via `ctx.indexPricing` — do not add `price`-type fields to pages other than `index`.
-5. Run `npx vitest tests/renderer.test.ts` — the DOM-diff test will fail if the rendered output diverges from the reference HTML; update `reference/forma-production/` when the change is intentional.
+4. Add human-readable labels for new editable field keys to the `FIELD_LABELS` map in `src/app/(panel)/edit/fields/FieldsForm.tsx`; otherwise the panel shows the raw key name.
+5. If the section needs pricing context from `index.pricing`, receive it via `ctx.indexPricing` — do not add `price`-type fields to pages other than `index`.
+6. Run `npx vitest tests/renderer.test.ts` — the DOM-diff test will fail if the rendered output diverges from the reference HTML; update `reference/forma-production/` when the change is intentional. If you added an em-dash, bullet, `≥`, or `©` to the fixture, also run `node scripts/update-baseline.js`.
 
 ### Price — single source of truth
 
@@ -173,6 +180,10 @@ After any change to `schema.prisma`, run `npm run schema:sqlite` to regenerate t
 **Seed credentials:**
 - `kowalski@test.pl` / `haslo123` → Kancelaria Kowalski
 - `nowak@test.pl` / `haslo123` → Kancelaria Nowak
+
+**Seed is update-skipping:** `prisma/seed.ts` uses `update: {}` on all upserts, so re-running the seed never refreshes existing tenant models. After fixture changes that should be reflected in dev data, run `npm run reset && npm run seed` to wipe and re-seed.
+
+**Cloud-sync risk:** the repo lives in a synced folder. A sync tool has previously reverted `schema.prisma` silently while SQLite kept the new fields, causing a broken Vercel build with green local tests. Always inspect `git diff --staged` before committing to catch reverted files.
 
 ---
 
