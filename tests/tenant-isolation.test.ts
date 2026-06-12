@@ -237,3 +237,57 @@ describe('Auth — authorize ustawia tenantId ze źródła (nie z requestu)', ()
     expect(result).toBeNull()
   })
 })
+
+// ────────────────────────────────────────────────────────────────────────────
+describe('Auth — lockout po 5 nieudanych próbach', () => {
+  const LOCKOUT_EMAIL = 'lockout-test@test.pl'
+
+  beforeAll(async () => {
+    await prisma.user.deleteMany({ where: { email: LOCKOUT_EMAIL } })
+    await prisma.user.create({
+      data: {
+        email: LOCKOUT_EMAIL,
+        password: PASSWORD_HASH,
+        tenantId: tenantAId,
+      },
+    })
+  })
+
+  afterAll(async () => {
+    await prisma.user.deleteMany({ where: { email: LOCKOUT_EMAIL } })
+  })
+
+  it('4 błędne próby: konto nadal aktywne', async () => {
+    for (let i = 0; i < 4; i++) {
+      await authorizeUser({ email: LOCKOUT_EMAIL, password: 'wrong' })
+    }
+    const user = await prisma.user.findUnique({ where: { email: LOCKOUT_EMAIL } })
+    expect(user!.failedLoginAttempts).toBe(4)
+    expect(user!.lockedUntil).toBeNull()
+  })
+
+  it('5. błędna próba → lockedUntil ustawiony w przyszłości', async () => {
+    await authorizeUser({ email: LOCKOUT_EMAIL, password: 'wrong' })
+    const user = await prisma.user.findUnique({ where: { email: LOCKOUT_EMAIL } })
+    expect(user!.failedLoginAttempts).toBe(5)
+    expect(user!.lockedUntil).not.toBeNull()
+    expect(user!.lockedUntil!.getTime()).toBeGreaterThan(Date.now())
+  })
+
+  it('poprawne hasło przy aktywnym lockoucie → null (blokada działa)', async () => {
+    const result = await authorizeUser({ email: LOCKOUT_EMAIL, password: PASSWORD })
+    expect(result).toBeNull()
+  })
+
+  it('po wygaśnięciu lockoutu poprawne hasło → sukces + reset licznika', async () => {
+    await prisma.user.update({
+      where: { email: LOCKOUT_EMAIL },
+      data: { lockedUntil: new Date(Date.now() - 1000) },
+    })
+    const result = await authorizeUser({ email: LOCKOUT_EMAIL, password: PASSWORD })
+    expect(result).not.toBeNull()
+    const user = await prisma.user.findUnique({ where: { email: LOCKOUT_EMAIL } })
+    expect(user!.failedLoginAttempts).toBe(0)
+    expect(user!.lockedUntil).toBeNull()
+  })
+})
