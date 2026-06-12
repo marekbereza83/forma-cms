@@ -4,8 +4,8 @@
   "designSystem": "forma",
   "meta": {
     "title": "Strony dla kancelarii prawnych | FORMA Wizerunku",
-    "description": "ProjektujÄ™ strony internetowe dla kancelarii radcĂłw prawnych i adwokatĂłw. System PACTA. Strona gotowa w 14 dni. Od 4 500 zĹ‚ netto. Solo. Bez poĹ›rednikĂłw.",
-    "ogDescription": "ProjektujÄ™ strony dla kancelarii. System PACTA. 14 dni. Od 4 500 zĹ‚ netto.",
+    "description": "Projektuję strony internetowe dla kancelarii radców prawnych i adwokatów. System PACTA. Strona gotowa w 14 dni. Od 4 500 zł netto. Solo. Bez pośredników.",
+    "ogDescription": "Projektuję strony dla kancelarii. System PACTA. 14 dni. Od 4 500 zł netto.",
     "canonical": "https://formawizerunku.pl/",
     "ogImage": "https://formawizerunku.pl/assets/images/og-image.jpg",
     "brandName": "Forma Wizerunku",
@@ -28,7 +28,7 @@
             },
             "ctaLabel": {
               "type": "cta",
-              "value": "ZamĂłw stronÄ™",
+              "value": "Zamów stronę",
               "editable": false
             }
           }
@@ -44,17 +44,17 @@
             },
             "headline": {
               "type": "text",
-              "value": "ProjektujÄ™ strony ktĂłre przynoszÄ… klientĂłw kancelarii",
+              "value": "Projektuję strony które przynoszą klientów kancelarii",
               "editable": true
             },
             "subheadlinePrefix": {
               "type": "text",
-              "value": "SpecjalizujÄ™ siÄ™ wyĹ‚Ä…cznie w kancelariach radcĂłw prawnych i adwokatĂłw. UĹĽywam systemu PACTA â€” skodyfikowanego designu dla tego rynku. Strona gotowa w 14 dni.",
+              "value": "Specjalizuję się wyłącznie w kancelariach radców prawnych i adwokatów. Używam systemu PACTA — skodyfikowanego designu dla tego rynku. Strona gotowa w 14 dni.",
               "editable": true
             },
             "ctaPrimaryLabel": {
               "type": "cta",
-              "value": "ZamĂłw stronÄ™",
+              "value": "Zamów stronę",
               "editable": true
             },
             "ctaMicrocopy": {
@@ -80,12 +80,12 @@
             },
             "headline": {
               "type": "text",
-              "value": "WiÄ™kszoĹ›Ä‡ stron prawniczych odstrasza klientĂłw.",
+              "value": "Większość stron prawniczych odstrasza klientów.",
               "editable": true
             },
             "lead": {
               "type": "richtext",
-              "value": "PrzestarzaĹ‚y design, wolne Ĺ‚adowanie i brak jasnej Ĺ›cieĹĽki kontaktu sprawiajÄ…, ĹĽe potencjalni klienci szukajÄ… pomocy u konkurencji. W Ĺ›wiecie prawniczym pierwsze wraĹĽenie cyfrowe jest rĂłwnie waĹĽne jak uĹ›cisk dĹ‚oni w biurze.",
+              "value": "Przestarzały design, wolne ładowanie i brak jasnej ścieżki kontaktu sprawiają, że potencjalni klienci szukają pomocy u konkurencji. W świecie prawniczym pierwsze wrażenie cyfrowe jest równie ważne jak uścisk dłoni w biurze.",
               "editable": true
             },
             "stats": {
@@ -94,14 +94,14 @@
                 {
                   "target": 8,
                   "suffix": "/10",
-                  "ariaLabel": "8 na 10 klientĂłw",
-                  "description": "klientĂłw ocenia wiarygodnoĹ›Ä‡ kancelarii na podstawie strony www przed pierwszym kontaktem."
+                  "ariaLabel": "8 na 10 klientów",
+                  "description": "klientów ocenia wiarygodność kancelarii na podstawie strony www przed pierwszym kontaktem."
                 },
                 {
                   "target": 3,
                   "suffix": "s",
                   "ariaLabel": "3 sekundy",
-                  "description": "to maksymalny czas oczekiwania uĹĽytkownika na zaĹ‚adowanie zanim opuĹ›ci stronÄ™."
+                  "description": "to maksymalny czas oczekiwania użytkownika na załadowanie zanim opuści stronę."
                 }
               ],
               "editable": true
@@ -111,18 +111,18 @@
               "value": [
                 {
                   "iconType": "info",
-                  "title": "WyglÄ…d z 2016 roku",
-                  "body": "Nowi klienci oceniajÄ… CiÄ™ zanim zadzwoniÄ…. Stara strona mĂłwi: \"ta kancelaria nie dba o szczegĂłĹ‚y\"."
+                  "title": "Wygląd z 2016 roku",
+                  "body": "Nowi klienci oceniają Cię zanim zadzwonią. Stara strona mówi: \"ta kancelaria nie dba o szczegóły\"."
                 },
                 {
                   "iconType": "mobile",
                   "title": "Nieczytelna na telefonie",
-                  "body": "60% odwiedzajÄ…cych uĹĽywa mobile. Wolna, nieresponsywna strona jest karana przez Google i odpycha klientĂłw."
+                  "body": "60% odwiedzających używa mobile. Wolna, nieresponsywna strona jest karana przez Google i odpycha klientów."
                 },
                 {
                   "iconType": "phone",
-                  "title": "Brak wyraĹşnych CTA",
-                  "body": "Klient przychodzi i wychodzi bez kontaktu. Strona nie prowadzi do dziaĹ‚ania â€” liczba zapytaĹ„ nie roĹ›nie."
+                  "title": "Brak wyraźnych CTA",
+                  "body": "Klient przychodzi i wychodzi bez kontaktu. Strona nie prowadzi do działania — liczba zapytań nie rośnie."
                 }
               ],
               "editable": false
@@ -135,22 +135,22 @@
           "fields": {
             "sectionLabel": {
               "type": "text",
-              "value": "RozwiÄ…zanie",
+              "value": "Rozwiązanie",
               "editable": false
             },
             "headline": {
               "type": "richtext",
-              "value": "ProjektujÄ™ strony dla kancelarii.<br>\nWedĹ‚ug skodyfikowanego systemu.",
+              "value": "Projektuję strony dla kancelarii.<br>\nWedług skodyfikowanego systemu.",
               "editable": true
             },
             "body1": {
               "type": "richtext",
-              "value": "PACTA to zestaw sprawdzonych decyzji designowych dla kancelarii solo i regionalnych â€” struktura zaufania, hierarchia treĹ›ci, typografia, CTA. Nie szablon. System oparty na analizie dziesiÄ…tek polskich i zagranicznych kancelarii.",
+              "value": "PACTA to zestaw sprawdzonych decyzji designowych dla kancelarii solo i regionalnych — struktura zaufania, hierarchia treści, typografia, CTA. Nie szablon. System oparty na analizie dziesiątek polskich i zagranicznych kancelarii.",
               "editable": true
             },
             "body2": {
               "type": "richtext",
-              "value": "ProjektujÄ™. KodujÄ™. Dostarczam. Bez poĹ›rednikĂłw. KaĹĽda strona w systemie PACTA jest lepsza niĹĽ strona zrobiona od gustu â€” bo bazuje na danych, nie na intuicji.",
+              "value": "Projektuję. Koduję. Dostarczam. Bez pośredników. Każda strona w systemie PACTA jest lepsza niż strona zrobiona od gustu — bo bazuje na danych, nie na intuicji.",
               "editable": true
             },
             "checklistTag": {
@@ -162,15 +162,15 @@
               "type": "list",
               "value": [
                 "Struktura zaufania skrojona pod kancelarie solo i regionalne",
-                "Hierarchia treĹ›ci prowadzÄ…ca klienta do kontaktu",
-                "Typografia i CTA zoptymalizowane pod prawnika jako odbiorcÄ™",
+                "Hierarchia treści prowadząca klienta do kontaktu",
+                "Typografia i CTA zoptymalizowane pod prawnika jako odbiorcę",
                 "Semantic HTML + Lighthouse 95+ jako warunek oddania"
               ],
               "editable": true
             },
             "microcopy": {
               "type": "text",
-              "value": "Inne agencje ukrywajÄ… ceny. Ja pokazujÄ™ je na stronie gĹ‚Ăłwnej.",
+              "value": "Inne agencje ukrywają ceny. Ja pokazuję je na stronie głównej.",
               "editable": true
             }
           }
@@ -191,14 +191,14 @@
             },
             "lead": {
               "type": "text",
-              "value": "Jeden projekt â€” peĹ‚ny opis decyzji designowych i technicznych.",
+              "value": "Jeden projekt — pełny opis decyzji designowych i technicznych.",
               "editable": true
             },
             "cards": {
               "type": "list",
               "value": [
                 {
-                  "label": "Solo kancelaria â€˘ ToruĹ„ â€˘ 2026",
+                  "label": "Solo kancelaria • Toruń • 2026",
                   "title": "Kancelaria Radcy Prawnego Anna Wojtas",
                   "desc": "8-stronicowa strona HTML, system PACTA, mobile-first, Lighthouse 95+. Dostawa: 12 dni od briefu (2 dni przed terminem).",
                   "image": "assets/images/wojtas-hero.png"
@@ -214,7 +214,7 @@
           "fields": {
             "sectionLabel": {
               "type": "text",
-              "value": "Jak pracujÄ™",
+              "value": "Jak pracuję",
               "editable": false
             },
             "headline": {
@@ -228,27 +228,27 @@
                 {
                   "num": "01",
                   "title": "Brief",
-                  "body": "WypeĹ‚niasz krĂłtki formularz online. Ustalamy zakres, specjalizacje i terminy."
+                  "body": "Wypełniasz krótki formularz online. Ustalamy zakres, specjalizacje i terminy."
                 },
                 {
                   "num": "02",
                   "title": "Design",
-                  "body": "KonfigurujÄ™ system PACTA dla Twojej kancelarii: kolory, typografia, ukĹ‚ad."
+                  "body": "Konfiguruję system PACTA dla Twojej kancelarii: kolory, typografia, układ."
                 },
                 {
                   "num": "03",
                   "title": "Kod",
-                  "body": "BudujÄ™ wszystkie podstrony w HTML. Mobile-first. Lighthouse â‰Ą 90 jako warunek oddania."
+                  "body": "Buduję wszystkie podstrony w HTML. Mobile-first. Lighthouse ≥ 90 jako warunek oddania."
                 },
                 {
                   "num": "04",
                   "title": "Testy QA",
-                  "body": "Automatyczne screenshoty desktop/tablet/mobile, linki, formularze, dostÄ™pnoĹ›Ä‡."
+                  "body": "Automatyczne screenshoty desktop/tablet/mobile, linki, formularze, dostępność."
                 },
                 {
                   "num": "05",
                   "title": "Dostawa",
-                  "body": "PrzekazujÄ™ pliki + instrukcjÄ™ wdroĹĽenia hostingowego + wideo: jak edytowaÄ‡ treĹ›Ä‡."
+                  "body": "Przekazuję pliki + instrukcję wdrożenia hostingowego + wideo: jak edytować treść."
                 }
               ],
               "editable": true
@@ -271,7 +271,7 @@
             },
             "sectionLead": {
               "type": "text",
-              "value": "Transparentne warunki. Bez \"zapytaj o wycenÄ™\". Prawnicy ceniÄ… konkret â€” dajÄ™ go z gĂłry.",
+              "value": "Transparentne warunki. Bez \"zapytaj o wycenę\". Prawnicy cenią konkret — daję go z góry.",
               "editable": true
             },
             "standard": {
@@ -280,16 +280,16 @@
                 "label": "Standard",
                 "amount": "4 500",
                 "deliveryNote": "14 dni od briefu",
-                "ariaLabel": "Cena od 4500 zĹ‚otych netto",
+                "ariaLabel": "Cena od 4500 złotych netto",
                 "features": [
                   "Do 8 podstron HTML + CSS",
                   "Responsywny design mobile-first",
                   "System PACTA (skodyfikowany look kancelarii)",
                   "Podstawowe SEO (meta, og, sitemap.xml)",
                   "Formularz kontaktowy",
-                  "Instrukcja wdroĹĽenia hostingowego"
+                  "Instrukcja wdrożenia hostingowego"
                 ],
-                "ctaLabel": "ZamĂłw stronÄ™",
+                "ctaLabel": "Zamów stronę",
                 "ctaMicrocopy": "Wycena w 24h od briefu"
               },
               "editable": true
@@ -300,17 +300,17 @@
                 "label": "Rozszerzony",
                 "amount": "6 500",
                 "deliveryNote": "21 dni od briefu",
-                "ariaLabel": "Cena od 6500 zĹ‚otych netto",
+                "ariaLabel": "Cena od 6500 złotych netto",
                 "features": [
-                  "Do 12 podstron + sekcja blog/aktualnoĹ›ci",
+                  "Do 12 podstron + sekcja blog/aktualności",
                   "Wszystko z pakietu Standard",
-                  "Wideo instrukcja edycji treĹ›ci",
+                  "Wideo instrukcja edycji treści",
                   "Google Analytics + Search Console setup",
-                  "Raport Lighthouse po wdroĹĽeniu",
-                  "3 miesiÄ…ce wsparcia technicznego"
+                  "Raport Lighthouse po wdrożeniu",
+                  "3 miesiące wsparcia technicznego"
                 ],
-                "ctaLabel": "ZamĂłw stronÄ™",
-                "ctaMicrocopy": "Bez zobowiÄ…zaĹ„"
+                "ctaLabel": "Zamów stronę",
+                "ctaMicrocopy": "Bez zobowiązań"
               },
               "editable": true
             }
@@ -327,7 +327,7 @@
             },
             "lead": {
               "type": "richtext",
-              "value": "Strona gotowa w 14 dni od briefu. Od 4Â 500Â zĹ‚ netto. Opisz mi krĂłtko sytuacjÄ™ â€” odpiszÄ™ w ciÄ…gu 24h.",
+              "value": "Strona gotowa w 14 dni od briefu. Od 4 500 zł netto. Opisz mi krótko sytuację — odpiszę w ciągu 24h.",
               "editable": true
             },
             "ctaLabel": {
@@ -354,7 +354,7 @@
                   "href": "portfolio.html"
                 },
                 {
-                  "label": "Jak pracujÄ™",
+                  "label": "Jak pracuję",
                   "href": "proces.html"
                 },
                 {
@@ -366,7 +366,7 @@
                   "label": "Regulamin"
                 },
                 {
-                  "label": "Polityka prywatnoĹ›ci",
+                  "label": "Polityka prywatności",
                   "href": "privacy-policy.html"
                 },
                 {
@@ -378,7 +378,7 @@
             },
             "copyright": {
               "type": "text",
-              "value": "Â© 2026 Forma Wizerunku. Wszelkie prawa zastrzeĹĽone.",
+              "value": "© 2026 Forma Wizerunku. Wszelkie prawa zastrzeżone.",
               "editable": false
             }
           }
@@ -389,10 +389,10 @@
       "slug": "portfolio",
       "navLabel": "Portfolio",
       "meta": {
-        "title": "Portfolio â€” realizacje | FORMA Wizerunku",
+        "title": "Portfolio — realizacje | FORMA Wizerunku",
         "description": "Realizacje FORMA Wizerunku: strony internetowe dla kancelarii prawnych i firm B2B. Case studies z liczbami.",
         "canonical": "https://formawizerunku.pl/portfolio.html",
-        "ogTitle": "Portfolio â€” realizacje | FORMA Wizerunku",
+        "ogTitle": "Portfolio — realizacje | FORMA Wizerunku",
         "ogDescription": "Strony dla kancelarii prawnych i firm B2B. Case studies z liczbami.",
         "ogUrl": "https://formawizerunku.pl/portfolio.html"
       },
@@ -408,7 +408,7 @@
             },
             "ctaLabel": {
               "type": "cta",
-              "value": "ZamĂłw stronÄ™",
+              "value": "Zamów stronę",
               "editable": false
             }
           }
@@ -429,7 +429,7 @@
             },
             "lead": {
               "type": "richtext",
-              "value": "Case studies z liczbami: czasy realizacji, wyniki Lighthouse, zakresy projektĂłw.",
+              "value": "Case studies z liczbami: czasy realizacji, wyniki Lighthouse, zakresy projektów.",
               "editable": true
             }
           }
@@ -443,7 +443,7 @@
               "value": [
                 {
                   "id": "11111111-1111-4111-b111-111111111111",
-                  "label": "Kancelaria solo â€˘ ToruĹ„ â€˘ 2026",
+                  "label": "Kancelaria solo • Toruń • 2026",
                   "title": "Kancelaria Radcy Prawnego Anna Wojtas",
                   "desc": "8-stronicowa strona HTML, system PACTA. Lighthouse 95+. Dostawa w 12 dni.",
                   "image": "assets/images/wojtas-hero.png",
@@ -460,22 +460,22 @@
           "fields": {
             "headline": {
               "type": "text",
-              "value": "Chcesz podobnÄ… stronÄ™?",
+              "value": "Chcesz podobną stronę?",
               "editable": true
             },
             "lead": {
               "type": "richtext",
-              "value": "Strona gotowa w 14 dni od briefu. Opisz krĂłtko kancelariÄ™, odpiszÄ™ w ciÄ…gu 24h.",
+              "value": "Strona gotowa w 14 dni od briefu. Opisz krótko kancelarię, odpiszę w ciągu 24h.",
               "editable": true
             },
             "ctaLabel": {
               "type": "cta",
-              "value": "ZamĂłw stronÄ™",
+              "value": "Zamów stronę",
               "editable": true
             },
             "microcopy": {
               "type": "text",
-              "value": "Odpowiadam w ciÄ…gu 24h. Bez zobowiÄ…zaĹ„.",
+              "value": "Odpowiadam w ciągu 24h. Bez zobowiązań.",
               "editable": true
             }
           }
@@ -497,7 +497,7 @@
                   "href": "portfolio.html"
                 },
                 {
-                  "label": "Jak pracujÄ™",
+                  "label": "Jak pracuję",
                   "href": "proces.html"
                 },
                 {
@@ -509,7 +509,7 @@
                   "label": "Regulamin"
                 },
                 {
-                  "label": "Polityka prywatnoĹ›ci",
+                  "label": "Polityka prywatności",
                   "href": "privacy-policy.html"
                 },
                 {
@@ -521,7 +521,7 @@
             },
             "copyright": {
               "type": "text",
-              "value": "Â© 2026 Forma Wizerunku. Wszelkie prawa zastrzeĹĽone.",
+              "value": "© 2026 Forma Wizerunku. Wszelkie prawa zastrzeżone.",
               "editable": false
             }
           }
@@ -530,7 +530,7 @@
     },
     {
       "slug": "proces",
-      "navLabel": "Jak pracujÄ™",
+      "navLabel": "Jak pracuję",
       "sections": [
         {
           "id": "nav",
@@ -543,7 +543,7 @@
             },
             "ctaLabel": {
               "type": "cta",
-              "value": "ZamĂłw stronÄ™",
+              "value": "Zamów stronę",
               "editable": false
             }
           }
@@ -554,7 +554,7 @@
           "fields": {
             "tag": {
               "type": "text",
-              "value": "Jak pracujÄ™",
+              "value": "Jak pracuję",
               "editable": false
             },
             "headline": {
@@ -564,7 +564,7 @@
             },
             "lead": {
               "type": "richtext",
-              "value": "StaĹ‚y termin. StaĹ‚a cena. Bez niespodzianek. Wiesz z gĂłry co dostajesz, kiedy i za ile â€” bo prawnicy ceniÄ… transparentnoĹ›Ä‡ umownÄ….",
+              "value": "Stały termin. Stała cena. Bez niespodzianek. Wiesz z góry co dostajesz, kiedy i za ile — bo prawnicy cenią transparentność umowną.",
               "editable": true
             }
           }
@@ -575,7 +575,7 @@
           "fields": {
             "headline": {
               "type": "text",
-              "value": "Jak wyglÄ…da wspĂłĹ‚praca krok po kroku",
+              "value": "Jak wygląda współpraca krok po kroku",
               "editable": true
             },
             "steps": {
@@ -583,39 +583,39 @@
               "value": [
                 {
                   "num": "01",
-                  "day": "DzieĹ„ 1-2",
+                  "day": "Dzień 1-2",
                   "title": "Brief",
-                  "body": "WypeĹ‚niasz krĂłtki formularz online. Opisujesz kancelariÄ™, specjalizacje i klientĂłw. Dostajesz ode mnie pytania doprecyzowujÄ…ce. Ustalamy zakres, terminy i warunki pĹ‚atnoĹ›ci. <strong>Twoje dziaĹ‚anie:</strong> formularz + materiaĹ‚y (treĹ›ci, zdjÄ™cia)."
+                  "body": "Wypełniasz krótki formularz online. Opisujesz kancelarię, specjalizacje i klientów. Dostajesz ode mnie pytania doprecyzowujące. Ustalamy zakres, terminy i warunki płatności. <strong>Twoje działanie:</strong> formularz + materiały (treści, zdjęcia)."
                 },
                 {
                   "num": "02",
-                  "day": "DzieĹ„ 3-5",
+                  "day": "Dzień 3-5",
                   "title": "Design systemu",
-                  "body": "KonfigurujÄ™ system PACTA dla Twojej kancelarii: kolory, typografia, foto-placeholder. Dostajesz wglÄ…d do pierwszego projektu sekcji hero do akceptacji. <strong>Twoje dziaĹ‚anie:</strong> feedback w ciÄ…gu 24h."
+                  "body": "Konfiguruję system PACTA dla Twojej kancelarii: kolory, typografia, foto-placeholder. Dostajesz wgląd do pierwszego projektu sekcji hero do akceptacji. <strong>Twoje działanie:</strong> feedback w ciągu 24h."
                 },
                 {
                   "num": "03",
-                  "day": "DzieĹ„ 5-10",
+                  "day": "Dzień 5-10",
                   "title": "Kodowanie",
-                  "body": "BudujÄ™ wszystkie podstrony w HTML + CSS. Mobile-first od pierwszej linii kodu. Lighthouse â‰Ą 90 jako warunek oddania â€” nie opcja. <strong>Twoje dziaĹ‚anie:</strong> dostarczasz finalne zdjÄ™cia i treĹ›ci."
+                  "body": "Buduję wszystkie podstrony w HTML + CSS. Mobile-first od pierwszej linii kodu. Lighthouse ≥ 90 jako warunek oddania — nie opcja. <strong>Twoje działanie:</strong> dostarczasz finalne zdjęcia i treści."
                 },
                 {
                   "num": "04",
-                  "day": "DzieĹ„ 8-12 (rĂłwnolegle)",
-                  "title": "TreĹ›Ä‡ i zdjÄ™cia",
-                  "body": "Dostarczasz zdjÄ™cia i treĹ›Ä‡ (masz checkistÄ™ ode mnie od Dnia 1). MogÄ™ napisaÄ‡ copy na podstawie Twojej specjalizacji â€” opcjonalnie za dopĹ‚atÄ…. <strong>Twoje dziaĹ‚anie:</strong> dostarcz materiaĹ‚y do Dnia 8 (gwarancja terminu)."
+                  "day": "Dzień 8-12 (równolegle)",
+                  "title": "Treść i zdjęcia",
+                  "body": "Dostarczasz zdjęcia i treść (masz checkistę ode mnie od Dnia 1). Mogę napisać copy na podstawie Twojej specjalizacji — opcjonalnie za dopłatą. <strong>Twoje działanie:</strong> dostarcz materiały do Dnia 8 (gwarancja terminu)."
                 },
                 {
                   "num": "05",
-                  "day": "DzieĹ„ 12-13",
+                  "day": "Dzień 12-13",
                   "title": "Testy QA",
-                  "body": "Automatyczne testy: screenshoty desktop/tablet/mobile (Playwright), broken links, formularze, CTA, dostÄ™pnoĹ›Ä‡ (WAVE), Lighthouse. Lista bĹ‚Ä™dĂłw â€” zwykle 0-3 drobne. <strong>Twoje dziaĹ‚anie:</strong> odbiĂłr i ewentualny feedback."
+                  "body": "Automatyczne testy: screenshoty desktop/tablet/mobile (Playwright), broken links, formularze, CTA, dostępność (WAVE), Lighthouse. Lista błędów — zwykle 0-3 drobne. <strong>Twoje działanie:</strong> odbiór i ewentualny feedback."
                 },
                 {
                   "num": "06",
-                  "day": "DzieĹ„ 14",
+                  "day": "Dzień 14",
                   "title": "Dostawa",
-                  "body": "Przekazanie plikĂłw + instrukcja wdroĹĽenia hostingowego (Vercel/Netlify/FTP). Nagranie wideo: jak edytowaÄ‡ treĹ›Ä‡ samodzielnie. MoĹĽemy przejĹ›Ä‡ razem przez wdroĹĽenie â€” 30 min. <strong>Twoje dziaĹ‚anie:</strong> wdroĹĽenie lub zlecenie serwerowe."
+                  "body": "Przekazanie plików + instrukcja wdrożenia hostingowego (Vercel/Netlify/FTP). Nagranie wideo: jak edytować treść samodzielnie. Możemy przejść razem przez wdrożenie — 30 min. <strong>Twoje działanie:</strong> wdrożenie lub zlecenie serwerowe."
                 }
               ],
               "editable": true
@@ -628,7 +628,7 @@
           "fields": {
             "headline": {
               "type": "text",
-              "value": "Konkretne pliki i usĹ‚ugi przy kaĹĽdym projekcie",
+              "value": "Konkretne pliki i usługi przy każdym projekcie",
               "editable": true
             },
             "items": {
@@ -636,14 +636,14 @@
               "value": [
                 {
                   "title": "Gotowe pliki HTML + CSS",
-                  "body": "Czyste, semantyczne pliki bez zaleĹĽnoĹ›ci od CMS ani frameworka."
+                  "body": "Czyste, semantyczne pliki bez zależności od CMS ani frameworka."
                 },
                 {
-                  "title": "Instrukcja wdroĹĽenia hostingowego",
+                  "title": "Instrukcja wdrożenia hostingowego",
                   "body": "Krok po kroku na Vercel, Netlify lub dowolny serwer FTP."
                 },
                 {
-                  "title": "Wideo: jak edytowaÄ‡ treĹ›Ä‡",
+                  "title": "Wideo: jak edytować treść",
                   "body": "Screencast 10-15 min. Edytujesz HTML jak dokument Word."
                 },
                 {
@@ -656,7 +656,7 @@
                 },
                 {
                   "title": "Google Analytics + Search Console",
-                  "body": "Setup i weryfikacja domeny â€” w pakiecie Rozszerzony."
+                  "body": "Setup i weryfikacja domeny — w pakiecie Rozszerzony."
                 }
               ],
               "editable": true
@@ -669,19 +669,19 @@
           "fields": {
             "headline": {
               "type": "text",
-              "value": "BudujÄ™ statyczne strony â€” szybkie, bezpieczne, bez CMS",
+              "value": "Buduję statyczne strony — szybkie, bezpieczne, bez CMS",
               "editable": true
             },
             "lead": {
               "type": "richtext",
-              "value": "Zero WordPress. Zero zaleĹĽnoĹ›ci od wtyczek. Zero ryzyka ataku przez nieaktualne CMS-y. Strona to pliki â€” dziaĹ‚ajÄ… zawsze i wszÄ™dzie.",
+              "value": "Zero WordPress. Zero zależności od wtyczek. Zero ryzyka ataku przez nieaktualne CMS-y. Strona to pliki — działają zawsze i wszędzie.",
               "editable": true
             },
             "tags": {
               "type": "list",
               "value": [
                 "HTML5 semantyczny",
-                "CSS wĹ‚asny (bez Tailwind CDN)",
+                "CSS własny (bez Tailwind CDN)",
                 "JavaScript (vanilla)",
                 "Playwright QA",
                 "Google Lighthouse",
@@ -704,7 +704,7 @@
             },
             "sectionLead": {
               "type": "text",
-              "value": "Cena jawna. Zakres jasny. Warunki pĹ‚atnoĹ›ci: 50% zaliczka, 50% po dostawie.",
+              "value": "Cena jawna. Zakres jasny. Warunki płatności: 50% zaliczka, 50% po dostawie.",
               "editable": true
             }
           }
@@ -715,7 +715,7 @@
           "fields": {
             "headline": {
               "type": "text",
-              "value": "Pytania przed zamĂłwieniem",
+              "value": "Pytania przed zamówieniem",
               "editable": true
             },
             "items": {
@@ -723,38 +723,38 @@
               "value": [
                 {
                   "id": "1",
-                  "question": "Czy mogÄ™ sam edytowaÄ‡ treĹ›Ä‡ strony po dostawie?",
-                  "answer": "Tak. Dostajesz wideo instrukcjÄ™ (10-15 min). Strona to pliki HTML â€” edytujesz tekst dowolnym edytorem (nawet Notatnikiem). Nie zaleĹĽy od ĹĽadnego CMS, panelu ani abonamentu."
+                  "question": "Czy mogę sam edytować treść strony po dostawie?",
+                  "answer": "Tak. Dostajesz wideo instrukcję (10-15 min). Strona to pliki HTML — edytujesz tekst dowolnym edytorem (nawet Notatnikiem). Nie zależy od żadnego CMS, panelu ani abonamentu."
                 },
                 {
                   "id": "2",
                   "question": "Co z RODO na stronie kancelarii?",
-                  "answer": "Strona zawiera politykÄ™ prywatnoĹ›ci, klauzulÄ™ informacyjnÄ… w formularzu kontaktowym oraz podstawowe zarzÄ…dzanie cookies. To speĹ‚nia minimalne wymogi RODO dla strony informacyjnej kancelarii. PeĹ‚na obsĹ‚uga danych osobowych leĹĽy po stronie Twojej kancelarii."
+                  "answer": "Strona zawiera politykę prywatności, klauzulę informacyjną w formularzu kontaktowym oraz podstawowe zarządzanie cookies. To spełnia minimalne wymogi RODO dla strony informacyjnej kancelarii. Pełna obsługa danych osobowych leży po stronie Twojej kancelarii."
                 },
                 {
                   "id": "3",
                   "question": "Czy 14 dni to gwarantowany termin?",
-                  "answer": "Tak, pod warunkiem dostarczenia treĹ›ci i zdjÄ™Ä‡ do Dnia 8. JeĹ›li materiaĹ‚y spĂłĹşniÄ… siÄ™, termin przesuwa siÄ™ proporcjonalnie â€” proporcja opĂłĹşnienia jest jednorazowo dokumentowana mailem. Gwarancja jest wpisana w umowÄ™."
+                  "answer": "Tak, pod warunkiem dostarczenia treści i zdjęć do Dnia 8. Jeśli materiały spóźnią się, termin przesuwa się proporcjonalnie — proporcja opóźnienia jest jednorazowo dokumentowana mailem. Gwarancja jest wpisana w umowę."
                 },
                 {
                   "id": "4",
-                  "question": "Czy zajmujesz siÄ™ hostingiem?",
-                  "answer": "Nie zajmujÄ™ siÄ™ hostingiem â€” dajÄ™ Ci instrukcjÄ™ wdroĹĽenia na Vercel lub Netlify (obydwa bezpĹ‚atne dla statycznych stron) lub dowolny serwer FTP. W pakiecie Rozszerzony: sesja 30 min ĹĽeby przejĹ›Ä‡ razem przez wdroĹĽenie."
+                  "question": "Czy zajmujesz się hostingiem?",
+                  "answer": "Nie zajmuję się hostingiem — daję Ci instrukcję wdrożenia na Vercel lub Netlify (obydwa bezpłatne dla statycznych stron) lub dowolny serwer FTP. W pakiecie Rozszerzony: sesja 30 min żeby przejść razem przez wdrożenie."
                 },
                 {
                   "id": "5",
-                  "question": "Czy strona bÄ™dzie widoczna w Google?",
-                  "answer": "WykonujÄ™ SEO techniczne: meta tagi, og:image, sitemap.xml, schema.org JSON-LD, Google Search Console setup (Rozszerzony). Technicznie strona jest gotowa do indeksacji. Pozycjonowanie w wynikach (content SEO) wymaga regularnych dziaĹ‚aĹ„ â€” mogÄ™ to wyceniÄ‡ osobno."
+                  "question": "Czy strona będzie widoczna w Google?",
+                  "answer": "Wykonuję SEO techniczne: meta tagi, og:image, sitemap.xml, schema.org JSON-LD, Google Search Console setup (Rozszerzony). Technicznie strona jest gotowa do indeksacji. Pozycjonowanie w wynikach (content SEO) wymaga regularnych działań — mogę to wycenić osobno."
                 },
                 {
                   "id": "6",
                   "question": "Pracujesz tylko z kancelariami?",
-                  "answer": "Tak. SpecjalizujÄ™ siÄ™ w stronach dla kancelarii radcĂłw prawnych i adwokatĂłw. Dlatego strony wychodzÄ… lepiej â€” znam wzorce tej branĹĽy, typowe obiekcje klientĂłw i specyficzne wymagania RODO dla kancelarii."
+                  "answer": "Tak. Specjalizuję się w stronach dla kancelarii radców prawnych i adwokatów. Dlatego strony wychodzą lepiej — znam wzorce tej branży, typowe obiekcje klientów i specyficzne wymagania RODO dla kancelarii."
                 },
                 {
                   "id": "7",
                   "question": "Ile kosztuje zmiana strony po dostawie?",
-                  "answer": "MaĹ‚a zmiana (treĹ›Ä‡, zdjÄ™cie, CTA) â€” bezpĹ‚atna przez 14 dni po dostawie. DuĹĽe zmiany (nowa podstrona, nowa sekcja, nowa funkcja) â€” wycena osobno od 300 zĹ‚. Pakiet Rozszerzony: 3 miesiÄ…ce wsparcia technicznego wliczone w cenÄ™."
+                  "answer": "Mała zmiana (treść, zdjęcie, CTA) — bezpłatna przez 14 dni po dostawie. Duże zmiany (nowa podstrona, nowa sekcja, nowa funkcja) — wycena osobno od 300 zł. Pakiet Rozszerzony: 3 miesiące wsparcia technicznego wliczone w cenę."
                 }
               ],
               "editable": true
@@ -772,7 +772,7 @@
             },
             "lead": {
               "type": "richtext",
-              "value": "Strona gotowa w 14 dni od briefu. Od 4Â 500Â zĹ‚ netto. Opisz krĂłtko kancelariÄ™ â€” odpiszÄ™ w 24h.",
+              "value": "Strona gotowa w 14 dni od briefu. Od 4 500 zł netto. Opisz krótko kancelarię — odpiszę w 24h.",
               "editable": true
             },
             "ctaLabel": {
@@ -782,7 +782,7 @@
             },
             "microcopy": {
               "type": "text",
-              "value": "Odpowiadam w ciÄ…gu 24h. Bez zobowiÄ…zaĹ„.",
+              "value": "Odpowiadam w ciągu 24h. Bez zobowiązań.",
               "editable": true
             }
           }
@@ -804,7 +804,7 @@
                   "href": "portfolio.html"
                 },
                 {
-                  "label": "Jak pracujÄ™",
+                  "label": "Jak pracuję",
                   "href": "proces.html"
                 },
                 {
@@ -816,7 +816,7 @@
                   "label": "Regulamin"
                 },
                 {
-                  "label": "Polityka prywatnoĹ›ci",
+                  "label": "Polityka prywatności",
                   "href": "privacy-policy.html"
                 },
                 {
@@ -828,18 +828,18 @@
             },
             "copyright": {
               "type": "text",
-              "value": "Â© 2026 Forma Wizerunku. Wszelkie prawa zastrzeĹĽone.",
+              "value": "© 2026 Forma Wizerunku. Wszelkie prawa zastrzeżone.",
               "editable": false
             }
           }
         }
       ],
       "meta": {
-        "title": "Jak pracujÄ™ â€” proces i cennik | FORMA Wizerunku",
-        "description": "Proces projektowania stron dla kancelarii prawnych. 6 krokĂłw, 14 dni. Cennik: Standard 4500 zĹ‚, Rozszerzony 6500 zĹ‚. FAQ â€” odpowiedzi na pytania przed zamĂłwieniem.",
+        "title": "Jak pracuję — proces i cennik | FORMA Wizerunku",
+        "description": "Proces projektowania stron dla kancelarii prawnych. 6 kroków, 14 dni. Cennik: Standard 4500 zł, Rozszerzony 6500 zł. FAQ — odpowiedzi na pytania przed zamówieniem.",
         "canonical": "https://formawizerunku.pl/proces.html",
-        "ogTitle": "Jak pracujÄ™ â€” proces i cennik | FORMA Wizerunku",
-        "ogDescription": "6 krokĂłw, 14 dni, transparentny cennik. Dowiedz siÄ™ jak wyglÄ…da wspĂłĹ‚praca.",
+        "ogTitle": "Jak pracuję — proces i cennik | FORMA Wizerunku",
+        "ogDescription": "6 kroków, 14 dni, transparentny cennik. Dowiedz się jak wygląda współpraca.",
         "ogUrl": "https://formawizerunku.pl/proces.html"
       }
     },
@@ -847,11 +847,11 @@
       "slug": "kontakt",
       "navLabel": "Kontakt",
       "meta": {
-        "title": "Kontakt â€” zamĂłw wycenÄ™ | FORMA Wizerunku",
-        "description": "ZamĂłw wycenÄ™ strony dla kancelarii prawnej. Odpowiadam w ciÄ…gu 24h. Strona gotowa w 14 dni od briefu. Od 4 500 zĹ‚ netto.",
+        "title": "Kontakt — zamów wycenę | FORMA Wizerunku",
+        "description": "Zamów wycenę strony dla kancelarii prawnej. Odpowiadam w ciągu 24h. Strona gotowa w 14 dni od briefu. Od 4 500 zł netto.",
         "canonical": "https://formawizerunku.pl/kontakt.html",
-        "ogTitle": "Kontakt â€” zamĂłw wycenÄ™ | FORMA Wizerunku",
-        "ogDescription": "ZamĂłw wycenÄ™ strony dla kancelarii prawnej. Odpowiadam w ciÄ…gu 24h.",
+        "ogTitle": "Kontakt — zamów wycenę | FORMA Wizerunku",
+        "ogDescription": "Zamów wycenę strony dla kancelarii prawnej. Odpowiadam w ciągu 24h.",
         "ogUrl": "https://formawizerunku.pl/kontakt.html"
       },
       "sections": [
@@ -866,7 +866,7 @@
             },
             "ctaLabel": {
               "type": "cta",
-              "value": "ZamĂłw stronÄ™",
+              "value": "Zamów stronę",
               "editable": false
             }
           }
@@ -887,7 +887,7 @@
             },
             "body": {
               "type": "richtext",
-              "value": "WypeĹ‚nij formularz i opisz swoje potrzeby. OdpisujÄ™ osobiĹ›cie w ciÄ…gu 24 godzin. Bez sprzedaĹĽowego nacisku â€” najpierw porozmawiajmy, czy mogÄ™ Ci faktycznie pomĂłc.",
+              "value": "Wypełnij formularz i opisz swoje potrzeby. Odpisuję osobiście w ciągu 24 godzin. Bez sprzedażowego nacisku — najpierw porozmawiajmy, czy mogę Ci faktycznie pomóc.",
               "editable": true
             }
           }
@@ -898,17 +898,17 @@
           "fields": {
             "reassurance1": {
               "type": "text",
-              "value": "Odpowiadam osobiĹ›cie â€” bez automatycznych odpowiedzi",
+              "value": "Odpowiadam osobiście — bez automatycznych odpowiedzi",
               "editable": true
             },
             "reassurance2": {
               "type": "text",
-              "value": "WstÄ™pna wycena bezpĹ‚atnie, w ciÄ…gu 24 godzin",
+              "value": "Wstępna wycena bezpłatnie, w ciągu 24 godzin",
               "editable": true
             },
             "reassurance3": {
               "type": "text",
-              "value": "SpecjalizujÄ™ siÄ™ wyĹ‚Ä…cznie w stronach dla kancelarii prawnych",
+              "value": "Specjalizuję się wyłącznie w stronach dla kancelarii prawnych",
               "editable": true
             }
           }
@@ -930,7 +930,7 @@
                   "href": "portfolio.html"
                 },
                 {
-                  "label": "Jak pracujÄ™",
+                  "label": "Jak pracuję",
                   "href": "proces.html"
                 },
                 {
@@ -942,7 +942,7 @@
                   "label": "Regulamin"
                 },
                 {
-                  "label": "Polityka prywatnoĹ›ci",
+                  "label": "Polityka prywatności",
                   "href": "privacy-policy.html"
                 },
                 {
@@ -954,7 +954,7 @@
             },
             "copyright": {
               "type": "text",
-              "value": "Â© 2026 Forma Wizerunku. Wszelkie prawa zastrzeĹĽone.",
+              "value": "© 2026 Forma Wizerunku. Wszelkie prawa zastrzeżone.",
               "editable": false
             }
           }
@@ -984,7 +984,7 @@
             },
             "ctaLabel": {
               "type": "cta",
-              "value": "ZamĂłw stronÄ™",
+              "value": "Zamów stronę",
               "editable": false
             }
           }
@@ -1011,7 +1011,7 @@
                   "href": "portfolio.html"
                 },
                 {
-                  "label": "Jak pracujÄ™",
+                  "label": "Jak pracuję",
                   "href": "proces.html"
                 },
                 {
@@ -1023,7 +1023,7 @@
                   "label": "Regulamin"
                 },
                 {
-                  "label": "Polityka prywatnoĹ›ci",
+                  "label": "Polityka prywatności",
                   "href": "privacy-policy.html"
                 },
                 {
@@ -1035,7 +1035,7 @@
             },
             "copyright": {
               "type": "text",
-              "value": "Â© 2026 Forma Wizerunku. Wszelkie prawa zastrzeĹĽone.",
+              "value": "© 2026 Forma Wizerunku. Wszelkie prawa zastrzeżone.",
               "editable": false
             }
           }
@@ -1045,7 +1045,7 @@
     {
       "slug": "privacy-policy",
       "meta": {
-        "title": "Polityka PrywatnoĹ›ci | FORMA Wizerunku",
+        "title": "Polityka Prywatności | FORMA Wizerunku",
         "description": "Polityka prywatnosci serwisu Forma Wizerunku.",
         "canonical": "https://formawizerunku.pl/privacy-policy.html",
         "ogTitle": "Polityka Prywatnosci | FORMA Wizerunku",
@@ -1065,7 +1065,7 @@
             },
             "ctaLabel": {
               "type": "cta",
-              "value": "ZamĂłw stronÄ™",
+              "value": "Zamów stronę",
               "editable": false
             }
           }
@@ -1092,7 +1092,7 @@
                   "href": "portfolio.html"
                 },
                 {
-                  "label": "Jak pracujÄ™",
+                  "label": "Jak pracuję",
                   "href": "proces.html"
                 },
                 {
@@ -1104,7 +1104,7 @@
                   "label": "Regulamin"
                 },
                 {
-                  "label": "Polityka prywatnoĹ›ci",
+                  "label": "Polityka prywatności",
                   "href": "privacy-policy.html"
                 },
                 {
@@ -1116,7 +1116,7 @@
             },
             "copyright": {
               "type": "text",
-              "value": "Â© 2026 Forma Wizerunku. Wszelkie prawa zastrzeĹĽone.",
+              "value": "© 2026 Forma Wizerunku. Wszelkie prawa zastrzeżone.",
               "editable": false
             }
           }
@@ -1127,9 +1127,9 @@
       "slug": "regulamin",
       "meta": {
         "title": "Regulamin Serwisu | FORMA Wizerunku",
-        "description": "Regulamin serwisu formawizerunku.pl â€” zasady korzystania z serwisu Forma Wizerunku.",
+        "description": "Regulamin serwisu formawizerunku.pl — zasady korzystania z serwisu Forma Wizerunku.",
         "ogTitle": "Regulamin Serwisu | FORMA Wizerunku",
-        "ogDescription": "Regulamin serwisu formawizerunku.pl â€” zasady korzystania z serwisu Forma Wizerunku.",
+        "ogDescription": "Regulamin serwisu formawizerunku.pl — zasady korzystania z serwisu Forma Wizerunku.",
         "canonical": "https://www.formawizerunku.pl/regulamin.html",
         "ogUrl": "https://www.formawizerunku.pl/regulamin.html",
         "variant": "legal"
@@ -1146,7 +1146,7 @@
             },
             "ctaLabel": {
               "type": "cta",
-              "value": "ZamĂłw stronÄ™",
+              "value": "Zamów stronę",
               "editable": false
             }
           }
@@ -1173,7 +1173,7 @@
                   "href": "portfolio.html"
                 },
                 {
-                  "label": "Jak pracujÄ™",
+                  "label": "Jak pracuję",
                   "href": "proces.html"
                 },
                 {
@@ -1185,7 +1185,7 @@
                   "label": "Regulamin"
                 },
                 {
-                  "label": "Polityka prywatnoĹ›ci",
+                  "label": "Polityka prywatności",
                   "href": "privacy-policy.html"
                 },
                 {
@@ -1197,7 +1197,7 @@
             },
             "copyright": {
               "type": "text",
-              "value": "Â© 2026 Forma Wizerunku. Wszelkie prawa zastrzeĹĽone.",
+              "value": "© 2026 Forma Wizerunku. Wszelkie prawa zastrzeżone.",
               "editable": false
             }
           }
@@ -1207,10 +1207,10 @@
     {
       "slug": "404",
       "meta": {
-        "title": "404 â€” Strona nie istnieje | FORMA",
+        "title": "404 — Strona nie istnieje | FORMA",
         "description": "Strona nie znaleziona.",
         "canonical": "https://formawizerunku.pl/404.html",
-        "ogTitle": "404 â€” Strona nie istnieje | FORMA",
+        "ogTitle": "404 — Strona nie istnieje | FORMA",
         "ogDescription": "Strona nie znaleziona.",
         "ogUrl": "https://formawizerunku.pl/404.html",
         "variant": "404"
@@ -1227,7 +1227,7 @@
             },
             "ctaLabel": {
               "type": "cta",
-              "value": "ZamĂłw stronÄ™",
+              "value": "Zamów stronę",
               "editable": false
             }
           }
@@ -1254,7 +1254,7 @@
                   "href": "portfolio.html"
                 },
                 {
-                  "label": "Jak pracujÄ™",
+                  "label": "Jak pracuję",
                   "href": "proces.html"
                 },
                 {
@@ -1266,7 +1266,7 @@
                   "label": "Regulamin"
                 },
                 {
-                  "label": "Polityka prywatnoĹ›ci",
+                  "label": "Polityka prywatności",
                   "href": "privacy-policy.html"
                 },
                 {
@@ -1278,7 +1278,7 @@
             },
             "copyright": {
               "type": "text",
-              "value": "Â© 2026 Forma Wizerunku. Wszelkie prawa zastrzeĹĽone.",
+              "value": "© 2026 Forma Wizerunku. Wszelkie prawa zastrzeżone.",
               "editable": false
             }
           }
