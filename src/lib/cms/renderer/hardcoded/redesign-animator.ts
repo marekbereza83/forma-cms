@@ -28,13 +28,13 @@ export const redesignAnimatorScript = `<!-- redesign-animator Web Component -->
 
   const CSS = \`
     :host{display:block;width:100%;height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:#F0F6FC}
-    .wrap{height:100%;display:flex;flex-direction:column;gap:1rem;padding:1.25rem;box-sizing:border-box}
-    .content{flex:1;min-height:0;transition:opacity .3s ease,transform .3s ease}
+    .wrap{height:100%;display:flex;flex-direction:column;gap:.75rem;padding:1.25rem;box-sizing:border-box}
+    .content{flex:1;min-height:0;transition:opacity .3s ease,transform .3s ease;overflow:hidden}
     .content.switching{opacity:0;transform:translateY(8px)}
-    .meta{border-top:1px solid #21262D;padding-top:.85rem;display:flex;justify-content:space-between;align-items:flex-end;gap:1rem}
-    .info{display:flex;flex-direction:column;gap:.25rem;min-width:0}
-    .label{font-weight:800;font-size:1.15rem;letter-spacing:-.02em}
-    .desc{color:#8B949E;font-size:.9rem;line-height:1.4}
+    .meta{border-top:1px solid #21262D;padding-top:.75rem;display:flex;justify-content:space-between;align-items:flex-end;gap:.75rem;flex-shrink:0}
+    .info{display:flex;flex-direction:column;gap:.2rem;min-width:0;overflow:hidden}
+    .label{font-weight:800;font-size:1rem;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .desc{color:#8B949E;font-size:.85rem;line-height:1.35;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
     .numeral{font-family:'Space Mono',monospace;color:#6366F1;font-weight:700;font-size:.9rem}
     .dots{display:flex;gap:.45rem;align-items:center;margin-bottom:.3rem;justify-content:flex-end}
     .dot{width:9px;height:9px;border-radius:5px;cursor:pointer;border:none;padding:0;position:relative;overflow:hidden;transition:background .2s,width .3s ease;background:rgba(99,102,241,0.2)}
@@ -43,7 +43,7 @@ export const redesignAnimatorScript = `<!-- redesign-animator Web Component -->
     .paused .dot.active::after{animation-play-state:paused}
     .dot:hover{background:rgba(99,102,241,0.45)}
     .dot:focus-visible{outline:2px solid #6366F1;outline-offset:2px}
-    .ra-stage{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1rem;padding:1.25rem;background:#0D1117;border:1px solid #21262D;border-radius:6px;box-sizing:border-box}
+    .ra-stage{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;padding:1rem;background:#0D1117;border:1px solid #21262D;border-radius:6px;box-sizing:border-box;overflow:hidden}
     .ra-stage--pacta{border-color:rgba(99,102,241,.25);box-shadow:0 0 40px -10px rgba(99,102,241,.12)}
     .ra-label-top{font-family:'Space Mono',monospace;font-size:.78rem;color:#8B949E;letter-spacing:.1em;text-transform:uppercase;text-align:center}
     .ra-label-bot{font-family:'Space Mono',monospace;font-size:.75rem;color:#8B949E;text-align:center;letter-spacing:.06em}
@@ -61,7 +61,7 @@ export const redesignAnimatorScript = `<!-- redesign-animator Web Component -->
     .ra-progress{height:7px;flex:1;background:#161B22;border-radius:2px;overflow:hidden}
     .ra-fill{height:100%;background:rgba(99,102,241,.5);border-radius:2px}
     .ra-fill--70{width:70%}.ra-fill--45{width:45%}
-    .ra-pacta-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:3.5rem;font-weight:800;background:linear-gradient(135deg,#818cf8,#6366F1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.04em;line-height:1}
+    .ra-pacta-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800;background:linear-gradient(135deg,#818cf8,#6366F1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.04em;line-height:1}
     .ra-scores{display:flex;gap:.8rem;align-items:flex-end}
     .ra-score{display:flex;flex-direction:column;align-items:center;gap:.25rem}
     .ra-score-num{font-family:'Space Mono',monospace;font-size:1.5rem;font-weight:700;color:#3FB950}

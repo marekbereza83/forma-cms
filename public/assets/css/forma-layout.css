@@ -109,7 +109,7 @@
 }
 @media (min-width: 1024px) {
   .hero-inner {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1.2fr;
   }
 }
 
@@ -140,7 +140,8 @@
 /* ─── Hero visual (redesign-animator) ────────────────────── */
 .hero-visual {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 5 / 4;
+  min-height: 300px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
