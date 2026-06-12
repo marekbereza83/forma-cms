@@ -18,6 +18,7 @@
     "migrate:faq-editable": "npx tsx prisma/migrate-faq-editable.ts",
     "migrate:solution-editable": "npx tsx prisma/migrate-solution-editable.ts",
     "migrate:technologie-tags-editable": "npx tsx prisma/migrate-technologie-tags-editable.ts",
+    "migrate:add-regulamin": "npx tsx prisma/migrate-add-regulamin.ts",
     "create-tenant": "npx tsx scripts/create-tenant.ts"
   },
   "prisma": {
