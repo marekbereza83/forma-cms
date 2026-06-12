@@ -28,12 +28,12 @@ export function renderLegalNotice(_s: Section, ctx: RenderContext): string {
         <dt>Telefon</dt>
         <dd><a href="tel:${ctx.contactPhone}">${ctx.contactPhoneDisplay}</a></dd>
         <dt>Adres serwisu</dt>
-        <dd><a href="https://formawiz.pl">https://formawiz.pl</a></dd>
+        <dd><a href="https://www.formawizerunku.pl">https://www.formawizerunku.pl</a></dd>
       </dl>
 
       <h2>2. Prawa autorskie</h2>
       <p>
-        Wszelkie treści zamieszczone w serwisie formawiz.pl — w tym teksty, grafiki,
+        Wszelkie treści zamieszczone w serwisie formawizerunku.pl — w tym teksty, grafiki,
         elementy interfejsu, logotypy i kod źródłowy — stanowią własność Forma Wizerunku
         lub zostały umieszczone za zgodą ich właścicieli i są chronione przepisami ustawy
         z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych (Dz.U. z 2022 r.
@@ -133,7 +133,7 @@ export function renderPrivacyPolicy(_s: Section, ctx: RenderContext): string {
           w serwisie). Szczegóły w sekcji 7 poniżej.
         </li>
         <li>
-          <strong>Vercel, Inc.</strong> — dostawca hostingu serwisu formawiz.pl.
+          <strong>Vercel, Inc.</strong> — dostawca hostingu serwisu formawizerunku.pl.
           Logi dostępu (adres IP, nagłówki HTTP) mogą być przetwarzane przez Vercel
           na serwerach w UE lub USA. Polityka prywatności Vercel:
           <a href="https://vercel.com/legal/privacy-policy" rel="noopener noreferrer" target="_blank">vercel.com/legal/privacy-policy</a>.
@@ -170,7 +170,7 @@ export function renderPrivacyPolicy(_s: Section, ctx: RenderContext): string {
 
       <h2>6. Pliki cookies</h2>
       <p>
-        Serwis formawiz.pl nie wykorzystuje plików cookies do celów analitycznych ani
+        Serwis formawizerunku.pl nie wykorzystuje plików cookies do celów analitycznych ani
         marketingowych. Jeżeli w przyszłości zostaną wprowadzone pliki cookies, niniejsza
         polityka zostanie zaktualizowana z odpowiednim wyprzedzeniem.
       </p>
