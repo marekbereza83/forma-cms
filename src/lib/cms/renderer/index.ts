@@ -20,7 +20,7 @@ import { renderDeliverables } from './sections/deliverables'
 import { renderTechnologie } from './sections/technologie'
 import { renderCennikDetail } from './sections/cennik-detail'
 import { renderFaq } from './sections/faq'
-import { renderLegalNotice, renderPrivacyPolicy } from './sections/legal-static'
+import { renderLegalNotice, renderPrivacyPolicy, renderTermsOfService } from './sections/legal-static'
 import { renderNotFound } from './sections/not-found'
 import { redesignAnimatorScript } from './hardcoded/redesign-animator'
 
@@ -51,6 +51,7 @@ const SECTION_REGISTRY: Record<string, (s: Section, ctx: RenderContext) => strin
   // ── strony prawne (hardcoded content, variant: 'legal') ──────────────────────
   'legal-notice':      (s, ctx) => renderLegalNotice(s, ctx),
   'privacy-policy':    (s, ctx) => renderPrivacyPolicy(s, ctx),
+  'regulamin':         (s, ctx) => renderTermsOfService(s, ctx),
   // ── strona błędu (hardcoded content, variant: '404') ─────────────────────────
   'not-found':         (s, ctx) => renderNotFound(s, ctx.linkMode),
 }

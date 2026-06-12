@@ -81,6 +81,142 @@ export function renderLegalNotice(_s: Section, ctx: RenderContext): string {
 </section>`
 }
 
+export function renderTermsOfService(_s: Section, ctx: RenderContext): string {
+  return `<!-- SEKCJA: regulamin serwisu -->
+<section class="section" id="terms-of-service" aria-labelledby="terms-heading">
+  <div class="container">
+    <div class="legal-content">
+
+      <h1 id="terms-heading" class="f-headline">Regulamin Serwisu</h1>
+      <p class="f-label">Ostatnia aktualizacja: 12 czerwca 2026</p>
+
+      <h2>1. Postanowienia ogólne</h2>
+      <p>
+        Niniejszy Regulamin określa zasady korzystania z serwisu internetowego
+        dostępnego pod adresem <a href="https://www.formawizerunku.pl">formawizerunku.pl</a>,
+        prowadzonego przez Marka Berezę prowadzącego działalność gospodarczą pod nazwą
+        Forma Wizerunku (zwanego dalej „Usługodawcą").
+      </p>
+      <p>
+        Korzystanie z serwisu oznacza akceptację niniejszego Regulaminu. Jeżeli nie
+        akceptujesz jego postanowień, prosimy o opuszczenie serwisu.
+      </p>
+
+      <h2>2. Definicje</h2>
+      <dl class="legal-dl">
+        <dt>Serwis</dt>
+        <dd>
+          Witryna internetowa dostępna pod adresem formawizerunku.pl wraz ze
+          wszystkimi podstronami i zasobami.
+        </dd>
+        <dt>Użytkownik</dt>
+        <dd>
+          Każda osoba fizyczna, która korzysta z Serwisu.
+        </dd>
+        <dt>Usługodawca</dt>
+        <dd>
+          Marek Bereza prowadzący działalność gospodarczą pod nazwą Forma Wizerunku,
+          kontakt: <a href="mailto:${ctx.contactEmail}">${ctx.contactEmail}</a>,
+          tel. <a href="tel:${ctx.contactPhone}">${ctx.contactPhoneDisplay}</a>.
+        </dd>
+        <dt>Usługi</dt>
+        <dd>
+          Projektowanie i wdrażanie stron internetowych oraz powiązane usługi
+          świadczone przez Usługodawcę na rzecz Klientów.
+        </dd>
+      </dl>
+
+      <h2>3. Rodzaj i zakres usług</h2>
+      <p>
+        Serwis ma charakter informacyjno-prezentacyjny. Usługodawca prezentuje za
+        jego pośrednictwem swoje usługi projektowania stron internetowych, portfolio
+        zrealizowanych projektów oraz informacje kontaktowe umożliwiające nawiązanie
+        współpracy.
+      </p>
+      <p>
+        Serwis udostępnia formularz kontaktowy służący do przesyłania zapytań
+        ofertowych. Przesłanie formularza nie stanowi zawarcia umowy ani złożenia
+        zamówienia — jest jedynie zaproszeniem do nawiązania kontaktu.
+      </p>
+
+      <h2>4. Warunki korzystania z serwisu</h2>
+      <p>Użytkownik zobowiązuje się do:</p>
+      <ul>
+        <li>korzystania z Serwisu zgodnie z obowiązującymi przepisami prawa,</li>
+        <li>niepodejmowania działań mogących naruszyć prawa Usługodawcy lub osób trzecich,</li>
+        <li>nieprzesyłania za pośrednictwem formularza kontaktowego treści bezprawnych,
+          obraźliwych, spamowych ani złośliwego oprogramowania.</li>
+      </ul>
+      <p>
+        Usługodawca zastrzega sobie prawo do zablokowania dostępu do Serwisu
+        Użytkownikom naruszającym postanowienia niniejszego Regulaminu.
+      </p>
+
+      <h2>5. Własność intelektualna</h2>
+      <p>
+        Wszelkie treści zamieszczone w Serwisie — w tym teksty, grafiki, elementy
+        interfejsu, logotypy i kod źródłowy — są chronione przepisami prawa
+        autorskiego i stanowią własność Usługodawcy lub zostały umieszczone za zgodą
+        ich właścicieli.
+      </p>
+      <p>
+        Bez uprzedniej pisemnej zgody Usługodawcy zabronione jest kopiowanie,
+        reprodukowanie, modyfikowanie lub rozpowszechnianie jakichkolwiek elementów
+        Serwisu, z wyjątkiem przypadków dozwolonego użytku osobistego.
+      </p>
+
+      <h2>6. Odpowiedzialność</h2>
+      <p>
+        Usługodawca dokłada wszelkich starań, by informacje zawarte w Serwisie były
+        rzetelne i aktualne, jednak nie gwarantuje ich kompletności ani dokładności.
+        Usługodawca nie ponosi odpowiedzialności za decyzje podjęte na podstawie
+        treści dostępnych w Serwisie ani za szkody wynikające z niedostępności Serwisu.
+      </p>
+      <p>
+        Usługodawca nie ponosi odpowiedzialności za treść zewnętrznych stron
+        internetowych, do których odsyłają linki zamieszczone w Serwisie.
+      </p>
+
+      <h2>7. Dostępność serwisu</h2>
+      <p>
+        Usługodawca dąży do zapewnienia ciągłości działania Serwisu, jednak zastrzega
+        sobie prawo do czasowego wyłączenia lub ograniczenia dostępu do Serwisu —
+        w szczególności w celach konserwacyjnych — bez uprzedniego powiadomienia.
+      </p>
+
+      <h2>8. Ochrona danych osobowych</h2>
+      <p>
+        Zasady przetwarzania danych osobowych Użytkowników zostały szczegółowo opisane
+        w <a href="privacy-policy.html">Polityce Prywatności</a>, która stanowi
+        integralną część niniejszego Regulaminu.
+      </p>
+
+      <h2>9. Zmiany Regulaminu</h2>
+      <p>
+        Usługodawca zastrzega sobie prawo do zmiany niniejszego Regulaminu.
+        Wszelkie zmiany będą publikowane na tej stronie wraz z nową datą aktualizacji.
+        Korzystanie z Serwisu po wprowadzeniu zmian oznacza ich akceptację.
+      </p>
+
+      <h2>10. Prawo właściwe i rozstrzyganie sporów</h2>
+      <p>
+        Niniejszy Regulamin podlega prawu polskiemu. Wszelkie spory wynikające
+        z korzystania z Serwisu strony będą starały się rozwiązać polubownie.
+        W przypadku braku porozumienia sprawy będą rozstrzygane przez sąd właściwy
+        miejscowo zgodnie z obowiązującymi przepisami polskiego prawa.
+      </p>
+
+      <h2>11. Kontakt</h2>
+      <p>
+        W sprawach dotyczących Regulaminu prosimy o kontakt pod adresem:
+        <a href="mailto:${ctx.contactEmail}">${ctx.contactEmail}</a>.
+      </p>
+
+    </div>
+  </div>
+</section>`
+}
+
 export function renderPrivacyPolicy(_s: Section, ctx: RenderContext): string {
   return `<!-- SEKCJA: polityka prywatności -->
 <section class="section" id="privacy-policy" aria-labelledby="privacy-heading">

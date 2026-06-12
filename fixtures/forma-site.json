@@ -6,8 +6,8 @@
     "title": "Strony dla kancelarii prawnych | FORMA Wizerunku",
     "description": "Projektuję strony internetowe dla kancelarii radców prawnych i adwokatów. System PACTA. Strona gotowa w 14 dni. Od 4 500 zł netto. Solo. Bez pośredników.",
     "ogDescription": "Projektuję strony dla kancelarii. System PACTA. 14 dni. Od 4 500 zł netto.",
-    "canonical": "https://formawiz.pl/",
-    "ogImage": "https://formawiz.pl/assets/images/og-image.jpg",
+    "canonical": "https://formawizerunku.pl/",
+    "ogImage": "https://formawizerunku.pl/assets/images/og-image.jpg",
     "brandName": "Forma Wizerunku",
     "contactEmail": "kontakt@formawizerunku.pl",
     "contactPhone": "+48668902855",
@@ -362,6 +362,10 @@
                   "href": "kontakt.html"
                 },
                 {
+                  "href": "regulamin.html",
+                  "label": "Regulamin"
+                },
+                {
                   "label": "Polityka prywatności",
                   "href": "privacy-policy.html"
                 },
@@ -387,10 +391,10 @@
       "meta": {
         "title": "Portfolio — realizacje | FORMA Wizerunku",
         "description": "Realizacje FORMA Wizerunku: strony internetowe dla kancelarii prawnych i firm B2B. Case studies z liczbami.",
-        "canonical": "https://formawiz.pl/portfolio.html",
+        "canonical": "https://formawizerunku.pl/portfolio.html",
         "ogTitle": "Portfolio — realizacje | FORMA Wizerunku",
         "ogDescription": "Strony dla kancelarii prawnych i firm B2B. Case studies z liczbami.",
-        "ogUrl": "https://formawiz.pl/portfolio.html"
+        "ogUrl": "https://formawizerunku.pl/portfolio.html"
       },
       "sections": [
         {
@@ -499,6 +503,10 @@
                 {
                   "label": "Kontakt",
                   "href": "kontakt.html"
+                },
+                {
+                  "href": "regulamin.html",
+                  "label": "Regulamin"
                 },
                 {
                   "label": "Polityka prywatności",
@@ -804,6 +812,10 @@
                   "href": "kontakt.html"
                 },
                 {
+                  "href": "regulamin.html",
+                  "label": "Regulamin"
+                },
+                {
                   "label": "Polityka prywatności",
                   "href": "privacy-policy.html"
                 },
@@ -825,10 +837,10 @@
       "meta": {
         "title": "Jak pracuję — proces i cennik | FORMA Wizerunku",
         "description": "Proces projektowania stron dla kancelarii prawnych. 6 kroków, 14 dni. Cennik: Standard 4500 zł, Rozszerzony 6500 zł. FAQ — odpowiedzi na pytania przed zamówieniem.",
-        "canonical": "https://formawiz.pl/proces.html",
+        "canonical": "https://formawizerunku.pl/proces.html",
         "ogTitle": "Jak pracuję — proces i cennik | FORMA Wizerunku",
         "ogDescription": "6 kroków, 14 dni, transparentny cennik. Dowiedz się jak wygląda współpraca.",
-        "ogUrl": "https://formawiz.pl/proces.html"
+        "ogUrl": "https://formawizerunku.pl/proces.html"
       }
     },
     {
@@ -837,10 +849,10 @@
       "meta": {
         "title": "Kontakt — zamów wycenę | FORMA Wizerunku",
         "description": "Zamów wycenę strony dla kancelarii prawnej. Odpowiadam w ciągu 24h. Strona gotowa w 14 dni od briefu. Od 4 500 zł netto.",
-        "canonical": "https://formawiz.pl/kontakt.html",
+        "canonical": "https://formawizerunku.pl/kontakt.html",
         "ogTitle": "Kontakt — zamów wycenę | FORMA Wizerunku",
         "ogDescription": "Zamów wycenę strony dla kancelarii prawnej. Odpowiadam w ciągu 24h.",
-        "ogUrl": "https://formawiz.pl/kontakt.html"
+        "ogUrl": "https://formawizerunku.pl/kontakt.html"
       },
       "sections": [
         {
@@ -926,6 +938,10 @@
                   "href": "kontakt.html"
                 },
                 {
+                  "href": "regulamin.html",
+                  "label": "Regulamin"
+                },
+                {
                   "label": "Polityka prywatności",
                   "href": "privacy-policy.html"
                 },
@@ -950,10 +966,10 @@
       "meta": {
         "title": "Nota Prawna | FORMA Wizerunku",
         "description": "Nota prawna serwisu Forma Wizerunku.",
-        "canonical": "https://formawiz.pl/legal-notice.html",
+        "canonical": "https://formawizerunku.pl/legal-notice.html",
         "ogTitle": "Nota Prawna | FORMA Wizerunku",
         "ogDescription": "Nota prawna serwisu Forma Wizerunku.",
-        "ogUrl": "https://formawiz.pl/legal-notice.html",
+        "ogUrl": "https://formawizerunku.pl/legal-notice.html",
         "variant": "legal"
       },
       "sections": [
@@ -1003,6 +1019,10 @@
                   "href": "kontakt.html"
                 },
                 {
+                  "href": "regulamin.html",
+                  "label": "Regulamin"
+                },
+                {
                   "label": "Polityka prywatności",
                   "href": "privacy-policy.html"
                 },
@@ -1027,10 +1047,10 @@
       "meta": {
         "title": "Polityka Prywatności | FORMA Wizerunku",
         "description": "Polityka prywatnosci serwisu Forma Wizerunku.",
-        "canonical": "https://formawiz.pl/privacy-policy.html",
+        "canonical": "https://formawizerunku.pl/privacy-policy.html",
         "ogTitle": "Polityka Prywatnosci | FORMA Wizerunku",
         "ogDescription": "Polityka prywatnosci serwisu Forma Wizerunku.",
-        "ogUrl": "https://formawiz.pl/privacy-policy.html",
+        "ogUrl": "https://formawizerunku.pl/privacy-policy.html",
         "variant": "legal"
       },
       "sections": [
@@ -1080,6 +1100,91 @@
                   "href": "kontakt.html"
                 },
                 {
+                  "href": "regulamin.html",
+                  "label": "Regulamin"
+                },
+                {
+                  "label": "Polityka prywatności",
+                  "href": "privacy-policy.html"
+                },
+                {
+                  "label": "Nota prawna",
+                  "href": "legal-notice.html"
+                }
+              ],
+              "editable": false
+            },
+            "copyright": {
+              "type": "text",
+              "value": "© 2026 Forma Wizerunku. Wszelkie prawa zastrzeżone.",
+              "editable": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "slug": "regulamin",
+      "meta": {
+        "title": "Regulamin Serwisu | FORMA Wizerunku",
+        "description": "Regulamin serwisu formawizerunku.pl — zasady korzystania z serwisu Forma Wizerunku.",
+        "ogTitle": "Regulamin Serwisu | FORMA Wizerunku",
+        "ogDescription": "Regulamin serwisu formawizerunku.pl — zasady korzystania z serwisu Forma Wizerunku.",
+        "canonical": "https://www.formawizerunku.pl/regulamin.html",
+        "ogUrl": "https://www.formawizerunku.pl/regulamin.html",
+        "variant": "legal"
+      },
+      "sections": [
+        {
+          "id": "nav",
+          "recipe": "A1",
+          "fields": {
+            "logoText": {
+              "type": "text",
+              "value": "Forma Wizerunku",
+              "editable": false
+            },
+            "ctaLabel": {
+              "type": "cta",
+              "value": "Zamów stronę",
+              "editable": false
+            }
+          }
+        },
+        {
+          "id": "regulamin",
+          "recipe": "L1",
+          "fields": {}
+        },
+        {
+          "id": "footer",
+          "recipe": "A9",
+          "fields": {
+            "logoText": {
+              "type": "text",
+              "value": "Forma Wizerunku",
+              "editable": false
+            },
+            "links": {
+              "type": "list",
+              "value": [
+                {
+                  "label": "Portfolio",
+                  "href": "portfolio.html"
+                },
+                {
+                  "label": "Jak pracuję",
+                  "href": "proces.html"
+                },
+                {
+                  "label": "Kontakt",
+                  "href": "kontakt.html"
+                },
+                {
+                  "href": "regulamin.html",
+                  "label": "Regulamin"
+                },
+                {
                   "label": "Polityka prywatności",
                   "href": "privacy-policy.html"
                 },
@@ -1104,10 +1209,10 @@
       "meta": {
         "title": "404 — Strona nie istnieje | FORMA",
         "description": "Strona nie znaleziona.",
-        "canonical": "https://formawiz.pl/404.html",
+        "canonical": "https://formawizerunku.pl/404.html",
         "ogTitle": "404 — Strona nie istnieje | FORMA",
         "ogDescription": "Strona nie znaleziona.",
-        "ogUrl": "https://formawiz.pl/404.html",
+        "ogUrl": "https://formawizerunku.pl/404.html",
         "variant": "404"
       },
       "sections": [
@@ -1155,6 +1260,10 @@
                 {
                   "label": "Kontakt",
                   "href": "kontakt.html"
+                },
+                {
+                  "href": "regulamin.html",
+                  "label": "Regulamin"
                 },
                 {
                   "label": "Polityka prywatności",
