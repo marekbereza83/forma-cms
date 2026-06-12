@@ -114,19 +114,22 @@ export function renderPage(model: SiteModel, slug: string, basePath = '', linkMo
 
   if (navSection) {
     const renderer = SECTION_REGISTRY[navSection.id]
-    if (renderer) bodyParts.push(renderer(navSection, ctx))
+    if (!renderer) throw new Error(`Unknown section: "${navSection.id}" on page "${slug}"`)
+    bodyParts.push(renderer(navSection, ctx))
   }
 
   bodyParts.push('<main id="main">')
   for (const section of mainSections) {
     const renderer = SECTION_REGISTRY[section.id]
-    if (renderer) bodyParts.push(renderer(section, ctx))
+    if (!renderer) throw new Error(`Unknown section: "${section.id}" on page "${slug}"`)
+    bodyParts.push(renderer(section, ctx))
   }
   bodyParts.push('</main>')
 
   if (footerSection) {
     const renderer = SECTION_REGISTRY[footerSection.id]
-    if (renderer) bodyParts.push(renderer(footerSection, ctx))
+    if (!renderer) throw new Error(`Unknown section: "${footerSection.id}" on page "${slug}"`)
+    bodyParts.push(renderer(footerSection, ctx))
   }
 
   if (slug === 'index') bodyParts.push(redesignAnimatorScript)
