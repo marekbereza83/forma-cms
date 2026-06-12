@@ -1,14 +1,14 @@
 /**
  * Renderery sekcji dla stron prawnych.
  * Treść jest hardcoded — nie pochodzi z pól CMS (klient nie edytuje prawa).
+ * Dane kontaktowe (email, telefon) pobierane z ctx.contactEmail / ctx.contactPhone
+ * żeby zmiana w panelu propagowała automatycznie.
  * Sygnatury zgodne z SECTION_REGISTRY: (s: Section, ctx: RenderContext) => string.
  */
 import type { Section } from '../../types'
+import type { RenderContext } from '../context'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type RenderContext = Record<string, any>
-
-export function renderLegalNotice(_s: Section, _ctx: RenderContext): string {
+export function renderLegalNotice(_s: Section, ctx: RenderContext): string {
   return `<!-- SEKCJA: nota prawna -->
 <section class="section" id="legal-notice" aria-labelledby="legal-heading">
   <div class="container">
@@ -20,13 +20,13 @@ export function renderLegalNotice(_s: Section, _ctx: RenderContext): string {
       <h2>1. Podmiot prowadzący serwis</h2>
       <dl class="legal-dl">
         <dt>Nazwa podmiotu</dt>
-        <dd>Forma Wizerunku</dd>
+        <dd>Forma Wizerunku — Marek Bereza</dd>
         <dt>Forma działalności</dt>
         <dd>Działalność gospodarcza osoby fizycznej</dd>
         <dt>Adres e-mail</dt>
-        <dd><a href="mailto:kontakt@formawiz.pl">kontakt@formawiz.pl</a></dd>
+        <dd><a href="mailto:${ctx.contactEmail}">${ctx.contactEmail}</a></dd>
         <dt>Telefon</dt>
-        <dd><a href="tel:+48500100200">+48 500 100 200</a></dd>
+        <dd><a href="tel:${ctx.contactPhone}">${ctx.contactPhoneDisplay}</a></dd>
         <dt>Adres serwisu</dt>
         <dd><a href="https://formawiz.pl">https://formawiz.pl</a></dd>
       </dl>
@@ -81,19 +81,21 @@ export function renderLegalNotice(_s: Section, _ctx: RenderContext): string {
 </section>`
 }
 
-export function renderPrivacyPolicy(_s: Section, _ctx: RenderContext): string {
+export function renderPrivacyPolicy(_s: Section, ctx: RenderContext): string {
   return `<!-- SEKCJA: polityka prywatności -->
 <section class="section" id="privacy-policy" aria-labelledby="privacy-heading">
   <div class="container">
     <div class="legal-content">
 
       <h1 id="privacy-heading" class="f-headline">Polityka Prywatności</h1>
-      <p class="f-label">Ostatnia aktualizacja: 20 maja 2026</p>
+      <p class="f-label">Ostatnia aktualizacja: 12 czerwca 2026</p>
 
       <h2>1. Administrator danych</h2>
       <p>
-        Administratorem danych osobowych jest Forma Wizerunku, prowadzona przez osobę fizyczną
-        pod adresem e-mail: <a href="mailto:kontakt@formawiz.pl">kontakt@formawiz.pl</a>.
+        Administratorem danych osobowych jest Marek Bereza prowadzący działalność
+        pod nazwą Forma Wizerunku, kontakt:
+        <a href="mailto:${ctx.contactEmail}">${ctx.contactEmail}</a>,
+        tel. <a href="tel:${ctx.contactPhone}">${ctx.contactPhoneDisplay}</a>.
         W sprawach dotyczących ochrony danych prosimy o kontakt pod powyższy adres e-mail.
       </p>
 
@@ -113,9 +115,30 @@ export function renderPrivacyPolicy(_s: Section, _ctx: RenderContext): string {
       <p>
         Dane osobowe nie są sprzedawane ani przekazywane podmiotom trzecim w celach
         marketingowych. Mogą być udostępniane wyłącznie podmiotom przetwarzającym dane
-        w imieniu Administratora (np. dostawca usług e-mail), wyłącznie w zakresie niezbędnym
-        do realizacji usług.
+        w imieniu Administratora, wyłącznie w zakresie niezbędnym do realizacji usług:
       </p>
+      <ul>
+        <li>
+          <strong>Formspree, Inc.</strong> (formspree.io) — dostawca usługi obsługi
+          formularza kontaktowego z siedzibą w USA. Dane przesłane formularzem
+          (imię i nazwisko, e-mail, telefon, treść wiadomości) trafiają na serwery
+          Formspree i są stamtąd przekazywane Administratorowi. Formspree działa jako
+          podmiot przetwarzający na podstawie umowy powierzenia. Polityka prywatności
+          Formspree: <a href="https://formspree.io/legal/privacy-policy" rel="noopener noreferrer" target="_blank">formspree.io/legal/privacy-policy</a>.
+          Transfer danych do USA odbywa się na podstawie standardowych klauzul umownych
+          (SCC) zatwierdzonych przez Komisję Europejską.
+        </li>
+        <li>
+          <strong>Google LLC</strong> — dostawca usługi Google Fonts (czcionki używane
+          w serwisie). Szczegóły w sekcji 7 poniżej.
+        </li>
+        <li>
+          <strong>Vercel, Inc.</strong> — dostawca hostingu serwisu formawiz.pl.
+          Logi dostępu (adres IP, nagłówki HTTP) mogą być przetwarzane przez Vercel
+          na serwerach w UE lub USA. Polityka prywatności Vercel:
+          <a href="https://vercel.com/legal/privacy-policy" rel="noopener noreferrer" target="_blank">vercel.com/legal/privacy-policy</a>.
+        </li>
+      </ul>
 
       <h2>4. Okres przechowywania danych</h2>
       <p>
@@ -142,7 +165,7 @@ export function renderPrivacyPolicy(_s: Section, _ctx: RenderContext): string {
       </ul>
       <p>
         W celu skorzystania z powyższych praw skontaktuj się z Administratorem pod adresem
-        <a href="mailto:kontakt@formawiz.pl">kontakt@formawiz.pl</a>.
+        <a href="mailto:${ctx.contactEmail}">${ctx.contactEmail}</a>.
       </p>
 
       <h2>6. Pliki cookies</h2>
