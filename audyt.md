@@ -40,9 +40,8 @@ Architektura jest zdrowa i konsekwentna: jedno wejście do zapisu (`parseSiteMod
 
 ## Problemy — priorytet ŚREDNI
 
-### S1. Brak `middleware.ts` — ochrona tylko per-route
-Panel chroni `(panel)/layout.tsx` (redirect), API sprawdzają `auth()` ręcznie. Działa, ale każdy nowy route musi pamiętać o auth — jedno przeoczenie = otwarty endpoint. Strony panelu używają `session!` (non-null assertion), co przy wywołaniu poza layoutem da 500 zamiast redirectu.
-**Rekomendacja:** middleware NextAuth z matcherem na `/dashboard|/edit|/preview|/api/(upload|export)` jako defense-in-depth.
+### ~~S1. Brak `middleware.ts`~~ — ZAMKNIĘTE (commit `3100e1b`)
+`src/middleware.ts` dodany z matcherem na `/dashboard`, `/edit/*`, `/preview`, `/api/upload`, `/api/export/*`. Nowe routes panelowe są automatycznie chronione bez ręcznych `auth()` wywołań.
 
 ### S2. `exportSite()` tworzy nowy `PrismaClient` na każdy eksport
 `src/lib/cms/export.ts:44` — na serverless/postgres to wyczerpywanie puli połączeń.

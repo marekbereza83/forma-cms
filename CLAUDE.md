@@ -114,7 +114,7 @@ Auth.js (NextAuth v5) with `Credentials` provider. JWT carries `tenantId`, `user
 
 `renderPage()` must produce HTML structurally identical to the reference files in `reference/forma-production/`. The DOM-diff acceptance tests run against all eight reference pages: `index.html`, `kontakt.html`, `proces.html`, `portfolio.html`, `legal-notice.html`, `privacy-policy.html`, `regulamin.html`, `404.html`. Always run `npx vitest tests/renderer.test.ts` after changing any section renderer, then update the matching reference file when the change is intentional.
 
-Unknown section IDs in `SECTION_REGISTRY` throw `Error` immediately — they do **not** silently skip. An unknown ID means a page renders as an empty `<main>`, which is the hardest failure to notice in production.
+Unknown section IDs in `SECTION_REGISTRY` throw `Error` immediately. Previously an unknown ID would silently produce an empty `<main>` — the hardest failure to notice in production. Now it throws immediately.
 
 Three CSS files must be linked in every rendered page:
 - `assets/css/design-system-agency.css`
