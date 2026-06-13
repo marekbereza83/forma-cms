@@ -108,9 +108,13 @@ GET /preview?page=index
 
 Auth.js (NextAuth v5) with `Credentials` provider. JWT carries `tenantId`, `userId`, `role`. The `src/types/next-auth.d.ts` file extends the `Session` and `JWT` types to include these fields.
 
+`authorizeUser()` in `src/lib/auth/authorize.ts` enforces login rate-limiting: 5 failed attempts trigger a 15-minute lockout (`lockedUntil` field on `User`). Counters reset on successful login. `src/middleware.ts` is the first line of defence — it redirects unauthenticated requests to `/login` for all panel routes (`/dashboard`, `/edit/*`, `/preview`, `/api/upload`, `/api/export/*`).
+
 ### Renderer contract
 
-`renderPage()` must produce HTML structurally identical to the reference files in `reference/forma-production/`. The DOM-diff acceptance tests run against all seven reference pages: `index.html`, `kontakt.html`, `proces.html`, `portfolio.html`, `legal-notice.html`, `privacy-policy.html`, `404.html`. Always run `npx vitest tests/renderer.test.ts` after changing any section renderer, then update the matching reference file when the change is intentional.
+`renderPage()` must produce HTML structurally identical to the reference files in `reference/forma-production/`. The DOM-diff acceptance tests run against all eight reference pages: `index.html`, `kontakt.html`, `proces.html`, `portfolio.html`, `legal-notice.html`, `privacy-policy.html`, `regulamin.html`, `404.html`. Always run `npx vitest tests/renderer.test.ts` after changing any section renderer, then update the matching reference file when the change is intentional.
+
+Unknown section IDs in `SECTION_REGISTRY` throw `Error` immediately — they do **not** silently skip. An unknown ID means a page renders as an empty `<main>`, which is the hardest failure to notice in production.
 
 Three CSS files must be linked in every rendered page:
 - `assets/css/design-system-agency.css`
@@ -127,6 +131,8 @@ The live versions served to clients are in `public/assets/css/`. Exports copy fr
 4. Add human-readable labels for new editable field keys to the `FIELD_LABELS` map in `src/app/(panel)/edit/fields/FieldsForm.tsx`; otherwise the panel shows the raw key name.
 5. If the section needs pricing context from `index.pricing`, receive it via `ctx.indexPricing` — do not add `price`-type fields to pages other than `index`.
 6. Run `npx vitest tests/renderer.test.ts` — the DOM-diff test will fail if the rendered output diverges from the reference HTML; update `reference/forma-production/` when the change is intentional. If you added an em-dash, bullet, `≥`, or `©` to the fixture, also run `node scripts/update-baseline.js`.
+
+To regenerate all reference HTML files at once: `npx tsx scripts/regen-reference.ts`.
 
 ### Price — single source of truth
 
@@ -153,6 +159,8 @@ Every section renderer that emits links accepts a `linkMode: 'static' | 'preview
 
 Fields with `editable: false` are never shown in the panel. Adding new fields to a section: set `editable: true` in the fixture and in whichever section renderer creates the `Field` object; the panel form (`FieldsForm.tsx`) picks them up automatically via `getEditableFields()`.
 
+All panel routes are protected by `src/middleware.ts` (NextAuth matcher). Per-route `auth()` calls inside panel code are a secondary check — do not rely on them alone for new routes.
+
 ### Image uploads
 
 `POST /api/upload` accepts a `multipart/form-data` with `file` (PNG/JPEG/WebP, ≤5 MB) and `cardId` (UUID). The route resizes to 800×450 WebP via `sharp`, then stores at `<tenantId>/portfolio-card-<cardId>.webp` in **Cloudflare R2** (S3-compatible). Returns `{ url }` pointing to `R2_PUBLIC_BASE_URL/<key>`. `DELETE /api/upload?filename=<name>` removes the object from R2; failures are accepted (best-effort). SVG uploads are rejected.
@@ -175,7 +183,7 @@ After any change to `schema.prisma`, run `npm run schema:sqlite` to regenerate t
 
 **Migrations:** manual TypeScript scripts in `prisma/migrate-*.ts`, not Prisma Migrate. Run them with `npx tsx` (or via `npm run migrate:<name>` shortcuts in `package.json`) after adding pages/sections to the fixture.
 
-**Test DB:** `prisma/test.db`. Created by `tests/globalSetup.ts` which calls `prisma migrate deploy`. Tests share this DB and run sequentially (`fileParallelism: false` in `vitest.config.ts`).
+**Test DB:** `prisma/test.db`. Created by `tests/globalSetup.ts` which calls `prisma db push --schema=prisma/schema.sqlite.prisma`. This also regenerates `@prisma/client` from the SQLite schema — essential because `npm run build` regenerates it from the PostgreSQL schema, which would break the DB-backed test suites. Tests share this DB and run sequentially (`fileParallelism: false` in `vitest.config.ts`).
 
 **Seed credentials:**
 - `kowalski@test.pl` / `haslo123` → Kancelaria Kowalski
@@ -219,8 +227,13 @@ The canonical `SiteModel` instance. All tests read from it. Two constraints enfo
 See `src/lib/cms/validation/hard.ts` for the full list. Key invariants:
 - **V1** — `price`-type amounts must be numeric strings (e.g. `"4 500"`); vague strings like `"zapytaj"` are rejected.
 - **V2/V3/V4** — `hero`, `pricing`, `cta-finale` sections on the index page are required and cannot be removed.
+- **V5** — `cta-finale.lead` must not be empty.
 - **V6** — `cta-finale.headline` must differ from `hero.headline`.
 - **V7** — max 2 `price`-type fields per section.
+- **V8** — each pricing package must have at least one feature.
+- **V9** — `hero` section must not contain an `image`-type field.
+- **V10** — process step numerals must be numeric strings.
+- **V11** — footer links count must not exceed 6.
 - **V12** — no emoji in headline/label/tag fields.
 - **V13** — `portfolio.cards` must have 1–4 entries.
 - **V14** — `portfolio-grid.cards` must have 1–12 entries.
