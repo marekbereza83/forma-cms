@@ -7,11 +7,13 @@ const navOverlay = document.getElementById('nav-overlay');
 
 function openNav() {
   navOverlay.hidden = false;
+  navOverlay.classList.add('open');
   navToggle.setAttribute('aria-expanded', 'true');
   navClose?.focus();
 }
 function closeNav() {
   navOverlay.hidden = true;
+  navOverlay.classList.remove('open');
   navToggle.setAttribute('aria-expanded', 'false');
   navToggle?.focus();
 }
