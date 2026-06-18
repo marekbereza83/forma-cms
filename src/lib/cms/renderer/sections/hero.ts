@@ -46,6 +46,7 @@ export function renderHero(section: Section, ctx: RenderContext): string {
             ${ctaSecondaryLabel}
           </a>
         </div>
+        <p class="btn-micro">${ctaMicrocopy}</p>
         <p class="hero-tel-row">Zadzwoń: <a href="tel:${ctx.contactPhone}" aria-label="Zadzwoń pod numer ${ctx.contactPhoneDisplay}">${ctx.contactPhoneDisplay}</a></p>
       </div>
 
