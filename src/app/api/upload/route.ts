@@ -1,19 +1,10 @@
 import { auth } from '@/lib/auth'
 import sharp from 'sharp'
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { r2, R2_BUCKET } from '@/lib/storage/r2'
 
 const CARD_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const FILENAME_RE = /^portfolio-card-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.webp$/
-
-const s3 = new S3Client({
-  region: 'auto',
-  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-   forcePathStyle: true,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-  },
-})
 
 function detectMime(buf: Buffer): string | null {
   if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4E && buf[3] === 0x47) return 'image/png'
@@ -80,9 +71,9 @@ export async function POST(req: Request): Promise<Response> {
   const key = `${tenantId}/${filename}`
 
   try {
-    await s3.send(
+    await r2.send(
       new PutObjectCommand({
-        Bucket: process.env.R2_BUCKET!,
+        Bucket: R2_BUCKET,
         Key: key,
         Body: processed,
         ContentType: 'image/webp',
@@ -111,9 +102,9 @@ export async function DELETE(req: Request): Promise<Response> {
   }
 
   try {
-    await s3.send(
+    await r2.send(
       new DeleteObjectCommand({
-        Bucket: process.env.R2_BUCKET!,
+        Bucket: R2_BUCKET,
         Key: `${tenantId}/${filename}`,
       })
     )

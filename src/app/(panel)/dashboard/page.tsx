@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth'
 import { getTenantScopedClient } from '@/lib/tenant/client'
 import Link from 'next/link'
+import PublishButton from './PublishButton'
 
 export const metadata = { title: 'Dashboard — FORMA' }
 
@@ -28,6 +29,8 @@ export default async function DashboardPage() {
           <p className="dashboard-card-title">Podgląd strony</p>
           <p className="dashboard-card-desc">Otwiera wyrenderowany HTML w nowej karcie</p>
         </Link>
+
+        <PublishButton />
       </div>
     </div>
   )
