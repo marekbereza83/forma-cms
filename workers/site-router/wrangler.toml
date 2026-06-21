@@ -10,7 +10,7 @@ bucket_name = "uploads"
 # hostname -> tenantId. Add both apex and www if you serve both.
 # Find the tenantId in the Tenant table (or scripts/create-tenant.ts output).
 [vars]
-HOST_MAP = '{"forma-site-router.marekbereza34.workers.dev":"cmpmb0k6o0000wkuq6cgan9f2"}'
+HOST_MAP = '{"forma-site-router.marekbereza34.workers.dev":"cmpmb0k6o0000wkuq6cgar9f2"}'
 
 # Custom domain routing is configured in the Cloudflare dashboard
 # (Workers & Pages -> this worker -> Settings -> Domains & Routes -> Add Custom Domain).
