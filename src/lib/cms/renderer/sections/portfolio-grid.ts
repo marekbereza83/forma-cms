@@ -20,7 +20,7 @@ function renderGridCard(card: PortfolioCard, basePath: string, linkMode: 'static
   // Render "Zobacz na żywo" button only when link is present and non-empty.
   // V15 guarantees link starts with http:// or https:// if it reached the renderer.
   const liveLink = (card.link && card.link.trim())
-    ? `<a href="${card.link}" class="portfolio-live-link" target="_blank" rel="noopener noreferrer"
+    ? `<a href="${card.link}" class="portfolio-live-link portfolio-card-stretched" target="_blank" rel="noopener noreferrer"
             aria-label="Otwórz stronę ${card.title} na żywo (nowa karta)">
             Zobacz na żywo
             ${ARROW_ICON_SM}
