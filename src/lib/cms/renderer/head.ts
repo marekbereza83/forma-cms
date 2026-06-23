@@ -67,7 +67,7 @@ export function renderHead(
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${title}</title>
 <meta name="description" content="${description}">
-<link rel="icon" type="image/png" href="${basePath}assets/images/favicon.png">
+<link rel="icon" type="image/jpeg" href="${basePath}assets/images/favicon.jpeg">
 <link rel="canonical" href="${canonical}">
 <meta property="og:type" content="website">
 <meta property="og:title" content="${ogTitle}">
