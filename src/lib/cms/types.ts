@@ -134,6 +134,7 @@ export interface SiteMeta {
   contactEmail: string
   contactPhone: string
   contactPhoneDisplay: string
+  gaId?: string
 }
 
 export interface SiteModel {

@@ -105,9 +105,9 @@ export function renderPage(model: SiteModel, slug: string, basePath = '', linkMo
   const ctx: RenderContext = { basePath, pricingStandardAmount, currentPage: slug, linkMode, navPages, indexPricing, showCurrentInFooter, contactPhone, contactPhoneDisplay, contactEmail, contactEmailHref }
 
   const head = isLegal
-    ? renderLegalHead(page.meta?.title ?? 'FORMA Wizerunku', basePath)
+    ? renderLegalHead(page.meta?.title ?? 'FORMA Wizerunku', basePath, 'noindex, follow', model.meta.gaId)
     : is404
-      ? renderLegalHead(page.meta?.title ?? '404 — Strona nie istnieje | FORMA', basePath, 'noindex, nofollow')
+      ? renderLegalHead(page.meta?.title ?? '404 — Strona nie istnieje | FORMA', basePath, 'noindex, nofollow', model.meta.gaId)
       : renderHead(model.meta, page.meta, pricingStandardAmount, basePath)
 
   const bodyParts: string[] = []

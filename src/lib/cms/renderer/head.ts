@@ -5,7 +5,12 @@ import type { SiteMeta, PageMeta } from '../types'
  * Bez tagów OG / Twitter / canonical / schema.org — zgodnie z referencją.
  * robots: 'noindex, follow' dla legal, 'noindex, nofollow' dla 404.
  */
-export function renderLegalHead(title: string, basePath = '', robots = 'noindex, follow'): string {
+function gaSnippet(gaId: string): string {
+  return `<script async src="https://www.googletagmanager.com/gtag/js?id=${gaId}"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');</script>`
+}
+
+export function renderLegalHead(title: string, basePath = '', robots = 'noindex, follow', gaId?: string): string {
   return `<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,6 +22,7 @@ export function renderLegalHead(title: string, basePath = '', robots = 'noindex,
 <link rel="stylesheet" href="${basePath}assets/css/design-system-agency.css">
 <link rel="stylesheet" href="${basePath}assets/css/forma-layout.css">
 <link rel="stylesheet" href="${basePath}assets/css/forma-components.css">
+${gaId ? gaSnippet(gaId) : ''}
 </head>`
 }
 
@@ -75,5 +81,6 @@ export function renderHead(
 <link rel="stylesheet" href="${basePath}assets/css/forma-layout.css">
 <link rel="stylesheet" href="${basePath}assets/css/forma-components.css">
 ${schemaOrg}
+${siteMeta.gaId ? gaSnippet(siteMeta.gaId) : ''}
 </head>`
 }
