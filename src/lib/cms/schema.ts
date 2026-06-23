@@ -43,6 +43,7 @@ const SiteMetaSchema = z.object({
   contactEmail: z.string(),
   contactPhone: z.string(),
   contactPhoneDisplay: z.string(),
+  gaId: z.string().optional(),
 })
 
 export const EventItemSchema = z.object({
