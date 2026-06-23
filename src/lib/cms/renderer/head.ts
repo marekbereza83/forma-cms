@@ -6,8 +6,11 @@ import type { SiteMeta, PageMeta } from '../types'
  * robots: 'noindex, follow' dla legal, 'noindex, nofollow' dla 404.
  */
 function gaSnippet(gaId: string): string {
+  // Consent Mode v2 — domyślnie wszystko 'denied'. GA nie ustawia cookies analitycznych
+  // dopóki użytkownik nie zaakceptuje przez baner (patrz cookie-consent.ts).
+  // Wcześniejszą zgodę odtwarzamy z localStorage przed wczytaniem GA.
   return `<script async src="https://www.googletagmanager.com/gtag/js?id=${gaId}"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');</script>`
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('consent','default',{analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',wait_for_update:500});try{if(localStorage.getItem('forma-cookie-consent')==='granted'){gtag('consent','update',{analytics_storage:'granted'});}}catch(e){}gtag('js',new Date());gtag('config','${gaId}');</script>`
 }
 
 export function renderLegalHead(title: string, basePath = '', robots = 'noindex, follow', gaId?: string): string {

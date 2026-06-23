@@ -23,6 +23,8 @@ import { renderFaq } from './sections/faq'
 import { renderLegalNotice, renderPrivacyPolicy, renderTermsOfService } from './sections/legal-static'
 import { renderNotFound } from './sections/not-found'
 import { redesignAnimatorScript } from './hardcoded/redesign-animator'
+import { cookieConsentBanner } from './hardcoded/cookie-consent'
+import { pageHref } from './utils'
 
 const SECTION_REGISTRY: Record<string, (s: Section, ctx: RenderContext) => string> = {
   // ── index ────────────────────────────────────────────────────────────────────
@@ -133,6 +135,8 @@ export function renderPage(model: SiteModel, slug: string, basePath = '', linkMo
   }
 
   if (slug === 'index') bodyParts.push(redesignAnimatorScript)
+  // Baner zgody na cookies — tylko gdy GA jest aktywne (gaId ustawione).
+  if (model.meta.gaId) bodyParts.push(cookieConsentBanner(pageHref('privacy-policy', linkMode)))
   bodyParts.push(`<script src="${basePath}assets/js/main.js" defer></script>`)
 
   const body = bodyParts.join('\n\n')

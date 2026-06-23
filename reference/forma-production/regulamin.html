@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="assets/css/forma-layout.css">
 <link rel="stylesheet" href="assets/css/forma-components.css">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-09K5CT4T7H"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-09K5CT4T7H');</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('consent','default',{analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',wait_for_update:500});try{if(localStorage.getItem('forma-cookie-consent')==='granted'){gtag('consent','update',{analytics_storage:'granted'});}}catch(e){}gtag('js',new Date());gtag('config','G-09K5CT4T7H');</script>
 </head>
 <body>
 
@@ -224,6 +224,43 @@
     <p class="footer-copy">© 2026 Forma Wizerunku. Wszelkie prawa zastrzeżone.</p>
   </div>
 </footer>
+
+<!-- cookie-consent baner (RODO / Consent Mode v2) -->
+<div id="cookie-consent" class="cookie-consent" role="dialog" aria-label="Zgoda na pliki cookie" aria-live="polite" hidden>
+  <div class="cookie-consent-inner">
+    <p class="cookie-consent-text">
+      Używamy plików cookie Google Analytics, aby analizować ruch na stronie.
+      Możesz je zaakceptować lub odrzucić. Szczegóły w <a href="privacy-policy.html">Polityce Prywatności</a>.
+    </p>
+    <div class="cookie-consent-actions">
+      <button type="button" class="btn-ghost" data-cookie-reject>Odrzucam</button>
+      <button type="button" class="btn-primary" data-cookie-accept>Akceptuję</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  'use strict';
+  var KEY='forma-cookie-consent';
+  var banner=document.getElementById('cookie-consent');
+  if(!banner)return;
+  var stored=null;
+  try{stored=localStorage.getItem(KEY);}catch(e){}
+  if(stored==='granted'||stored==='denied')return; // wybór już dokonany
+  banner.hidden=false;
+  function choose(val){
+    try{localStorage.setItem(KEY,val);}catch(e){}
+    if(val==='granted'&&typeof gtag==='function'){
+      gtag('consent','update',{analytics_storage:'granted'});
+    }
+    banner.hidden=true;
+  }
+  var accept=banner.querySelector('[data-cookie-accept]');
+  var reject=banner.querySelector('[data-cookie-reject]');
+  if(accept)accept.addEventListener('click',function(){choose('granted');});
+  if(reject)reject.addEventListener('click',function(){choose('denied');});
+})();
+</script>
 
 <script src="assets/js/main.js" defer></script>
 </body>

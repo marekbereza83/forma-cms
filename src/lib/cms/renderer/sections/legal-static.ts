@@ -306,17 +306,30 @@ export function renderPrivacyPolicy(_s: Section, ctx: RenderContext): string {
 
       <h2>6. Pliki cookies</h2>
       <p>
-        Serwis formawizerunku.pl nie wykorzystuje plików cookies do celów analitycznych ani
-        marketingowych. Jeżeli w przyszłości zostaną wprowadzone pliki cookies, niniejsza
-        polityka zostanie zaktualizowana z odpowiednim wyprzedzeniem.
+        Serwis formawizerunku.pl korzysta z narzędzia Google Analytics 4 (dostawca: Google LLC)
+        w celu analizy ruchu i sposobu korzystania ze strony. Narzędzie to wykorzystuje pliki
+        cookies oraz zbiera dane takie jak adres IP (w formie skróconej), informacje o urządzeniu
+        i przeglądarce oraz odwiedzanych podstronach.
+      </p>
+      <p>
+        Cookies analityczne są instalowane wyłącznie po wyrażeniu przez Ciebie zgody za
+        pośrednictwem banera pojawiającego się przy pierwszej wizycie. Do czasu wyrażenia zgody
+        Google Analytics działa w trybie ograniczonym (Consent Mode) i nie zapisuje plików cookies.
+        Podstawą prawną przetwarzania jest Twoja zgoda (art. 6 ust. 1 lit. a RODO), którą możesz
+        w każdej chwili wycofać, usuwając pliki cookies w ustawieniach przeglądarki — kolejna
+        wizyta ponownie wyświetli baner z możliwością wyboru.
+      </p>
+      <p>
+        Pliki cookies niezbędne do prawidłowego działania serwisu nie wymagają zgody i nie służą
+        do śledzenia ani profilowania.
       </p>
 
       <h2>7. Zewnętrzne usługi</h2>
       <p>
-        Serwis korzysta z usługi Google Fonts (dostarczanie czcionek) świadczonej przez
-        Google LLC. Korzystanie z tej usługi może wiązać się z przesyłaniem danych
-        do serwerów Google. Informacje o przetwarzaniu danych przez Google dostępne są
-        w Polityce Prywatności Google: <a href="https://policies.google.com/privacy" rel="noopener noreferrer" target="_blank">policies.google.com/privacy</a>.
+        Serwis korzysta z usług Google Fonts (dostarczanie czcionek) oraz Google Analytics
+        (analityka), świadczonych przez Google LLC. Korzystanie z tych usług może wiązać się
+        z przesyłaniem danych do serwerów Google. Informacje o przetwarzaniu danych przez Google
+        dostępne są w Polityce Prywatności Google: <a href="https://policies.google.com/privacy" rel="noopener noreferrer" target="_blank">policies.google.com/privacy</a>.
       </p>
 
       <h2>8. Zmiany Polityki Prywatności</h2>
