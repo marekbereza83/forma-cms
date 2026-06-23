@@ -90,7 +90,6 @@ export function renderPortfolio(section: Section, basePath = '', linkMode: 'stat
 <section id="portfolio" class="section bg-base reveal" aria-labelledby="portfolio-heading">
   <div class="container">
     <div class="section-header mb-10">
-      <span class="section-label">Realizacje</span>
       <h2 id="portfolio-heading" class="f-headline">${headline}</h2>
       <p class="f-lead mt-4 max-54">
         ${lead}
