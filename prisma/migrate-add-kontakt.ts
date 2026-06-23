@@ -21,10 +21,10 @@ const KONTAKT_PAGE = {
   meta: {
     title: 'Kontakt — zamów wycenę | FORMA',
     description: 'Zamów wycenę strony dla kancelarii prawnej. Odpowiadam w ciągu 24h. Strona gotowa w 14 dni od briefu. Od 4 500 zł netto.',
-    canonical: 'https://formawiz.pl/kontakt.html',
+    canonical: 'https://formawizerunku.pl/kontakt.html',
     ogTitle: 'Kontakt — zamów wycenę | FORMA',
     ogDescription: 'Zamów wycenę strony dla kancelarii prawnej. Odpowiadam w ciągu 24h.',
-    ogUrl: 'https://formawiz.pl/kontakt.html',
+    ogUrl: 'https://formawizerunku.pl/kontakt.html',
   },
   sections: [
     {
@@ -50,8 +50,8 @@ const KONTAKT_PAGE = {
       id: 'formularz',
       recipe: 'K1',
       fields: {
-        emailDisplay: { type: 'contact', value: 'kontakt@formawiz.pl',       editable: false },
-        emailHref:    { type: 'contact', value: 'mailto:kontakt@formawiz.pl', editable: false },
+        emailDisplay: { type: 'contact', value: 'kontakt@formawizerunku.pl',       editable: false },
+        emailHref:    { type: 'contact', value: 'mailto:kontakt@formawizerunku.pl', editable: false },
         phoneRaw:     { type: 'contact', value: '+48500100200',               editable: false },
         phoneDisplay: { type: 'contact', value: '+48 500 100 200',            editable: false },
       },

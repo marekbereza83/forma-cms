@@ -24,10 +24,10 @@ const REGULAMIN_PAGE: PageLike = {
   meta: {
     title: 'Regulamin Serwisu | FORMA Wizerunku',
     description: 'Regulamin serwisu formawizerunku.pl — zasady korzystania z serwisu Forma Wizerunku.',
-    canonical: 'https://www.formawizerunku.pl/regulamin.html',
+    canonical: 'https://formawizerunku.pl/regulamin.html',
     ogTitle: 'Regulamin Serwisu | FORMA Wizerunku',
     ogDescription: 'Regulamin serwisu formawizerunku.pl — zasady korzystania z serwisu Forma Wizerunku.',
-    ogUrl: 'https://www.formawizerunku.pl/regulamin.html',
+    ogUrl: 'https://formawizerunku.pl/regulamin.html',
     variant: 'legal',
   },
   sections: [

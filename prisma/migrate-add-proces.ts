@@ -212,10 +212,10 @@ const PROCES_SECTIONS = [
 const PROCES_META = {
   title:         'Jak pracuję — proces i cennik | FORMA',
   description:   'Proces projektowania stron dla kancelarii prawnych. 6 kroków, 14 dni. Cennik: Standard 4500 zł, Rozszerzony 6500 zł. FAQ — odpowiedzi na pytania przed zamówieniem.',
-  canonical:     'https://formawiz.pl/proces.html',
+  canonical:     'https://formawizerunku.pl/proces.html',
   ogTitle:       'Jak pracuję — proces i cennik | FORMA',
   ogDescription: '6 kroków, 14 dni, transparentny cennik. Dowiedz się jak wygląda współpraca.',
-  ogUrl:         'https://formawiz.pl/proces.html',
+  ogUrl:         'https://formawizerunku.pl/proces.html',
 }
 
 async function main() {

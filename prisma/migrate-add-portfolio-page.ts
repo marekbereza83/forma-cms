@@ -99,10 +99,10 @@ const PORTFOLIO_SECTIONS: SectionLike[] = [
 const PORTFOLIO_META = {
   title:         'Portfolio — realizacje | FORMA',
   description:   'Realizacje FORMA: strony internetowe dla kancelarii prawnych i firm B2B. Case studies z liczbami.',
-  canonical:     'https://formawiz.pl/portfolio.html',
+  canonical:     'https://formawizerunku.pl/portfolio.html',
   ogTitle:       'Portfolio — realizacje | FORMA',
   ogDescription: 'Strony dla kancelarii prawnych i firm B2B. Case studies z liczbami.',
-  ogUrl:         'https://formawiz.pl/portfolio.html',
+  ogUrl:         'https://formawizerunku.pl/portfolio.html',
 }
 
 async function main() {

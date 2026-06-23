@@ -47,10 +47,10 @@ const LEGAL_NOTICE_PAGE = {
   meta: {
     title: 'Nota Prawna | FORMA Wizerunku',
     description: 'Nota prawna serwisu Forma Wizerunku.',
-    canonical: 'https://formawiz.pl/legal-notice.html',
+    canonical: 'https://formawizerunku.pl/legal-notice.html',
     ogTitle: 'Nota Prawna | FORMA Wizerunku',
     ogDescription: 'Nota prawna serwisu Forma Wizerunku.',
-    ogUrl: 'https://formawiz.pl/legal-notice.html',
+    ogUrl: 'https://formawizerunku.pl/legal-notice.html',
     variant: 'legal',
   },
   sections: [
@@ -65,10 +65,10 @@ const PRIVACY_POLICY_PAGE = {
   meta: {
     title: 'Polityka Prywatności | FORMA Wizerunku',
     description: 'Polityka prywatnosci serwisu Forma Wizerunku.',
-    canonical: 'https://formawiz.pl/privacy-policy.html',
+    canonical: 'https://formawizerunku.pl/privacy-policy.html',
     ogTitle: 'Polityka Prywatnosci | FORMA Wizerunku',
     ogDescription: 'Polityka prywatnosci serwisu Forma Wizerunku.',
-    ogUrl: 'https://formawiz.pl/privacy-policy.html',
+    ogUrl: 'https://formawizerunku.pl/privacy-policy.html',
     variant: 'legal',
   },
   sections: [

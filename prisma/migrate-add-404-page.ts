@@ -54,10 +54,10 @@ const PAGE_404 = {
   meta: {
     title: '404 — Strona nie istnieje | FORMA',
     description: 'Strona nie znaleziona.',
-    canonical: 'https://formawiz.pl/404.html',
+    canonical: 'https://formawizerunku.pl/404.html',
     ogTitle: '404 — Strona nie istnieje | FORMA',
     ogDescription: 'Strona nie znaleziona.',
-    ogUrl: 'https://formawiz.pl/404.html',
+    ogUrl: 'https://formawizerunku.pl/404.html',
     variant: '404',
   },
   sections: [

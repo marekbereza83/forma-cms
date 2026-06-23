@@ -21,6 +21,7 @@
     "migrate:add-regulamin": "npx tsx prisma/migrate-add-regulamin.ts",
     "migrate:add-reassurance-fields": "npx tsx prisma/migrate-add-reassurance-fields.ts",
     "migrate:nav-label-spacing": "npx tsx prisma/migrate-nav-label-spacing.ts",
+    "migrate:fix-domain": "npx tsx prisma/migrate-fix-domain.ts",
     "create-tenant": "npx tsx scripts/create-tenant.ts"
   },
   "prisma": {
