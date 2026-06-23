@@ -3,6 +3,25 @@ import { join, resolve } from 'path'
 import type { SiteModel } from './types'
 import { renderPage } from './renderer/index'
 
+function buildSitemapXml(model: SiteModel): string {
+  const today = new Date().toISOString().slice(0, 10)
+  const siteRoot = model.meta.canonical.replace(/\/$/, '')
+  const urls = model.pages
+    .filter(p => p.sections.length > 0 && p.meta?.variant !== 'legal' && p.meta?.variant !== '404')
+    .map(p => {
+      const loc = p.meta?.canonical ?? (p.slug === 'index' ? model.meta.canonical : `${siteRoot}/${p.slug}.html`)
+      const priority = p.slug === 'index' ? '1.0' : '0.8'
+      return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>${priority}</priority>\n  </url>`
+    })
+    .join('\n')
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>`
+}
+
+function buildRobotsTxt(model: SiteModel): string {
+  const sitemapUrl = model.meta.canonical.replace(/\/$/, '') + '/sitemap.xml'
+  return `User-agent: *\nAllow: /\nDisallow: /dashboard\nDisallow: /edit/\nDisallow: /api/\nDisallow: /login\n\nSitemap: ${sitemapUrl}\n`
+}
+
 function copyDir(src: string, dest: string): void {
   if (!existsSync(src)) return
   mkdirSync(dest, { recursive: true })
@@ -31,6 +50,8 @@ export function renderStaticSite(
   }
 
   copyDir(join(publicDir, 'assets'), join(outputDir, 'assets'))
+  writeFileSync(join(outputDir, 'sitemap.xml'), buildSitemapXml(model), 'utf-8')
+  writeFileSync(join(outputDir, 'robots.txt'), buildRobotsTxt(model), 'utf-8')
   // Images uploaded to R2/CDN appear as absolute URLs in rendered HTML — no local copy needed.
 }
 
@@ -65,6 +86,8 @@ export function buildStaticSiteFiles(
   }
 
   collectAssets(join(publicDir, 'assets'), 'assets', out)
+  out['sitemap.xml'] = enc.encode(buildSitemapXml(model))
+  out['robots.txt'] = enc.encode(buildRobotsTxt(model))
   // Images uploaded to R2/CDN appear as absolute URLs in rendered HTML — no local copy needed.
   return out
 }
