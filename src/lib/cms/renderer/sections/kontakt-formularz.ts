@@ -160,7 +160,7 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
                   form.parentNode.innerHTML = '<div class="form-success" role="alert" aria-live="polite">'
                     + '<div class="form-success-icon" aria-hidden="true">&#10003;</div>'
                     + '<h3 class="form-success-title">Dziękuję za wiadomość!</h3>'
-                    + '<p class="form-success-body">Odezwę się w ciągu 24&nbsp;godzin. Do zobaczenia wkrótce.</p>'
+                    + '<p class="form-success-body">Odezwę się w możliwie najszybszym czasie.</p>'
                     + '<a href="' + homeHref + '" class="btn-primary mt-6" style="display:inline-block">Wróć na stronę główną</a>'
                     + '</div>';
                 } else {
