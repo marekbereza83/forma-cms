@@ -251,7 +251,7 @@ Według skodyfikowanego systemu.
     </div>
 
     <div class="portfolio-single">
-      <div class="portfolio-card interactive-card">
+      <div class="portfolio-card interactive-card portfolio-card-clickable" onclick="if(!event.target.closest('a'))this.querySelector('.portfolio-card-link').click()">
         <div class="portfolio-thumb">
           <img src="assets/images/wojtas-hero.png"
             alt="Screenshot strony Kancelaria Radcy Prawnego Anna Wojtas — hero section"
@@ -265,7 +265,7 @@ Według skodyfikowanego systemu.
           <p class="portfolio-card-desc">
             8-stronicowa strona HTML, system PACTA, mobile-first, Lighthouse 95+. Dostawa: 12 dni od briefu (2 dni przed terminem).
           </p>
-          <a href="portfolio.html" class="portfolio-card-link portfolio-card-stretched"
+          <a href="portfolio.html" class="portfolio-card-link"
             aria-label="Przejdź do pełnego case study — Kancelaria Wojtas">
             Szczegóły
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>

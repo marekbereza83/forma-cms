@@ -24,16 +24,17 @@ function renderCard(card: PortfolioCard, basePath: string, ariaLabel: string, li
   const hasLiveLink = Boolean(card.link && card.link.trim())
 
   const liveLink = hasLiveLink
-    ? `<a href="${card.link}" class="portfolio-live-link portfolio-card-stretched" target="_blank" rel="noopener noreferrer"
+    ? `<a href="${card.link}" class="portfolio-live-link" target="_blank" rel="noopener noreferrer"
             aria-label="Otwórz stronę ${card.title} na żywo (nowa karta)">
             Zobacz na żywo
             ${ARROW_ICON_SM}
           </a>`
     : ''
 
-  const detailsClass = hasLiveLink ? 'portfolio-card-link' : 'portfolio-card-link portfolio-card-stretched'
+  const primarySelector = hasLiveLink ? '.portfolio-live-link' : '.portfolio-card-link'
+  const cardOnClick = `onclick="if(!event.target.closest('a'))this.querySelector('${primarySelector}').click()"`
 
-  return `<div class="portfolio-card interactive-card">
+  return `<div class="portfolio-card interactive-card portfolio-card-clickable" ${cardOnClick}>
         <div class="portfolio-thumb">
           <img src="${imgUrl}"
             alt="Screenshot strony ${card.title} — hero section"
@@ -47,7 +48,7 @@ function renderCard(card: PortfolioCard, basePath: string, ariaLabel: string, li
           <p class="portfolio-card-desc">
             ${card.desc}
           </p>
-          <a href="${portfolioHref}" class="${detailsClass}"
+          <a href="${portfolioHref}" class="portfolio-card-link"
             aria-label="${ariaLabel}">
             Szczegóły
             ${ARROW_ICON_SM}

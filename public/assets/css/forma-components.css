@@ -63,21 +63,9 @@
   margin-top: 2px;
 }
 
-/* ─── Portfolio card stretched link ──────────────────────── */
-.portfolio-card {
-  position: relative;
-}
-.portfolio-card-stretched::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-}
-/* Only secondary (non-stretched) links float above the overlay */
-.portfolio-card-link:not(.portfolio-card-stretched),
-.portfolio-live-link:not(.portfolio-card-stretched) {
-  position: relative;
-  z-index: 2;
+/* ─── Portfolio card clickable ────────────────────────────── */
+.portfolio-card-clickable {
+  cursor: pointer;
 }
 
 /* ─── Portfolio card meta ─────────────────────────────────── */
