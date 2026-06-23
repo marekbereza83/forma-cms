@@ -161,7 +161,7 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
                     + '<div class="form-success-icon" aria-hidden="true">&#10003;</div>'
                     + '<h3 class="form-success-title">Dziękuję za wiadomość!</h3>'
                     + '<p class="form-success-body">Odezwę się w możliwie najszybszym czasie.</p>'
-                    + '<a href="' + homeHref + '" class="btn-primary mt-6" style="display:inline-block">Wróć na stronę główną</a>'
+                    + '<a href="' + homeHref + '" class="btn-primary mt-6">Wróć na stronę główną</a>'
                     + '</div>';
                 } else {
                   if (btn) btn.disabled = false;
