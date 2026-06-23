@@ -142,6 +142,30 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
           </div>
 
         </form>
+        <script>
+          (function () {
+            var form = document.querySelector('form[action*="formspree.io"]');
+            if (!form) return;
+            form.addEventListener('submit', function (e) {
+              e.preventDefault();
+              var btn = form.querySelector('button[type="submit"]');
+              if (btn) btn.disabled = true;
+              fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: { Accept: 'application/json' }
+              }).then(function (r) {
+                if (r.ok) {
+                  window.location.href = '${pageHref('index', ctx.linkMode)}';
+                } else {
+                  if (btn) btn.disabled = false;
+                }
+              }).catch(function () {
+                if (btn) btn.disabled = false;
+              });
+            });
+          })();
+        </script>
       </div>
 
       <!-- Dane kontaktowe -->
