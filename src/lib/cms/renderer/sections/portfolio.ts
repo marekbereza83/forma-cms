@@ -21,13 +21,17 @@ function renderCard(card: PortfolioCard, basePath: string, ariaLabel: string, li
 
   // Optional "Zobacz na żywo" — rendered only when card.link is non-empty.
   // V15 guarantees the link starts with http:// or https:// when present.
-  const liveLink = (card.link && card.link.trim())
-    ? `<a href="${card.link}" class="portfolio-live-link" target="_blank" rel="noopener noreferrer"
+  const hasLiveLink = Boolean(card.link && card.link.trim())
+
+  const liveLink = hasLiveLink
+    ? `<a href="${card.link}" class="portfolio-live-link portfolio-card-stretched" target="_blank" rel="noopener noreferrer"
             aria-label="Otwórz stronę ${card.title} na żywo (nowa karta)">
             Zobacz na żywo
             ${ARROW_ICON_SM}
           </a>`
     : ''
+
+  const detailsClass = hasLiveLink ? 'portfolio-card-link' : 'portfolio-card-link portfolio-card-stretched'
 
   return `<div class="portfolio-card interactive-card">
         <div class="portfolio-thumb">
@@ -43,7 +47,7 @@ function renderCard(card: PortfolioCard, basePath: string, ariaLabel: string, li
           <p class="portfolio-card-desc">
             ${card.desc}
           </p>
-          <a href="${portfolioHref}" class="portfolio-card-link"
+          <a href="${portfolioHref}" class="${detailsClass}"
             aria-label="${ariaLabel}">
             Szczegóły
             ${ARROW_ICON_SM}

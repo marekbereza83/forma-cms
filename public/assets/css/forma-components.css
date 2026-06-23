@@ -63,6 +63,22 @@
   margin-top: 2px;
 }
 
+/* ─── Portfolio card stretched link ──────────────────────── */
+.portfolio-card {
+  position: relative;
+}
+.portfolio-card-stretched::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.portfolio-card-link,
+.portfolio-live-link {
+  position: relative;
+  z-index: 2;
+}
+
 /* ─── Portfolio card meta ─────────────────────────────────── */
 .portfolio-card-desc {
   font-size: var(--text-sm);
