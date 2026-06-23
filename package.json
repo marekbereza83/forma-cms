@@ -23,6 +23,7 @@
     "migrate:nav-label-spacing": "npx tsx prisma/migrate-nav-label-spacing.ts",
     "migrate:fix-domain": "npx tsx prisma/migrate-fix-domain.ts",
     "migrate:add-ga-id": "npx tsx prisma/migrate-add-ga-id.ts",
+    "migrate:portfolio-heading": "npx tsx prisma/migrate-portfolio-heading.ts",
     "create-tenant": "npx tsx scripts/create-tenant.ts"
   },
   "prisma": {
