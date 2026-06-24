@@ -24,6 +24,7 @@
     "migrate:fix-domain": "npx tsx prisma/migrate-fix-domain.ts",
     "migrate:add-ga-id": "npx tsx prisma/migrate-add-ga-id.ts",
     "migrate:portfolio-heading": "npx tsx prisma/migrate-portfolio-heading.ts",
+    "migrate:add-seo-kancelarie": "npx tsx prisma/migrate-add-seo-kancelarie.ts",
     "create-tenant": "npx tsx scripts/create-tenant.ts"
   },
   "prisma": {

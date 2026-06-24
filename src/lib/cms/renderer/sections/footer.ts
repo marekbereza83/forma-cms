@@ -21,14 +21,18 @@ export function renderFooter(section: Section, ctx: RenderContext): string {
 
   const logoHref = pageHref('index', ctx.linkMode)
 
+  const seoSlug = 'strony-dla-kancelarii-prawnych'
+  const seoFooterHref = transformFooterHref(`${seoSlug}.html`, ctx.linkMode)
+
   if (ctx.showCurrentInFooter) {
+    const isSeoCurrent = ctx.currentPage === seoSlug
     const linksHtml = links
       .map(l => {
         const href = transformFooterHref(l.href, ctx.linkMode)
         const isCurrent = l.href.replace(/\.html$/, '') === ctx.currentPage
         return `      <li><a href="${href}"${isCurrent ? ' aria-current="page"' : ''}>${l.label}</a></li>`
       })
-      .join('\n')
+      .join('\n') + `\n      <li><a href="${seoFooterHref}"${isSeoCurrent ? ' aria-current="page"' : ''}>Strony internetowe dla kancelarii prawnych</a></li>`
 
     return `<!-- SEKCJA: stopka -->
 <footer class="footer" role="contentinfo" aria-label="Stopka strony">
@@ -51,7 +55,7 @@ ${linksHtml}
       const href = transformFooterHref(l.href, ctx.linkMode)
       return `        <li><a href="${href}">${l.label}</a></li>`
     })
-    .join('\n')
+    .join('\n') + `\n        <li><a href="${seoFooterHref}">Strony internetowe dla kancelarii prawnych</a></li>`
 
   return `<!-- SEKCJA: stopka -->
 <footer class="footer" role="contentinfo" aria-label="Stopka strony">

@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from 'fs'
 import { renderPage } from '../src/lib/cms/renderer/index'
 
 const fixture = JSON.parse(readFileSync('fixtures/forma-site.json', 'utf8'))
-const pages = ['index', 'kontakt', 'portfolio', 'proces', 'legal-notice', 'privacy-policy', 'regulamin', '404']
+const pages = ['index', 'kontakt', 'portfolio', 'proces', 'legal-notice', 'privacy-policy', 'regulamin', 'strony-dla-kancelarii-prawnych', '404']
 
 for (const slug of pages) {
   const html = renderPage(fixture, slug, '', 'static')
