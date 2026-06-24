@@ -106,8 +106,9 @@ export function renderPage(model: SiteModel, slug: string, basePath = '', linkMo
   // Strony utility (kontakt, legal, 404) pokazują stopkę bez <nav> wrappera.
   // isLegal/is404 pochodzą z page.meta.variant; kontakt jest jedynym wyjątkiem bez variant.
   const showCurrentInFooter = isLegal || is404 || slug === 'kontakt' || slug === 'strony-dla-kancelarii-prawnych'
+  const hasSeoPage = model.pages.some(p => p.slug === 'strony-dla-kancelarii-prawnych')
 
-  const ctx: RenderContext = { basePath, pricingStandardAmount, currentPage: slug, linkMode, navPages, indexPricing, showCurrentInFooter, contactPhone, contactPhoneDisplay, contactEmail, contactEmailHref }
+  const ctx: RenderContext = { basePath, pricingStandardAmount, currentPage: slug, linkMode, navPages, indexPricing, showCurrentInFooter, hasSeoPage, contactPhone, contactPhoneDisplay, contactEmail, contactEmailHref }
 
   const head = isLegal
     ? renderLegalHead(page.meta?.title ?? 'FORMA Wizerunku', basePath, 'noindex, follow', model.meta.gaId)

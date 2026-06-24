@@ -641,3 +641,81 @@ describe('Renderer — portfolio page', () => {
   })
 })
 
+// ---------------------------------------------------------------------------
+// strony-dla-kancelarii-prawnych — structural tests
+// ---------------------------------------------------------------------------
+describe('Renderer — strony-dla-kancelarii-prawnych page', () => {
+  let doc: Document
+
+  beforeAll(() => {
+    const fixtureJson = JSON.parse(
+      readFileSync(resolve(ROOT, 'fixtures/forma-site.json'), 'utf-8')
+    )
+    const { model } = parseSiteModel(fixtureJson)
+    const html = renderPage(model, 'strony-dla-kancelarii-prawnych')
+    doc = new JSDOM(html).window.document
+  })
+
+  it('has all required section IDs', () => {
+    const ids = ['seo-hero', 'seo-problem', 'seo-pacta', 'seo-dlaczego', 'seo-segmenty',
+                 'seo-portfolio', 'seo-deliverables', 'seo-proces', 'seo-cennik', 'seo-faq']
+    for (const id of ids) {
+      expect(doc.getElementById(id), `#${id} missing`).not.toBeNull()
+    }
+  })
+
+  it('FAQ has 8 items', () => {
+    const items = doc.querySelectorAll('#seo-faq .faq-item')
+    expect(items).toHaveLength(8)
+  })
+
+  it('pricing amounts match fixture indexPricing (4 500 / 6 500)', () => {
+    const amounts = Array.from(doc.querySelectorAll('#seo-cennik .pricing-price'))
+      .map(el => el.textContent?.trim())
+    expect(amounts).toEqual(expect.arrayContaining([expect.stringMatching(/^4.500$/), expect.stringMatching(/^6.500$/)]))
+  })
+
+  it('has ProfessionalService + FAQPage JSON-LD', () => {
+    const scripts = Array.from(doc.querySelectorAll('script[type="application/ld+json"]'))
+    const combined = scripts.map(s => s.textContent ?? '').join('\n')
+    expect(combined).toContain('ProfessionalService')
+    expect(combined).toContain('FAQPage')
+  })
+
+  it('three CSS files linked', () => {
+    const hrefs = Array.from(doc.querySelectorAll('link[rel="stylesheet"]'))
+      .map(l => l.getAttribute('href') ?? '')
+    expect(hrefs).toContain('assets/css/design-system-agency.css')
+    expect(hrefs).toContain('assets/css/forma-layout.css')
+    expect(hrefs).toContain('assets/css/forma-components.css')
+  })
+
+  it('does not appear in nav (no navLabel)', () => {
+    const navLinks = Array.from(doc.querySelectorAll('.nav-links a'))
+      .map(a => a.getAttribute('href') ?? '')
+    expect(navLinks.some(h => h.includes('strony-dla-kancelarii-prawnych'))).toBe(false)
+  })
+
+  it('footer SEO link has aria-current="page"', () => {
+    const seoLink = Array.from(doc.querySelectorAll('footer a'))
+      .find(a => a.textContent?.includes('Strony internetowe dla kancelarii'))
+    expect(seoLink).not.toBeNull()
+    expect(seoLink!.getAttribute('aria-current')).toBe('page')
+  })
+
+  it('hasSeoPage=false: footer omits SEO link for tenants without the page', () => {
+    const fixtureJson = JSON.parse(
+      readFileSync(resolve(ROOT, 'fixtures/forma-site.json'), 'utf-8')
+    )
+    const { model } = parseSiteModel(fixtureJson)
+    const modelWithoutSeo: typeof model = {
+      ...model,
+      pages: model.pages.filter(p => p.slug !== 'strony-dla-kancelarii-prawnych'),
+    }
+    const html = renderPage(modelWithoutSeo, 'index')
+    const d = new JSDOM(html).window.document
+    const footerLinks = Array.from(d.querySelectorAll('footer a'))
+    expect(footerLinks.some(a => a.textContent?.includes('Strony internetowe dla kancelarii'))).toBe(false)
+  })
+})
+

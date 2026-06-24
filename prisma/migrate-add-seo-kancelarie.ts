@@ -50,6 +50,13 @@ async function main() {
     const model = JSON.parse(site.model as string) as SiteModelLike
     const pages = model.pages ?? []
 
+    // Strona SEO jest marką FORMA — dodajemy tylko do forma-production, nie do klientów.
+    const siteMeta = model.meta as Record<string, string> | undefined
+    if (!siteMeta?.canonical?.includes('formawizerunku.pl')) {
+      console.log(`[${site.id}] POMINIĘTO: nie jest tenant forma-production (canonical: ${siteMeta?.canonical ?? 'brak'})`)
+      continue
+    }
+
     if (pages.some(p => p.slug === 'strony-dla-kancelarii-prawnych')) {
       console.log(`[${site.id}] POMINIĘTO: strona strony-dla-kancelarii-prawnych już istnieje.`)
       continue
