@@ -10,7 +10,8 @@ export function renderNotFound(_s: Section, linkMode: 'static' | 'preview'): str
   const indexHref  = pageHref('index',   linkMode)
   const kontaktHref = pageHref('kontakt', linkMode)
 
-  return `<section class="section error-page dot-grid-bg" id="error-page" aria-labelledby="error-heading">
+  return `<div class="dot-grid-bg" aria-hidden="true"></div>
+<section class="section error-page" id="error-page" aria-labelledby="error-heading">
   <div class="container">
     <div class="error-page-inner">
       <p class="error-decorative" aria-hidden="true">404</p>
