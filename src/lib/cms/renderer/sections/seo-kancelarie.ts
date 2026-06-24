@@ -136,7 +136,7 @@ export function renderSeoKancelarie(_s: Section, ctx: RenderContext): string {
       <p class="f-body">
         To nie kwestia estetyki. To kwestia tego, czy strona robi swoją robotę.
       </p>
-      <ul class="feature-list mt-6">
+      <ul class="mt-6">
         <li>
           <strong class="mono-text accent-text">79%</strong> klientów kontaktuje więcej niż jedną kancelarię przed podjęciem decyzji o współpracy.
           <span class="f-caption"> Źródło: Martindale-Avvo, <em>Understanding the Legal Consumer 2023</em>.</span>
@@ -243,20 +243,20 @@ export function renderSeoKancelarie(_s: Section, ctx: RenderContext): string {
         <p class="f-body mt-2">
           Strona kancelarii indywidualnej: czytelna prezentacja specjalizacji, jeden prawnik, bezpośredni kontakt. Projekt pokazuje jak system PACTA działa dla kancelarii z jedną specjalizacją i ograniczonym zakresem podstron.
         </p>
-        <a href="https://kowalczyk.pages.dev/" class="accent-text" rel="noopener noreferrer" target="_blank"
+        <p class="mt-4"><a href="https://kowalczyk.pages.dev/" class="accent-text" rel="noopener noreferrer" target="_blank"
           aria-label="Zobacz projekt demonstracyjny kancelarii solo (otwiera się w nowej karcie)">
           Zobacz projekt ↗
-        </a>
+        </a></p>
       </div>
       <div class="pricing-card interactive-card">
         <span class="section-label mb-2">Projekt demonstracyjny — kancelaria corporate / M&amp;A</span>
         <p class="f-body mt-2">
           Strona kancelarii obsługującej klientów biznesowych: rozbudowana prezentacja usług i zespołu bez utraty przejrzystości. Projekt pokazuje jak system PACTA skaluje się do większej struktury kancelarii.
         </p>
-        <a href="https://mazur-wspolnicy.pages.dev" class="accent-text" rel="noopener noreferrer" target="_blank"
+        <p class="mt-4"><a href="https://mazur-wspolnicy.pages.dev" class="accent-text" rel="noopener noreferrer" target="_blank"
           aria-label="Zobacz projekt demonstracyjny kancelarii corporate (otwiera się w nowej karcie)">
           Zobacz projekt ↗
-        </a>
+        </a></p>
       </div>
     </div>
     <div class="mt-8 text-center">
