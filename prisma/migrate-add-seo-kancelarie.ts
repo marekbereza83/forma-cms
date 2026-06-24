@@ -17,7 +17,7 @@ type Field = { type: string; value: unknown; editable: boolean }
 type Section = { id: string; recipe: string; fields: Record<string, Field> }
 type PageMeta = { title?: string; description?: string; canonical?: string; ogTitle?: string; ogDescription?: string; ogUrl?: string; variant?: string }
 type PageLike = { slug: string; meta?: PageMeta; navLabel?: string; sections?: Section[] }
-type SiteModelLike = { pages?: PageLike[] }
+type SiteModelLike = { pages?: PageLike[]; meta?: { canonical?: string } }
 
 const SEO_PAGE: PageLike = {
   slug: 'strony-dla-kancelarii-prawnych',
