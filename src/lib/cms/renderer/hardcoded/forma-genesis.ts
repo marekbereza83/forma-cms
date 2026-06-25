@@ -16,13 +16,19 @@ const SCRIPT = `<script>
   cv.width=W*DPR; cv.height=H*DPR;
 
   if (errorAnchor) {
-    // 404: canvas na początku — jest głównym elementem dekoracyjnym
+    // 404: pełny 300px, na początku sekcji — canvas jest głównym elementem dekoracyjnym
     cv.style.cssText='display:block;width:min(300px,100%);aspect-ratio:1;margin:0 auto 1.5rem';
     errorAnchor.insertBefore(cv, errorAnchor.firstChild);
   } else {
-    // kontakt: canvas na końcu aside — nagłówek i dane kontaktowe zostają na górze
-    cv.style.cssText='display:block;width:min(300px,100%);aspect-ratio:1;margin:2rem auto 0';
-    contactAnchor.appendChild(cv);
+    // kontakt: 200px, wstawiony zaraz po h2 — canvas jako wizualny element sekcji,
+    // dane kontaktowe i reassurance zostają poniżej (aside nie przerasta kolumny formularza)
+    cv.style.cssText='display:block;width:min(200px,100%);aspect-ratio:1;margin:0.75rem auto 1.25rem';
+    var h2 = contactAnchor.querySelector('h2');
+    if (h2) {
+      contactAnchor.insertBefore(cv, h2.nextSibling);
+    } else {
+      contactAnchor.insertBefore(cv, contactAnchor.firstChild);
+    }
   }
 
   var ctx=cv.getContext('2d');
