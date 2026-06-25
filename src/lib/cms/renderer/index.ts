@@ -24,6 +24,7 @@ import { renderLegalNotice, renderPrivacyPolicy, renderTermsOfService } from './
 import { renderSeoKancelarie } from './sections/seo-kancelarie'
 import { renderNotFound } from './sections/not-found'
 import { redesignAnimatorScript } from './hardcoded/redesign-animator'
+import { formaGenesisScript } from './hardcoded/forma-genesis'
 import { cookieConsentBanner } from './hardcoded/cookie-consent'
 import { pageHref } from './utils'
 
@@ -139,6 +140,7 @@ export function renderPage(model: SiteModel, slug: string, basePath = '', linkMo
   }
 
   if (slug === 'index') bodyParts.push(redesignAnimatorScript)
+  if (slug === 'kontakt' || slug === '404') bodyParts.push(formaGenesisScript)
   // Baner zgody na cookies — tylko gdy GA jest aktywne (gaId ustawione).
   if (model.meta.gaId) bodyParts.push(cookieConsentBanner(pageHref('privacy-policy', linkMode)))
   bodyParts.push(`<script src="${basePath}assets/js/main.js" defer></script>`)

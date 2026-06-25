@@ -90,7 +90,8 @@ GET /preview?page=index
 | `schema.ts` | Zod schemas + **`parseSiteModel()`** — the single entry point for validating + saving a model |
 | `fields.ts` | `getEditableFields()` / `setFieldValue()` — immutable field mutation helpers |
 | `persistence.ts` | `saveSite(session, raw)` — validates via `parseSiteModel()` then upserts + writes `EditLog` |
-| `export.ts` | `renderStaticSite()` / `exportSite()` — produce static `.html` files + copy assets |
+| `export.ts` | `renderStaticSite()` / `exportSite()` — write static `.html` + assets to disk; `buildStaticSiteFiles()` — in-memory twin returning a `{ path: bytes }` map (used by publish) |
+| `publish.ts` | `publishSite(tenantId)` / `publishFiles()` — render the site and upload it to Cloudflare R2 under `sites/<tenantId>/` (the live-served prefix). The disk-writing `exportSite()` produces a ZIP/dir; this uploads instead |
 | `renderer/index.ts` | `renderPage(model, slug, basePath, linkMode)` — assembles full HTML document |
 | `renderer/sections/` | One file per section ID (`hero.ts`, `pricing.ts`, …) |
 | `renderer/collections.ts` | `renderEventItem()` — renders a single `EventItem` to HTML |
@@ -112,7 +113,7 @@ Auth.js (NextAuth v5) with `Credentials` provider. JWT carries `tenantId`, `user
 
 ### Renderer contract
 
-`renderPage()` must produce HTML structurally identical to the reference files in `reference/forma-production/`. The DOM-diff acceptance tests run against all eight reference pages: `index.html`, `kontakt.html`, `proces.html`, `portfolio.html`, `legal-notice.html`, `privacy-policy.html`, `regulamin.html`, `404.html`. Always run `npx vitest tests/renderer.test.ts` after changing any section renderer, then update the matching reference file when the change is intentional.
+`renderPage()` must produce HTML structurally identical to the reference files in `reference/forma-production/`. The DOM-diff acceptance tests run against all nine reference pages: `index.html`, `kontakt.html`, `proces.html`, `portfolio.html`, `legal-notice.html`, `privacy-policy.html`, `regulamin.html`, `strony-dla-kancelarii-prawnych.html` (SEO landing page), `404.html`. Always run `npx vitest tests/renderer.test.ts` after changing any section renderer, then update the matching reference file when the change is intentional.
 
 Unknown section IDs in `SECTION_REGISTRY` throw `Error` immediately. Previously an unknown ID would silently produce an empty `<main>` — the hardest failure to notice in production. Now it throws immediately.
 
@@ -169,6 +170,12 @@ All panel routes are protected by `src/middleware.ts` (NextAuth matcher). Per-ro
 
 `exportSite(tenantId)` reads from Prisma, calls `renderStaticSite()`, writes `exports/<tenantId>/*.html` + copies `public/assets/`. Upload images land in `public/uploads/<tenantId>/` and are copied to `exports/<tenantId>/assets/images/`.
 
+### Publishing to R2 (the live site)
+
+`publishSite(tenantId)` (`src/lib/cms/publish.ts`) is the production path: it renders the tenant's model via `buildStaticSiteFiles()` (the in-memory twin of `renderStaticSite()` — returns a `{ path: bytes }` map instead of touching disk) and uploads every file to Cloudflare R2 under the `sites/<tenantId>/` prefix, which is the prefix served live. Both `/api/upload` (image storage at `<tenantId>/portfolio-card-*.webp`) and publishing share one R2 client in `src/lib/storage/r2.ts`; `contentTypeFor(path)` maps file extensions to Content-Type for `PutObject`.
+
+`publishFiles(tenantId, files)` is split out so it can be tested with a mocked S3 client (no Prisma); `publishSite()` wraps it with the Prisma loader. Manual one-off publish: `npx tsx scripts/publish-production.ts`.
+
 ---
 
 ## Database
@@ -215,6 +222,7 @@ The canonical `SiteModel` instance. All tests read from it. Two constraints enfo
 | `persistence-roundtrip.test.ts` | `saveSite()` round-trips through `parseSiteModel()` |
 | `panel-fields.test.ts` | `getEditableFields()` / `setFieldValue()` helpers |
 | `export.test.ts` | `exportSite()` writes correct HTML files |
+| `publish.test.ts` | `buildStaticSiteFiles()`, `contentTypeFor()`, and `publishFiles()` (R2 upload, S3 client mocked) |
 | `upload.test.ts` | Image upload/delete API |
 | `tenant-isolation.test.ts` | `getTenantScopedClient()` never leaks cross-tenant data |
 | `schema-sync.test.ts` | Verifies `schema.prisma` and `schema.sqlite.prisma` have identical model definitions |
