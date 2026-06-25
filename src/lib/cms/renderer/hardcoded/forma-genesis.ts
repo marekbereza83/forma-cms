@@ -20,8 +20,9 @@ const SCRIPT = `<script>
     cv.style.cssText='display:block;width:min(300px,100%);aspect-ratio:1;margin:0 auto 1.5rem';
     errorAnchor.insertBefore(cv, errorAnchor.firstChild);
   } else {
-    // kontakt: 200px, wstawiony zaraz po h2 — canvas jako wizualny element sekcji,
-    // dane kontaktowe i reassurance zostają poniżej (aside nie przerasta kolumny formularza)
+    // kontakt: tylko desktop (≥1024px) — na mobile/tablecie aside jest stacked i animacja
+    // rozbija flow karty kontaktowej
+    if (!window.matchMedia('(min-width: 1024px)').matches) return;
     cv.style.cssText='display:block;width:min(200px,100%);aspect-ratio:1;margin:0.75rem auto 1.25rem';
     var h2 = contactAnchor.querySelector('h2');
     if (h2) {
