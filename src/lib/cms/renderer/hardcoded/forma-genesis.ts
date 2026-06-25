@@ -5,18 +5,25 @@ const SCRIPT = `<script>
 (function(){
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  // Punkt wstawienia: 404 lub aside w formularzu kontaktowym
-  var anchor = document.querySelector('.error-page-inner')
-             || document.querySelector('.contact-inner aside');
-  if (!anchor) return;
+  var errorAnchor   = document.querySelector('.error-page-inner');
+  var contactAnchor = document.querySelector('.contact-inner aside');
+  if (!errorAnchor && !contactAnchor) return;
 
   var W=300,H=300,DPR=window.devicePixelRatio||1;
   var cv=document.createElement('canvas');
   cv.id='forma-genesis-canvas';
   cv.setAttribute('aria-hidden','true');
   cv.width=W*DPR; cv.height=H*DPR;
-  cv.style.cssText='display:block;width:min(300px,100%);aspect-ratio:1;margin:0 auto 1.5rem';
-  anchor.insertBefore(cv,anchor.firstChild);
+
+  if (errorAnchor) {
+    // 404: canvas na początku — jest głównym elementem dekoracyjnym
+    cv.style.cssText='display:block;width:min(300px,100%);aspect-ratio:1;margin:0 auto 1.5rem';
+    errorAnchor.insertBefore(cv, errorAnchor.firstChild);
+  } else {
+    // kontakt: canvas na końcu aside — nagłówek i dane kontaktowe zostają na górze
+    cv.style.cssText='display:block;width:min(300px,100%);aspect-ratio:1;margin:2rem auto 0';
+    contactAnchor.appendChild(cv);
+  }
 
   var ctx=cv.getContext('2d');
   ctx.scale(DPR,DPR);
