@@ -23,7 +23,7 @@ const SCRIPT = `<script>
     // kontakt: tylko desktop (≥1024px) — na mobile/tablecie aside jest stacked i animacja
     // rozbija flow karty kontaktowej
     if (!window.matchMedia('(min-width: 1024px)').matches) return;
-    cv.style.cssText='display:block;width:min(200px,100%);aspect-ratio:1;margin:0.75rem auto 1.25rem';
+    cv.style.cssText='display:block;width:min(200px,100%);aspect-ratio:1;margin:0.75rem 0 1.25rem';
     var h2 = contactAnchor.querySelector('h2');
     if (h2) {
       contactAnchor.insertBefore(cv, h2.nextSibling);
