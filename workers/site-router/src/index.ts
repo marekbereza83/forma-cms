@@ -41,6 +41,18 @@ export default {
     }
 
     const url = new URL(request.url)
+
+    // Canonical public URL. Apply every normalization in one response so that
+    // combinations such as http + www + /index.html never form a redirect chain.
+    const canonicalUrl = new URL(url)
+    canonicalUrl.protocol = 'https:'
+    canonicalUrl.hostname = 'formawizerunku.pl'
+    if (canonicalUrl.pathname === '/index.html') canonicalUrl.pathname = '/'
+
+    if (url.toString() !== canonicalUrl.toString()) {
+      return Response.redirect(canonicalUrl.toString(), 301)
+    }
+
     const tenantId = parseHostMap(env.HOST_MAP)[url.hostname]
     if (!tenantId) return new Response('Unknown host', { status: 404 })
 
