@@ -40,9 +40,7 @@ a {
 }
 
 .panel-header {
-  display: flex;
-  align-items: baseline;
-  gap: 16px;
+  /* Dwa wiersze: marka + Publikuj, pod spodem zakładki. */
   padding: 32px 0 24px;
   border-bottom: 1px solid var(--border);
   margin-bottom: 32px;
@@ -70,6 +68,109 @@ a {
 
 .panel-nav a:hover {
   color: var(--fg);
+}
+
+/* ── Zakładki panelu ──────────────────────────────────────── */
+
+.panel-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.panel-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  /* Podkreslenie aktywnej zakladki ma lezec dokladnie na dolnej krawedzi naglowka,
+     wiec kasujemy jego padding-bottom (24px) ujemnym marginesem. */
+  margin-bottom: -24px;
+}
+
+.panel-tab {
+  display: inline-block;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+
+.panel-tab:hover {
+  color: var(--fg);
+}
+
+.panel-tab.is-active {
+  color: var(--fg);
+  font-weight: 500;
+  border-bottom-color: var(--accent);
+}
+
+.panel-tab-external::after {
+  content: ' ↗';
+  font-size: 0.75em;
+}
+
+/* ── Pod-zakładki (strony wewnątrz edycji treści) ─────────── */
+
+.subtabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  padding-bottom: 4px;
+}
+
+.subtab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.subtab:hover {
+  color: var(--fg);
+}
+
+.subtab.is-active {
+  color: var(--accent-fg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.subtab-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Publikuj w nagłówku ──────────────────────────────────── */
+
+.publish-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.publish-inline-status {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.publish-inline-error {
+  font-size: 0.78rem;
+  color: var(--error);
 }
 
 /* ── Section blocks ───────────────────────────────────────── */
@@ -118,6 +219,7 @@ a {
 input[type="text"],
 input[type="email"],
 input[type="password"],
+input[type="date"],
 textarea,
 select {
   width: 100%;
@@ -327,4 +429,168 @@ input[readonly] {
 .dashboard-card-desc {
   font-size: 0.82rem;
   color: var(--muted);
+}
+
+/* ── Publikacje: lista + formularz ────────────────────────── */
+
+.posts-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .posts-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.posts-list {
+  list-style: none;
+  border-top: 1px solid var(--border);
+}
+
+.posts-list-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 10px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-left: 2px solid transparent;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.posts-list-item:hover {
+  background: var(--surface);
+}
+
+.posts-list-item.is-active {
+  border-left-color: var(--accent);
+  background: var(--surface);
+}
+
+.posts-list-title {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.posts-list-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.badge-live {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+.posts-form-row {
+  display: flex;
+  gap: 16px;
+}
+
+@media (max-width: 720px) {
+  .posts-form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+/* ── Edytor treści publikacji ─────────────────────────────── */
+
+.rte {
+  border: 1px solid var(--border);
+}
+
+.rte-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 6px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.rte-btn {
+  padding: 4px 9px;
+  font-family: inherit;
+  font-size: 0.78rem;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.rte-btn:hover {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
+}
+
+.rte-link-row {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.rte-surface {
+  min-height: 220px;
+  max-height: 460px;
+  overflow-y: auto;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.rte-surface:focus {
+  outline: none;
+}
+
+/* Typografia w edytorze celowo przypomina strone, zeby klient widzial hierarchie
+   nagłówków — ale to podglad roboczy, nie odwzorowanie designu strony. */
+.rte-surface h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.15rem;
+  margin: 18px 0 8px;
+}
+
+.rte-surface h3 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1rem;
+  margin: 14px 0 6px;
+}
+
+.rte-surface p {
+  margin-bottom: 10px;
+}
+
+.rte-surface ul,
+.rte-surface ol {
+  margin: 0 0 10px 22px;
+}
+
+.rte-surface a {
+  text-decoration: underline;
 }

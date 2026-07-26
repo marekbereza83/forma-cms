@@ -643,6 +643,10 @@ export default function FieldsForm({ initialModel }: Props) {
   const [warnings, setWarnings] = useState<Violation[]>([])
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle')
   const [isPending, startTransition] = useTransition()
+  // Pod-zakladka: slug strony albo '__meta' dla danych kontaktowych.
+  // Formularz zostaje JEDEN i zapisuje caly model — zakladki tylko zawezaja widok,
+  // wiec przelaczanie nie gubi niezapisanych zmian z innych stron.
+  const [activeTab, setActiveTab] = useState<string>('index')
 
   function updateField(pageSlug: string, sectionId: string, fieldName: string, value: unknown) {
     setModel(m => setFieldValue(m, pageSlug, sectionId, fieldName, value))
@@ -733,7 +737,35 @@ export default function FieldsForm({ initialModel }: Props) {
         </div>
       )}
 
+      <div className="subtabs" role="tablist" aria-label="Strony i ustawienia">
+        {model.pages
+          .filter(page => page.sections.some(s => Object.values(s.fields).some(f => f.editable)))
+          .map(page => (
+            <button
+              key={page.slug}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === page.slug}
+              className={activeTab === page.slug ? 'subtab is-active' : 'subtab'}
+              onClick={() => setActiveTab(page.slug)}
+            >
+              <span className="subtab-dot" style={{ background: PAGE_COLORS[page.slug] ?? '#6b7280' }} />
+              {PAGE_LABELS[page.slug] ?? page.slug}
+            </button>
+          ))}
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === '__meta'}
+          className={activeTab === '__meta' ? 'subtab is-active' : 'subtab'}
+          onClick={() => setActiveTab('__meta')}
+        >
+          Dane kontaktowe
+        </button>
+      </div>
+
       {/* ── Dane kontaktowe ── */}
+      {activeTab === '__meta' && (
       <div className="section-block">
         <p className="section-title">Dane kontaktowe</p>
 
@@ -773,8 +805,9 @@ export default function FieldsForm({ initialModel }: Props) {
           />
         </div>
       </div>
+      )}
 
-      {model.pages.map(page => {
+      {model.pages.filter(page => page.slug === activeTab).map(page => {
         const editableSections = page.sections.filter(s =>
           Object.values(s.fields).some(f => f.editable)
         )

@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 type Status = 'idle' | 'publishing' | 'done' | 'error'
 
-export default function PublishButton() {
+export default function PublishButton({ variant = 'card' }: { variant?: 'card' | 'inline' } = {}) {
   const [status, setStatus] = useState<Status>('idle')
   const [message, setMessage] = useState('')
   const [url, setUrl] = useState<string | null>(null)
@@ -26,6 +26,24 @@ export default function PublishButton() {
       setStatus('error')
       setMessage('Brak połączenia z serwerem.')
     }
+  }
+
+  // Wariant naglowkowy — zwarty przycisk widoczny na kazdej zakladce panelu.
+  if (variant === 'inline') {
+    return (
+      <div className="publish-inline">
+        <button type="button" className="btn" disabled={status === 'publishing'} onClick={publish}>
+          {status === 'publishing' ? 'Publikowanie…' : 'Publikuj'}
+        </button>
+        {status === 'done' && (
+          <span className="publish-inline-status">
+            {message}{' '}
+            {url && <a href={url} target="_blank" rel="noreferrer">Otwórz</a>}
+          </span>
+        )}
+        {status === 'error' && <span className="publish-inline-error">{message}</span>}
+      </div>
+    )
   }
 
   return (
