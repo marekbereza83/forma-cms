@@ -57,8 +57,10 @@ export const EventItemSchema = z.object({
 
 export const PostItemSchema = z.object({
   id: z.string(),
+  slug: z.string().min(1),
   title: z.string().min(1),
   publishedAt: z.string().optional(),
+  excerpt: z.string().optional(),
   body: z.string(),
   status: z.enum(['draft', 'published']),
 })

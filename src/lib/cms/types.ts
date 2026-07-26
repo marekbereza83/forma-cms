@@ -124,8 +124,14 @@ export interface EventItem {
 
 export interface PostItem {
   id: string
+  /** Segment URL, kebab-case. Buduje adres publikacje/<slug>.html — musi byc unikalny (C6). */
+  slug: string
   title: string
+  /** YYYY-MM-DD. Wymagane gdy status = 'published' (C7). */
   publishedAt?: string
+  /** Zajawka na liscie publikacji + meta description artykulu. */
+  excerpt?: string
+  /** HTML przepuszczony przez sanitizePostBody() PRZED zapisem — patrz invariant #5. */
   body: string
   status: 'draft' | 'published'
 }

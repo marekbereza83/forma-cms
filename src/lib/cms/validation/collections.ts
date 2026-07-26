@@ -98,6 +98,81 @@ export function validatePostDates(posts: PostItem[]): Violation[] {
   return errors
 }
 
+// ── C5: PostItem.slug musi być kebab-case ────────────────────────────────────
+// Slug buduje adres publikacje/<slug>.html — polskie znaki, spacje i wielkie
+// litery psułyby URL i kanoniczność, więc odrzucamy je na wejściu.
+const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
+export function validatePostSlugs(posts: PostItem[]): Violation[] {
+  const errors: Violation[] = []
+  posts.forEach((post, i) => {
+    if (!SLUG_RE.test(post.slug)) {
+      errors.push({
+        rule: 'C5',
+        field: `collections.posts[${i}].slug`,
+        message: `Adres "${post.slug}" może zawierać tylko małe litery bez polskich znaków, cyfry i myślniki (np. "etyka-zawodowa")`,
+      })
+    }
+  })
+  return errors
+}
+
+// ── C6: PostItem.slug musi być unikalny ──────────────────────────────────────
+// Dwa posty o tym samym slugu nadpisałyby swój plik przy eksporcie — cicha
+// utrata treści, więc blokujemy zapis.
+export function validatePostSlugUniqueness(posts: PostItem[]): Violation[] {
+  const errors: Violation[] = []
+  const seen = new Map<string, number>()
+  posts.forEach((post, i) => {
+    const firstIndex = seen.get(post.slug)
+    if (firstIndex !== undefined) {
+      errors.push({
+        rule: 'C6',
+        field: `collections.posts[${i}].slug`,
+        message: `Adres "${post.slug}" jest już użyty w publikacji nr ${firstIndex + 1} — każdy artykuł musi mieć własny`,
+      })
+    } else {
+      seen.set(post.slug, i)
+    }
+  })
+  return errors
+}
+
+// ── C7: opublikowany post musi mieć datę publikacji ──────────────────────────
+// Data trafia do listy publikacji i do JSON-LD Article; brak daty przy
+// status='published' dałby pustą datę na żywej stronie.
+export function validatePublishedPostDates(posts: PostItem[]): Violation[] {
+  const errors: Violation[] = []
+  posts.forEach((post, i) => {
+    if (post.status === 'published' && !post.publishedAt) {
+      errors.push({
+        rule: 'C7',
+        field: `collections.posts[${i}].publishedAt`,
+        message: `Publikacja "${post.title}" jest oznaczona jako opublikowana — ustaw datę publikacji`,
+      })
+    }
+  })
+  return errors
+}
+
+// ── C8: opublikowany post musi mieć niepustą treść ───────────────────────────
+// Sprawdzamy tekst po usunięciu znaczników — "<p></p>" z edytora to pusty artykuł.
+export function validatePublishedPostBodies(posts: PostItem[]): Violation[] {
+  const errors: Violation[] = []
+  posts.forEach((post, i) => {
+    if (post.status !== 'published') return
+    const text = post.body.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim()
+    if (!text) {
+      errors.push({
+        rule: 'C8',
+        field: `collections.posts[${i}].body`,
+        message: `Publikacja "${post.title}" jest oznaczona jako opublikowana — treść nie może być pusta`,
+      })
+    }
+  })
+  return errors
+}
+
 export function validateCollections(
   events: EventItem[],
   posts: PostItem[],
@@ -107,5 +182,9 @@ export function validateCollections(
     ...validateEventTitles(events),
     ...validatePostBodies(posts),
     ...validatePostDates(posts),
+    ...validatePostSlugs(posts),
+    ...validatePostSlugUniqueness(posts),
+    ...validatePublishedPostDates(posts),
+    ...validatePublishedPostBodies(posts),
   ]
 }

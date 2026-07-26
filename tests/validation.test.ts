@@ -9,6 +9,10 @@ import {
   validateEventTitles,
   validatePostBodies,
   validatePostDates,
+  validatePostSlugs,
+  validatePostSlugUniqueness,
+  validatePublishedPostDates,
+  validatePublishedPostBodies,
   sanitizePostBody,
 } from '../src/lib/cms/validation/collections'
 import { FormaValidationError } from '../src/lib/cms/validation/types'
@@ -593,6 +597,87 @@ describe('C4 — post publishedAt format', () => {
     const errs = validatePostDates([{ id: '1', title: 'T', publishedAt: '01/06/2026', body: '', status: 'published' }])
     expect(errs).toHaveLength(1)
     expect(errs[0].rule).toBe('C4')
+  })
+})
+
+// ────────────────────────────────────────────────────────────────────────────
+const post = (over: Partial<import('../src/lib/cms/types').PostItem> = {}) => ({
+  id: '1',
+  slug: 'etyka-zawodowa',
+  title: 'Etyka zawodowa',
+  publishedAt: '2026-06-01',
+  body: '<p>Treść</p>',
+  status: 'published' as const,
+  ...over,
+})
+
+describe('C5 — post slug format', () => {
+  it('poprawny kebab-case → brak błędu', () => {
+    expect(validatePostSlugs([post({ slug: 'jak-zaprojektowac-strone-2026' })])).toHaveLength(0)
+  })
+
+  it.each([
+    ['polskie znaki', 'etyka-zawodowa-kancelarii-ą'],
+    ['wielkie litery', 'Etyka-Zawodowa'],
+    ['spacje', 'etyka zawodowa'],
+    ['podkreślniki', 'etyka_zawodowa'],
+    ['ukośnik (próba wyjścia ze ścieżki)', '../../etc/passwd'],
+    ['pusty', ''],
+    ['myślnik na końcu', 'etyka-'],
+  ])('%s → błąd C5', (_label, slug) => {
+    const errs = validatePostSlugs([post({ slug })])
+    expect(errs).toHaveLength(1)
+    expect(errs[0].rule).toBe('C5')
+  })
+})
+
+describe('C6 — post slug uniqueness', () => {
+  it('różne slugi → brak błędu', () => {
+    const errs = validatePostSlugUniqueness([post({ id: '1', slug: 'a' }), post({ id: '2', slug: 'b' })])
+    expect(errs).toHaveLength(0)
+  })
+
+  it('duplikat sluga → błąd C6 wskazujący drugi wpis', () => {
+    const errs = validatePostSlugUniqueness([post({ id: '1', slug: 'a' }), post({ id: '2', slug: 'a' })])
+    expect(errs).toHaveLength(1)
+    expect(errs[0].rule).toBe('C6')
+    expect(errs[0].field).toBe('collections.posts[1].slug')
+  })
+})
+
+describe('C7 — opublikowany post wymaga daty', () => {
+  it('published z datą → brak błędu', () => {
+    expect(validatePublishedPostDates([post()])).toHaveLength(0)
+  })
+
+  it('draft bez daty → brak błędu (szkic nie wymaga daty)', () => {
+    expect(validatePublishedPostDates([post({ status: 'draft', publishedAt: undefined })])).toHaveLength(0)
+  })
+
+  it('published bez daty → błąd C7', () => {
+    const errs = validatePublishedPostDates([post({ publishedAt: undefined })])
+    expect(errs).toHaveLength(1)
+    expect(errs[0].rule).toBe('C7')
+  })
+})
+
+describe('C8 — opublikowany post wymaga treści', () => {
+  it('published z treścią → brak błędu', () => {
+    expect(validatePublishedPostBodies([post()])).toHaveLength(0)
+  })
+
+  it('draft z pustą treścią → brak błędu', () => {
+    expect(validatePublishedPostBodies([post({ status: 'draft', body: '' })])).toHaveLength(0)
+  })
+
+  it.each([
+    ['pusty string', ''],
+    ['sam pusty akapit z edytora', '<p></p>'],
+    ['same białe znaki i nbsp', '<p>&nbsp; </p>'],
+  ])('published, %s → błąd C8', (_label, body) => {
+    const errs = validatePublishedPostBodies([post({ body })])
+    expect(errs).toHaveLength(1)
+    expect(errs[0].rule).toBe('C8')
   })
 })
 

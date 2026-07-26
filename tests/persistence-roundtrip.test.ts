@@ -208,4 +208,34 @@ describe('DB round-trip integrity', () => {
     const diff = domDiff(htmlOriginal, htmlRoundTripped)
     expect(diff).toBeNull()
   })
+
+  // INVARIANT #5 — sanitizePostBody musi zadzialac w saveSite, a nie dopiero w kodzie panelu.
+  // Ten test celowo omija warstwe panelu i wola saveSite bezposrednio: gdyby ktos przeniosl
+  // sanitizacje do akcji serwerowej, ten test zlapie regresje.
+  it('saveSite czyści treść publikacji z niebezpiecznego HTML przed zapisem do DB', async () => {
+    const raw = JSON.parse(readFileSync(resolve(ROOT, 'fixtures/forma-site.json'), 'utf-8'))
+    raw.tenantId = session.tenantId
+    raw.collections.posts = [{
+      id: 'xss-1',
+      slug: 'test-sanityzacji',
+      title: 'Test sanityzacji',
+      publishedAt: '2026-07-26',
+      body: '<p>Bezpieczny akapit</p><script>alert(1)</script><img src=x onerror=alert(2)><a href="javascript:alert(3)">klik</a>',
+      status: 'published',
+    }]
+
+    await saveSite(session, raw)
+
+    const db = getTenantScopedClient(session)
+    const row = await db.getSite()
+    const saved = row!.model.collections.posts[0]
+
+    // Tresc merytoryczna zachowana
+    expect(saved.body).toContain('Bezpieczny akapit')
+    expect(saved.body).toContain('klik')
+    // Wektory ataku usuniete JUZ NA POZIOMIE ZAPISU
+    expect(saved.body).not.toContain('<script')
+    expect(saved.body).not.toContain('onerror')
+    expect(saved.body).not.toContain('javascript:')
+  })
 })
