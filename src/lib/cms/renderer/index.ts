@@ -21,7 +21,6 @@ import { renderTechnologie } from './sections/technologie'
 import { renderCennikDetail } from './sections/cennik-detail'
 import { renderFaq } from './sections/faq'
 import { renderLegalNotice, renderPrivacyPolicy, renderTermsOfService } from './sections/legal-static'
-import { renderSeoKancelarie } from './sections/seo-kancelarie'
 import { renderNotFound } from './sections/not-found'
 import { redesignAnimatorScript } from './hardcoded/redesign-animator'
 import { formaGenesisScript } from './hardcoded/forma-genesis'
@@ -56,8 +55,6 @@ const SECTION_REGISTRY: Record<string, (s: Section, ctx: RenderContext) => strin
   'legal-notice':      (s, ctx) => renderLegalNotice(s, ctx),
   'privacy-policy':    (s, ctx) => renderPrivacyPolicy(s, ctx),
   'regulamin':         (s, ctx) => renderTermsOfService(s, ctx),
-  // ── strona SEO (hardcoded content) ───────────────────────────────────────────
-  'seo-kancelarie':    (s, ctx) => renderSeoKancelarie(s, ctx),
   // ── strona błędu (hardcoded content, variant: '404') ─────────────────────────
   'not-found':         (s, ctx) => renderNotFound(s, ctx.linkMode),
 }
@@ -106,10 +103,9 @@ export function renderPage(model: SiteModel, slug: string, basePath = '', linkMo
 
   // Strony utility (kontakt, legal, 404) pokazują stopkę bez <nav> wrappera.
   // isLegal/is404 pochodzą z page.meta.variant; kontakt jest jedynym wyjątkiem bez variant.
-  const showCurrentInFooter = isLegal || is404 || slug === 'kontakt' || slug === 'strony-dla-kancelarii-prawnych'
-  const hasSeoPage = model.pages.some(p => p.slug === 'strony-dla-kancelarii-prawnych')
+  const showCurrentInFooter = isLegal || is404 || slug === 'kontakt'
 
-  const ctx: RenderContext = { basePath, pricingStandardAmount, currentPage: slug, linkMode, navPages, indexPricing, showCurrentInFooter, hasSeoPage, contactPhone, contactPhoneDisplay, contactEmail, contactEmailHref }
+  const ctx: RenderContext = { basePath, pricingStandardAmount, currentPage: slug, linkMode, navPages, indexPricing, showCurrentInFooter, contactPhone, contactPhoneDisplay, contactEmail, contactEmailHref }
 
   const head = isLegal
     ? renderLegalHead(page.meta?.title ?? 'FORMA Wizerunku', basePath, 'noindex, follow', model.meta.gaId)

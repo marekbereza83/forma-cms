@@ -1,14 +1,8 @@
 {
-  "hero.subheadlinePrefix": {
+  "problem.lead": {
     "—": 1
   },
-  "problem.symptomCards": {
-    "—": 1
-  },
-  "solution.body1": {
-    "—": 1
-  },
-  "solution.body2": {
+  "solution.microcopy": {
     "—": 1
   },
   "portfolio.lead": {
@@ -22,6 +16,9 @@
   },
   "pricing.sectionLead": {
     "—": 1
+  },
+  "faq.items": {
+    "—": 6
   },
   "cta-finale.lead": {
     "—": 1
@@ -47,9 +44,6 @@
   },
   "technologie.lead": {
     "—": 1
-  },
-  "faq.items": {
-    "—": 7
   },
   "kontakt-hero.body": {
     "—": 1

@@ -21,13 +21,14 @@ export function renderFooter(section: Section, ctx: RenderContext): string {
 
   const logoHref = pageHref('index', ctx.linkMode)
 
+  // Kotwica na frazę główną prowadzi teraz do strony głównej — dawna podstrona
+  // /strony-dla-kancelarii-prawnych została z nią scalona (301 obsługuje Worker).
+  // Tekst kotwicy zostaje: to jedyny wewnętrzny link z frazą docelową na "/".
+  const keywordHref = pageHref('index', ctx.linkMode)
+  const keywordLabel = 'Strony internetowe dla kancelarii prawnych'
+
   if (ctx.showCurrentInFooter) {
-    const seoSlug = 'strony-dla-kancelarii-prawnych'
-    const isSeoCurrent = ctx.currentPage === seoSlug
-    const seoHref = ctx.hasSeoPage ? transformFooterHref(`${seoSlug}.html`, ctx.linkMode) : null
-    const seoLinkHtml = seoHref
-      ? `\n      <li><a href="${seoHref}"${isSeoCurrent ? ' aria-current="page"' : ''}>Strony internetowe dla kancelarii prawnych</a></li>`
-      : ''
+    const seoLinkHtml = `\n      <li><a href="${keywordHref}">${keywordLabel}</a></li>`
     const linksHtml = links
       .map(l => {
         const href = transformFooterHref(l.href, ctx.linkMode)
@@ -52,13 +53,12 @@ ${linksHtml}
 </footer>`
   }
 
-  const seoHref = ctx.hasSeoPage ? transformFooterHref('strony-dla-kancelarii-prawnych.html', ctx.linkMode) : null
   const linksHtml = links
     .map(l => {
       const href = transformFooterHref(l.href, ctx.linkMode)
       return `        <li><a href="${href}">${l.label}</a></li>`
     })
-    .join('\n') + (seoHref ? `\n        <li><a href="${seoHref}">Strony internetowe dla kancelarii prawnych</a></li>` : '')
+    .join('\n') + `\n        <li><a href="${keywordHref}">${keywordLabel}</a></li>`
 
   return `<!-- SEKCJA: stopka -->
 <footer class="footer" role="contentinfo" aria-label="Stopka strony">

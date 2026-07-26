@@ -5,6 +5,7 @@ import { JSDOM } from 'jsdom'
 import { parseSiteModel } from '../src/lib/cms/schema'
 import { renderPage } from '../src/lib/cms/renderer/index'
 import { renderEventItem } from '../src/lib/cms/renderer/collections'
+import { buildStaticSiteFiles } from '../src/lib/cms/export'
 import type { EventItem, SiteModel } from '../src/lib/cms/types'
 
 const ROOT = resolve(process.cwd())
@@ -218,7 +219,7 @@ describe('Renderer', () => {
     const doc = new JSDOM(rendered).window.document
 
     const h1 = doc.querySelector('h1.f-display')
-    expect(h1?.textContent?.trim()).toBe('Projektuję strony które przynoszą klientów kancelarii')
+    expect(h1?.textContent?.trim()).toBe('Strony internetowe dla kancelarii prawnych')
   })
 
   it('links all three CSS files', () => {
@@ -400,6 +401,139 @@ describe('Renderer', () => {
 })
 
 // ---------------------------------------------------------------------------
+// Strona główna — kontrola SEO po scaleniu podstrony ofertowej
+// ---------------------------------------------------------------------------
+describe('Renderer — SEO strony głównej', () => {
+  let doc: Document
+
+  beforeAll(() => {
+    const fixtureJson = JSON.parse(
+      readFileSync(resolve(ROOT, 'fixtures/forma-site.json'), 'utf-8')
+    )
+    const { model } = parseSiteModel(fixtureJson)
+    doc = new JSDOM(renderPage(model, 'index')).window.document
+  })
+
+  it('ma dokładnie jeden H1 (tag "System PACTA" nad hero nie jest nagłówkiem)', () => {
+    const h1s = Array.from(doc.querySelectorAll('h1'))
+    expect(h1s).toHaveLength(1)
+    expect(h1s[0].textContent?.trim()).toBe('Strony internetowe dla kancelarii prawnych')
+    // "System PACTA" renderuje się jako <span class="tag">, nie jako nagłówek
+    const pacta = Array.from(doc.querySelectorAll('h1, h2, h3'))
+      .map(h => h.textContent?.trim())
+    expect(pacta).not.toContain('System PACTA')
+  })
+
+  it('hierarchia nagłówków: brak przeskoków H1 -> H3', () => {
+    const levels = Array.from(doc.querySelectorAll('h1, h2, h3, h4, h5, h6'))
+      .map(h => Number(h.tagName.slice(1)))
+    for (let i = 1; i < levels.length; i++) {
+      expect(levels[i] - levels[i - 1], `przeskok H${levels[i - 1]} -> H${levels[i]}`).toBeLessThanOrEqual(1)
+    }
+  })
+
+  it('title, description i canonical zgodne ze specyfikacją', () => {
+    expect(doc.querySelector('title')?.textContent)
+      .toBe('Strony internetowe dla kancelarii prawnych | FORMA Wizerunku')
+    expect(doc.querySelector('meta[name="description"]')?.getAttribute('content'))
+      .toBe('Strony internetowe dla kancelarii prawnych w systemie PACTA. Jawna cena od 4 500 zł netto, standardowa realizacja w 14 dni i płatność po dostawie.')
+    expect(doc.querySelector('link[rel="canonical"]')?.getAttribute('href'))
+      .toBe('https://formawizerunku.pl/')
+  })
+
+  it('og/twitter title i description zsynchronizowane z meta SEO', () => {
+    const title = doc.querySelector('title')?.textContent
+    const description = doc.querySelector('meta[name="description"]')?.getAttribute('content')
+    expect(doc.querySelector('meta[property="og:title"]')?.getAttribute('content')).toBe(title)
+    expect(doc.querySelector('meta[name="twitter:title"]')?.getAttribute('content')).toBe(title)
+    expect(doc.querySelector('meta[property="og:description"]')?.getAttribute('content')).toBe(description)
+    expect(doc.querySelector('meta[name="twitter:description"]')?.getAttribute('content')).toBe(description)
+  })
+
+  it('nie ma noindex', () => {
+    const robots = doc.querySelector('meta[name="robots"]')?.getAttribute('content') ?? ''
+    expect(robots.toLowerCase()).not.toContain('noindex')
+  })
+
+  it('FAQ leży między cennikiem a końcowym CTA', () => {
+    const sectionIds = Array.from(doc.querySelectorAll('main > section, main > [id]'))
+      .map(el => el.id)
+      .filter(Boolean)
+    expect(sectionIds.indexOf('faq')).toBeGreaterThan(sectionIds.indexOf('pricing'))
+    expect(sectionIds.indexOf('faq')).toBeLessThan(sectionIds.indexOf('cta-finale'))
+  })
+
+  it('FAQ ma 4 pytania widoczne w HTML bez interakcji użytkownika', () => {
+    const items = doc.querySelectorAll('#faq .faq-item')
+    expect(items).toHaveLength(4)
+    // odpowiedzi są w statycznym HTML (akordeon tylko je zwija wizualnie)
+    for (const item of Array.from(items)) {
+      expect(item.querySelector('.faq-answer')?.textContent?.trim().length).toBeGreaterThan(0)
+    }
+  })
+
+  it('FAQ: aria-controls wskazuje istniejące, unikalne id', () => {
+    const ids = Array.from(doc.querySelectorAll('[id]')).map(el => el.id)
+    expect(new Set(ids).size, 'duplikaty id w dokumencie').toBe(ids.length)
+    for (const btn of Array.from(doc.querySelectorAll('#faq .faq-question'))) {
+      const target = btn.getAttribute('aria-controls')!
+      expect(doc.getElementById(target), `brak elementu #${target}`).not.toBeNull()
+      expect(btn.getAttribute('aria-expanded')).toBe('false')
+    }
+  })
+
+  it('FAQPage JSON-LD zgadza się z treścią widoczną na stronie', () => {
+    const scripts = Array.from(doc.querySelectorAll('script[type="application/ld+json"]'))
+      .map(s => JSON.parse(s.textContent ?? '{}'))
+    const faqLd = scripts.find(s => s['@type'] === 'FAQPage')
+    expect(faqLd).toBeDefined()
+
+    const visible = Array.from(doc.querySelectorAll('#faq .faq-item')).map(item => ({
+      question: item.querySelector('.faq-question')?.childNodes[0]?.textContent?.replace(/\s+/g, ' ').trim(),
+      answer:   item.querySelector('.faq-answer')?.textContent?.replace(/\s+/g, ' ').trim(),
+    }))
+    const fromLd = faqLd.mainEntity.map((q: { name: string; acceptedAnswer: { text: string } }) => ({
+      question: q.name.replace(/\s+/g, ' ').trim(),
+      answer:   q.acceptedAnswer.text.replace(/\s+/g, ' ').trim(),
+    }))
+    expect(fromLd).toEqual(visible)
+  })
+
+  it('statystyka 79% renderuje atrybucję źródła z bezpiecznym rel', () => {
+    const source = doc.querySelector('.stat-card .stat-source a') as HTMLAnchorElement | null
+    expect(source).not.toBeNull()
+    expect(source!.getAttribute('href')).toBe(
+      'https://www.martindale-avvo.com/wp-content/uploads/2023/12/Understanding-the-Legal-Consumer-2023.pdf'
+    )
+    expect(source!.getAttribute('rel')).toBe('noopener noreferrer')
+    expect(source!.getAttribute('rel')).not.toContain('nofollow')
+    expect(source!.getAttribute('target')).toBe('_blank')
+    // druga statystyka nie wymaga źródła
+    expect(doc.querySelectorAll('.stat-card .stat-source')).toHaveLength(1)
+  })
+
+  it('nie zawiera pustych ani placeholderowych linków', () => {
+    const hrefs = Array.from(doc.querySelectorAll('a')).map(a => a.getAttribute('href') ?? '')
+    for (const href of hrefs) {
+      expect(href.trim().length, 'pusty href').toBeGreaterThan(0)
+      expect(href).not.toBe('#')
+    }
+  })
+
+  it('cena w hero pochodzi wyłącznie z index.pricing (brak zaszytej ceny w treści pola)', () => {
+    const fixtureJson = JSON.parse(
+      readFileSync(resolve(ROOT, 'fixtures/forma-site.json'), 'utf-8')
+    )
+    const indexPage = fixtureJson.pages.find((p: { slug: string }) => p.slug === 'index')
+    const prefix = indexPage.sections.find((s: { id: string }) => s.id === 'hero')
+      .fields.subheadlinePrefix.value as string
+    expect(prefix).not.toMatch(/\d[\s ]?\d{3}/)
+    // a wyrenderowany lead i tak zawiera cenę doklejoną przez renderer
+    expect(doc.querySelector('#hero .f-lead')?.textContent).toContain('4')
+  })
+})
+
+// ---------------------------------------------------------------------------
 // proces page — structural tests (no DOM-diff: timeline/deliverables use ASCII
 // hyphen instead of U+2013 en-dash because en-dash is banned by whitelist)
 // ---------------------------------------------------------------------------
@@ -430,9 +564,15 @@ describe('Renderer — proces page', () => {
     expect(items).toHaveLength(6)
   })
 
-  it('faq has 7 items', () => {
+  it('faq has 6 items (pytanie o samodzielną edycję przeniesione na stronę główną)', () => {
     const items = doc.querySelectorAll('.faq-item')
-    expect(items).toHaveLength(7)
+    expect(items).toHaveLength(6)
+  })
+
+  it('faq nie zawiera już pytań przeniesionych na stronę główną', () => {
+    const questions = Array.from(doc.querySelectorAll('.faq-question'))
+      .map(q => q.textContent?.replace(/\s+/g, ' ').trim() ?? '')
+    expect(questions.some(q => q.startsWith('Czy mogę sam edytować treść strony po dostawie?'))).toBe(false)
   })
 
   it('cennik-detail pricing amounts are 4 500 and 6 500', () => {
@@ -642,80 +782,52 @@ describe('Renderer — portfolio page', () => {
 })
 
 // ---------------------------------------------------------------------------
-// strony-dla-kancelarii-prawnych — structural tests
+// Scalenie podstrony /strony-dla-kancelarii-prawnych ze stroną główną.
+// Podstrona została wycofana (301 → / obsługuje workers/site-router).
+// Te testy pilnują, że nic nie odtworzy jej adresu ani nie zgubi treści,
+// które zostały na stronę główną przeniesione.
 // ---------------------------------------------------------------------------
-describe('Renderer — strony-dla-kancelarii-prawnych page', () => {
-  let doc: Document
+describe('Renderer — wycofana podstrona /strony-dla-kancelarii-prawnych', () => {
+  const SEO_SLUG = 'strony-dla-kancelarii-prawnych'
+
+  let model: SiteModel
 
   beforeAll(() => {
     const fixtureJson = JSON.parse(
       readFileSync(resolve(ROOT, 'fixtures/forma-site.json'), 'utf-8')
     )
-    const { model } = parseSiteModel(fixtureJson)
-    const html = renderPage(model, 'strony-dla-kancelarii-prawnych')
-    doc = new JSDOM(html).window.document
+    model = parseSiteModel(fixtureJson).model
   })
 
-  it('has all required section IDs', () => {
-    const ids = ['seo-hero', 'seo-problem', 'seo-pacta', 'seo-dlaczego', 'seo-segmenty',
-                 'seo-portfolio', 'seo-deliverables', 'seo-proces', 'seo-cennik', 'seo-faq']
-    for (const id of ids) {
-      expect(doc.getElementById(id), `#${id} missing`).not.toBeNull()
+  it('fixture nie zawiera już strony ani sekcji seo-kancelarie', () => {
+    expect(model.pages.some(p => p.slug === SEO_SLUG)).toBe(false)
+    const sectionIds = model.pages.flatMap(p => p.sections.map(s => s.id))
+    expect(sectionIds).not.toContain('seo-kancelarie')
+  })
+
+  it('żadna renderowana strona nie linkuje do starego adresu', () => {
+    for (const page of model.pages) {
+      const doc = new JSDOM(renderPage(model, page.slug)).window.document
+      const hrefs = Array.from(doc.querySelectorAll('a[href]'))
+        .map(a => a.getAttribute('href') ?? '')
+      expect(hrefs.some(h => h.includes(SEO_SLUG)), `${page.slug}.html linkuje do ${SEO_SLUG}`).toBe(false)
     }
   })
 
-  it('FAQ has 8 items', () => {
-    const items = doc.querySelectorAll('#seo-faq .faq-item')
-    expect(items).toHaveLength(8)
+  it('sitemap nie zawiera starego adresu, ale zawiera stronę główną', () => {
+    const sitemap = new TextDecoder().decode(buildStaticSiteFiles(model)['sitemap.xml'])
+    expect(sitemap).not.toContain(SEO_SLUG)
+    expect(sitemap).toContain('<loc>https://formawizerunku.pl/</loc>')
   })
 
-  it('pricing amounts match fixture indexPricing (4 500 / 6 500)', () => {
-    const amounts = Array.from(doc.querySelectorAll('#seo-cennik .pricing-price'))
-      .map(el => el.textContent?.trim())
-    expect(amounts).toEqual(expect.arrayContaining([expect.stringMatching(/^4.500$/), expect.stringMatching(/^6.500$/)]))
-  })
-
-  it('has ProfessionalService + FAQPage JSON-LD', () => {
-    const scripts = Array.from(doc.querySelectorAll('script[type="application/ld+json"]'))
-    const combined = scripts.map(s => s.textContent ?? '').join('\n')
-    expect(combined).toContain('ProfessionalService')
-    expect(combined).toContain('FAQPage')
-  })
-
-  it('three CSS files linked', () => {
-    const hrefs = Array.from(doc.querySelectorAll('link[rel="stylesheet"]'))
-      .map(l => l.getAttribute('href') ?? '')
-    expect(hrefs).toContain('assets/css/design-system-agency.css')
-    expect(hrefs).toContain('assets/css/forma-layout.css')
-    expect(hrefs).toContain('assets/css/forma-components.css')
-  })
-
-  it('does not appear in nav (no navLabel)', () => {
-    const navLinks = Array.from(doc.querySelectorAll('.nav-links a'))
-      .map(a => a.getAttribute('href') ?? '')
-    expect(navLinks.some(h => h.includes('strony-dla-kancelarii-prawnych'))).toBe(false)
-  })
-
-  it('footer SEO link has aria-current="page"', () => {
-    const seoLink = Array.from(doc.querySelectorAll('footer a'))
-      .find(a => a.textContent?.includes('Strony internetowe dla kancelarii'))
-    expect(seoLink).not.toBeNull()
-    expect(seoLink!.getAttribute('aria-current')).toBe('page')
-  })
-
-  it('hasSeoPage=false: footer omits SEO link for tenants without the page', () => {
-    const fixtureJson = JSON.parse(
-      readFileSync(resolve(ROOT, 'fixtures/forma-site.json'), 'utf-8')
-    )
-    const { model } = parseSiteModel(fixtureJson)
-    const modelWithoutSeo: typeof model = {
-      ...model,
-      pages: model.pages.filter(p => p.slug !== 'strony-dla-kancelarii-prawnych'),
+  it('kotwica "Strony internetowe dla kancelarii prawnych" w stopce prowadzi do /', () => {
+    for (const slug of ['index', 'proces', 'kontakt']) {
+      const doc = new JSDOM(renderPage(model, slug)).window.document
+      const link = Array.from(doc.querySelectorAll('footer a'))
+        .find(a => a.textContent?.trim() === 'Strony internetowe dla kancelarii prawnych')
+      expect(link, `brak kotwicy w stopce na ${slug}`).toBeDefined()
+      expect(link!.getAttribute('href')).toBe('index.html')
     }
-    const html = renderPage(modelWithoutSeo, 'index')
-    const d = new JSDOM(html).window.document
-    const footerLinks = Array.from(d.querySelectorAll('footer a'))
-    expect(footerLinks.some(a => a.textContent?.includes('Strony internetowe dla kancelarii'))).toBe(false)
   })
 })
 

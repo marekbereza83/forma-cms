@@ -106,7 +106,7 @@
       <li><a href="regulamin.html">Regulamin</a></li>
       <li><a href="privacy-policy.html">Polityka prywatności</a></li>
       <li><a href="legal-notice.html">Nota prawna</a></li>
-      <li><a href="strony-dla-kancelarii-prawnych.html">Strony internetowe dla kancelarii prawnych</a></li>
+      <li><a href="index.html">Strony internetowe dla kancelarii prawnych</a></li>
     </ul>
     <div class="footer-contact">
       <a href="tel:+48668902855" aria-label="Zadzwoń: +48 668 902 855">+48 668 902 855</a>
@@ -120,18 +120,32 @@
 (function(){
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  // Punkt wstawienia: 404 lub aside w formularzu kontaktowym
-  var anchor = document.querySelector('.error-page-inner')
-             || document.querySelector('.contact-inner aside');
-  if (!anchor) return;
+  var errorAnchor   = document.querySelector('.error-page-inner');
+  var contactAnchor = document.querySelector('.contact-inner aside');
+  if (!errorAnchor && !contactAnchor) return;
 
   var W=300,H=300,DPR=window.devicePixelRatio||1;
   var cv=document.createElement('canvas');
   cv.id='forma-genesis-canvas';
   cv.setAttribute('aria-hidden','true');
   cv.width=W*DPR; cv.height=H*DPR;
-  cv.style.cssText='display:block;width:min(300px,100%);aspect-ratio:1;margin:0 auto 1.5rem';
-  anchor.insertBefore(cv,anchor.firstChild);
+
+  if (errorAnchor) {
+    // 404: pełny 300px, na początku sekcji — canvas jest głównym elementem dekoracyjnym
+    cv.style.cssText='display:block;width:min(300px,100%);aspect-ratio:1;margin:0 auto 1.5rem';
+    errorAnchor.insertBefore(cv, errorAnchor.firstChild);
+  } else {
+    // kontakt: tylko desktop (≥1024px) — na mobile/tablecie aside jest stacked i animacja
+    // rozbija flow karty kontaktowej
+    if (!window.matchMedia('(min-width: 1024px)').matches) return;
+    cv.style.cssText='display:block;width:min(200px,100%);aspect-ratio:1;margin:0.75rem 0 1.25rem';
+    var h2 = contactAnchor.querySelector('h2');
+    if (h2) {
+      contactAnchor.insertBefore(cv, h2.nextSibling);
+    } else {
+      contactAnchor.insertBefore(cv, contactAnchor.firstChild);
+    }
+  }
 
   var ctx=cv.getContext('2d');
   ctx.scale(DPR,DPR);

@@ -20,7 +20,7 @@ export function renderProblem(section: Section): string {
       ? `<a href="${s.sourceUrl}" target="_blank" rel="noopener noreferrer">${s.sourceLabel}</a>`
       : s.sourceLabel
     return `
-            <p class="stat-source f-caption">${label}</p>`
+            <p class="stat-source">${label}</p>`
   }
 
   const statsHtml = stats.map(s => `
