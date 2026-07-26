@@ -320,6 +320,43 @@
           }
         },
         {
+          "id": "faq",
+          "recipe": "P5",
+          "fields": {
+            "headline": {
+              "type": "text",
+              "value": "Najczęstsze pytania przed rozpoczęciem projektu",
+              "editable": true
+            },
+            "items": {
+              "type": "list",
+              "value": [
+                {
+                  "id": "1",
+                  "question": "Czym różni się system PACTA od zwykłego projektu strony?",
+                  "answer": "PACTA nie jest gotowym szablonem. To system projektowania stron dla kancelarii prawnych, który porządkuje strukturę treści, prezentację specjalizacji i drogę prowadzącą użytkownika do kontaktu. Projekt rozpoczyna się od rozwiązań dopasowanych do sposobu, w jaki klienci wybierają kancelarię."
+                },
+                {
+                  "id": "2",
+                  "question": "Czy strona uwzględnia zasady etyki zawodowej?",
+                  "answer": "Projektuję strukturę i komunikację strony z uwzględnieniem specyfiki zawodów prawniczych. Unikam obietnic wyniku, porównań z konkurencją, natarczywych komunikatów i nieuzasadnionych określeń wartościujących. Nie jest to opinia prawna — ostateczną treść strony zatwierdza kancelaria."
+                },
+                {
+                  "id": "3",
+                  "question": "Czy mogę samodzielnie edytować treść strony po dostawie?",
+                  "answer": "Tak. Otrzymujesz dostęp do panelu CMS, który pozwala samodzielnie edytować treści i zdjęcia bez pomocy programisty. Po wdrożeniu przekazuję instrukcję obsługi."
+                },
+                {
+                  "id": "4",
+                  "question": "Czy projektujesz nową stronę, czy również modernizujesz istniejącą?",
+                  "answer": "Projektuję zarówno nowe strony, jak i przebudowuję istniejące witryny kancelarii. Analizuję obecną stronę, zachowuję wartościowe treści i materiały oraz porządkuję elementy, które utrudniają prezentację specjalizacji lub kontakt."
+                }
+              ],
+              "editable": true
+            }
+          }
+        },
+        {
           "id": "cta-finale",
           "recipe": "A8",
           "fields": {
@@ -724,11 +761,6 @@
             "items": {
               "type": "list",
               "value": [
-                {
-                  "id": "1",
-                  "question": "Czy mogę sam edytować treść strony po dostawie?",
-                  "answer": "Tak. Dostajesz wideo instrukcję (10-15 min). Strona to pliki HTML — edytujesz tekst dowolnym edytorem (nawet Notatnikiem). Nie zależy od żadnego CMS, panelu ani abonamentu."
-                },
                 {
                   "id": "2",
                   "question": "Co z RODO na stronie kancelarii?",
