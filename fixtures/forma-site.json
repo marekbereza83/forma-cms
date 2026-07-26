@@ -3,9 +3,9 @@
   "archetype": "trust-led",
   "designSystem": "forma",
   "meta": {
-    "title": "Strony dla kancelarii prawnych | FORMA Wizerunku",
-    "description": "Projektuję strony internetowe dla kancelarii radców prawnych i adwokatów. System PACTA. Strona gotowa w 14 dni. Od 4 500 zł netto. Solo. Bez pośredników.",
-    "ogDescription": "Projektuję strony dla kancelarii. System PACTA. 14 dni. Od 4 500 zł netto.",
+    "title": "Strony internetowe dla kancelarii prawnych | FORMA Wizerunku",
+    "description": "Strony internetowe dla kancelarii prawnych w systemie PACTA. Jawna cena od 4 500 zł netto, standardowa realizacja w 14 dni i płatność po dostawie.",
+    "ogDescription": "Strony internetowe dla kancelarii prawnych w systemie PACTA. Jawna cena od 4 500 zł netto, standardowa realizacja w 14 dni i płatność po dostawie.",
     "canonical": "https://formawizerunku.pl/",
     "ogImage": "https://formawizerunku.pl/assets/images/og-image.jpg",
     "brandName": "Forma Wizerunku",
@@ -40,17 +40,17 @@
           "fields": {
             "tag": {
               "type": "text",
-              "value": "Strony dla kancelarii prawnych",
+              "value": "System PACTA",
               "editable": true
             },
             "headline": {
               "type": "text",
-              "value": "Projektuję strony które przynoszą klientów kancelarii",
+              "value": "Strony internetowe dla kancelarii prawnych",
               "editable": true
             },
             "subheadlinePrefix": {
               "type": "text",
-              "value": "Specjalizuję się wyłącznie w kancelariach radców prawnych i adwokatów. Używam systemu PACTA — skodyfikowanego designu dla tego rynku. Strona gotowa w 14 dni.",
+              "value": "Projektuję strony dla kancelarii adwokackich i radcowskich, które jasno prezentują specjalizacje, budują wiarygodność i ułatwiają kontakt. Stały termin, jawna cena i bezpośrednia współpraca.",
               "editable": true
             },
             "ctaPrimaryLabel": {
@@ -81,22 +81,24 @@
             },
             "headline": {
               "type": "text",
-              "value": "Większość stron prawniczych odstrasza klientów.",
+              "value": "Strona powinna potwierdzać poziom kancelarii",
               "editable": true
             },
             "lead": {
               "type": "richtext",
-              "value": "Przestarzały design, wolne ładowanie i brak jasnej ścieżki kontaktu sprawiają, że potencjalni klienci szukają pomocy u konkurencji. W świecie prawniczym pierwsze wrażenie cyfrowe jest równie ważne jak uścisk dłoni w biurze.",
+              "value": "Zanim klient zadzwoni do kancelarii, sprawdza jej stronę. Chce szybko ustalić, czy specjalizacja pasuje do jego sprawy, czy kancelaria wygląda wiarygodnie i jak może się skontaktować. Jeśli strona nie odpowiada jasno na te pytania, klient sprawdza kolejną kancelarię. To nie tylko kwestia estetyki — strona powinna pomagać klientowi zrozumieć ofertę i podjąć decyzję o kontakcie.",
               "editable": true
             },
             "stats": {
               "type": "list",
               "value": [
                 {
-                  "target": 8,
-                  "suffix": "/10",
-                  "ariaLabel": "8 na 10 klientów",
-                  "description": "klientów ocenia wiarygodność kancelarii na podstawie strony www przed pierwszym kontaktem."
+                  "target": 79,
+                  "suffix": "%",
+                  "ariaLabel": "79 procent",
+                  "description": "badanych, którzy ostatecznie zatrudnili prawnika, skontaktowało się z więcej niż jednym prawnikiem przed podjęciem decyzji",
+                  "sourceLabel": "Źródło: Martindale-Avvo, \"Understanding the Legal Consumer 2023\", badanie konsumentów w USA.",
+                  "sourceUrl": "https://www.martindale-avvo.com/wp-content/uploads/2023/12/Understanding-the-Legal-Consumer-2023.pdf"
                 },
                 {
                   "target": 3,
@@ -113,17 +115,17 @@
                 {
                   "iconType": "info",
                   "title": "Wygląd z 2016 roku",
-                  "body": "Nowi klienci oceniają Cię zanim zadzwonią. Stara strona mówi: \"ta kancelaria nie dba o szczegóły\"."
+                  "body": "Przestarzały wygląd może osłabiać pierwsze wrażenie i utrudniać odbiorcy ocenę aktualności kancelarii."
                 },
                 {
                   "iconType": "mobile",
                   "title": "Nieczytelna na telefonie",
-                  "body": "60% odwiedzających używa mobile. Wolna, nieresponsywna strona jest karana przez Google i odpycha klientów."
+                  "body": "Nieczytelny układ, małe elementy i wolne ładowanie utrudniają korzystanie ze strony na telefonie i mogą ograniczać jej skuteczność."
                 },
                 {
                   "iconType": "phone",
                   "title": "Brak wyraźnych CTA",
-                  "body": "Klient przychodzi i wychodzi bez kontaktu. Strona nie prowadzi do działania — liczba zapytań nie rośnie."
+                  "body": "Użytkownik powinien od razu wiedzieć, jak skontaktować się z kancelarią. Brak czytelnej drogi do kontaktu zwiększa ryzyko, że opuści stronę."
                 }
               ],
               "editable": false
@@ -141,17 +143,17 @@
             },
             "headline": {
               "type": "richtext",
-              "value": "Projektuję strony dla kancelarii.<br>\nWedług skodyfikowanego systemu.",
+              "value": "Strona zaprojektowana pod to, jak klienci wybierają kancelarię",
               "editable": true
             },
             "body1": {
               "type": "richtext",
-              "value": "PACTA to zestaw sprawdzonych decyzji designowych dla kancelarii solo i regionalnych — struktura zaufania, hierarchia treści, typografia, CTA. Nie szablon. System oparty na analizie dziesiątek polskich i zagranicznych kancelarii.",
+              "value": "Potencjalny klient nie może w kilka sekund rzetelnie ocenić kompetencji prawnika. Może jednak ocenić, czy specjalizacja jest jasno przedstawiona, czy kancelaria budzi zaufanie i czy łatwo znaleźć sposób kontaktu.",
               "editable": true
             },
             "body2": {
               "type": "richtext",
-              "value": "Projektuję. Koduję. Dostarczam. Bez pośredników. Każda strona w systemie PACTA jest lepsza niż strona zrobiona od gustu — bo bazuje na danych, nie na intuicji.",
+              "value": "PACTA to system projektowania stron opracowany dla kancelarii prawnych. Porządkuje strukturę, treści i elementy kontaktowe tak, aby każdy z nich miał określoną funkcję.",
               "editable": true
             },
             "checklistTag": {
@@ -162,16 +164,16 @@
             "checklistItems": {
               "type": "list",
               "value": [
-                "Struktura zaufania skrojona pod kancelarie solo i regionalne",
-                "Hierarchia treści prowadząca klienta do kontaktu",
-                "Typografia i CTA zoptymalizowane pod prawnika jako odbiorcę",
-                "Semantic HTML + Lighthouse 95+ jako warunek oddania"
+                "Jasna prezentacja specjalizacji i zespołu",
+                "Komunikacja uwzględniająca specyfikę zawodów prawniczych i zasady etyki",
+                "Czytelna droga od poznania oferty do kontaktu",
+                "Szybka, responsywna strona przygotowana do indeksacji w Google"
               ],
               "editable": true
             },
             "microcopy": {
               "type": "text",
-              "value": "Inne agencje ukrywają ceny. Ja pokazuję je na stronie głównej.",
+              "value": "Pracujesz bezpośrednio ze mną — od pierwszej rozmowy do publikacji. Termin, zakres i cena są ustalone przed rozpoczęciem projektu.",
               "editable": true
             }
           }

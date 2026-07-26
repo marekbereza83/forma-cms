@@ -34,6 +34,20 @@
   margin-top: var(--space-2);
   line-height: var(--leading-relaxed);
 }
+/* Atrybucja źródła statystyki — drobna mikrokopia pod opisem. */
+.stat-card p.stat-source {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-2);
+}
+.stat-card p.stat-source a {
+  color: inherit;
+  text-decoration: underline;
+}
+.stat-card p.stat-source a:hover,
+.stat-card p.stat-source a:focus-visible {
+  color: var(--text-secondary);
+}
 
 /* ─── Solution infobox ────────────────────────────────────── */
 .card.solution-infobox {

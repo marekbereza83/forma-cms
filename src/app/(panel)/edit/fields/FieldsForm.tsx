@@ -471,6 +471,30 @@ function ListEditor({
                 }}
               />
             </div>
+            <div>
+              <p className="list-item-label">Źródło — opis (opcjonalne)</p>
+              <input
+                type="text"
+                value={card.sourceLabel ?? ''}
+                onChange={e => {
+                  const updated = [...(value as StatCard[])]
+                  updated[i] = { ...card, sourceLabel: e.target.value }
+                  onChange(updated)
+                }}
+              />
+            </div>
+            <div>
+              <p className="list-item-label">Źródło — link (opcjonalne)</p>
+              <input
+                type="text"
+                value={card.sourceUrl ?? ''}
+                onChange={e => {
+                  const updated = [...(value as StatCard[])]
+                  updated[i] = { ...card, sourceUrl: e.target.value }
+                  onChange(updated)
+                }}
+              />
+            </div>
           </div>
         ))}
       </div>

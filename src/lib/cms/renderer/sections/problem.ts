@@ -12,11 +12,22 @@ export function renderProblem(section: Section): string {
   const stats = section.fields['stats']?.value as StatCard[]
   const symptomCards = section.fields['symptomCards']?.value as SymptomCard[]
 
+  // Atrybucja źródła — opcjonalna, renderowana jako mikrokopia pod opisem statystyki.
+  // Link zewnętrzny bez nofollow (źródło ma być traktowane jako zwykłe odesłanie).
+  const statSource = (s: StatCard): string => {
+    if (!s.sourceLabel) return ''
+    const label = s.sourceUrl
+      ? `<a href="${s.sourceUrl}" target="_blank" rel="noopener noreferrer">${s.sourceLabel}</a>`
+      : s.sourceLabel
+    return `
+            <p class="stat-source f-caption">${label}</p>`
+  }
+
   const statsHtml = stats.map(s => `
           <div class="stat-card interactive-card">
             <span class="f-stat counter-stat" data-target="${s.target}" data-suffix="${s.suffix}"
               aria-label="${s.ariaLabel}">${s.target}${s.suffix}</span>
-            <p>${s.description}</p>
+            <p>${s.description}</p>${statSource(s)}
           </div>`).join('')
 
   const cardsHtml = symptomCards.map(c => `

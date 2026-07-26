@@ -20,6 +20,12 @@ export interface StatCard {
   suffix: string
   ariaLabel: string
   description: string
+  /** Opcjonalna atrybucja źródła statystyki (mikrokopia pod opisem).
+   *  Wymagana tylko dla statystyk opartych na cytowanym badaniu — nie dla wszystkich. */
+  sourceLabel?: string
+  /** Opcjonalny URL do źródła. Renderowany tylko razem z sourceLabel.
+   *  Link zewnętrzny: target="_blank" + rel="noopener noreferrer", bez nofollow. */
+  sourceUrl?: string
 }
 
 export interface SymptomCard {
