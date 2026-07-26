@@ -174,7 +174,11 @@ All panel routes are protected by `src/middleware.ts` (NextAuth matcher). Per-ro
 
 `publishSite(tenantId)` (`src/lib/cms/publish.ts`) is the production path: it renders the tenant's model via `buildStaticSiteFiles()` (the in-memory twin of `renderStaticSite()` — returns a `{ path: bytes }` map instead of touching disk) and uploads every file to Cloudflare R2 under the `sites/<tenantId>/` prefix, which is the prefix served live. Both `/api/upload` (image storage at `<tenantId>/portfolio-card-*.webp`) and publishing share one R2 client in `src/lib/storage/r2.ts`; `contentTypeFor(path)` maps file extensions to Content-Type for `PutObject`.
 
-`publishFiles(tenantId, files)` is split out so it can be tested with a mocked S3 client (no Prisma); `publishSite()` wraps it with the Prisma loader. Manual one-off publish: `npx tsx scripts/publish-production.ts`.
+`publishFiles(tenantId, files)` is split out so it can be tested with a mocked S3 client (no Prisma); `publishSite()` wraps it with the Prisma loader.
+
+**How a publish is actually triggered:** there is no CLI script. The only entry point is the **Publikuj** button in the panel (`src/app/(panel)/dashboard/PublishButton.tsx`) → `POST /api/publish` → `publishSite(session.user.tenantId)`. The tenant comes from the session, so you publish a given site by logging in as that tenant. This runs on the deployed app (Vercel), using the **deployed** renderer — so renderer changes must be deployed before they can affect a publish.
+
+Because `renderPage()` throws on unknown section IDs, a publish will fail with `Unknown section: "<id>"` if the tenant's stored model still references a section whose renderer was removed. Run the corresponding `prisma/migrate-*.ts` **before** publishing. The failure is safe (nothing is uploaded), but it blocks the publish.
 
 ---
 
