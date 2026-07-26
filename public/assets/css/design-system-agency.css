@@ -169,6 +169,13 @@ a {
   letter-spacing: var(--tracking-tight);
   color: var(--text-primary);
 }
+/* Nagłówek hero strony głównej — o jeden poziom mniejszy niż domyślne .f-display
+   (5rem → 4.5rem / --text-7xl), bo dłuższy tekst SEO ("Strony internetowe dla
+   kancelarii prawnych") lepiej się komponuje mniejszy. Scoped przez #hero-heading,
+   nie zmienia .f-display globalnie (portfolio-hero.ts też go używa). */
+#hero-heading {
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
+}
 
 /* Section headline */
 .f-headline {

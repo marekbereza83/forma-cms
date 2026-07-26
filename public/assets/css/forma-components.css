@@ -34,21 +34,27 @@
   margin-top: var(--space-2);
   line-height: var(--leading-relaxed);
 }
-/* Atrybucja źródła statystyki — drobna mikrokopia pod opisem. */
-.stat-card p.stat-source {
+/* Atrybucja źródła statystyki — drobna mikrokopia POD całym stats-row (poza kartami).
+   stats-row jest dwukolumnowe także na mobile; atrybucja wewnątrz jednej karty
+   rozciągała ją ponad sąsiednią kartę bez źródła, więc renderujemy ją osobno,
+   na pełną szerokość, pod obiema kartami. */
+.stats-sources {
+  margin-top: var(--space-3);
+}
+.stats-sources p.stat-source {
   font-size: var(--text-xs);
   color: var(--text-muted);
-  margin-top: var(--space-2);
-  /* .stats-row jest dwukolumnowe także na mobile — długa atrybucja nie może
-     rozpychać karty ani wychodzić poza nią. */
   overflow-wrap: anywhere;
 }
-.stat-card p.stat-source a {
+.stats-sources p.stat-source + p.stat-source {
+  margin-top: var(--space-2);
+}
+.stats-sources p.stat-source a {
   color: inherit;
   text-decoration: underline;
 }
-.stat-card p.stat-source a:hover,
-.stat-card p.stat-source a:focus-visible {
+.stats-sources p.stat-source a:hover,
+.stats-sources p.stat-source a:focus-visible {
   color: var(--text-secondary);
 }
 

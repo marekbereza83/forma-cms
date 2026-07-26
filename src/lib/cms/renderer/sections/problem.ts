@@ -12,22 +12,25 @@ export function renderProblem(section: Section): string {
   const stats = section.fields['stats']?.value as StatCard[]
   const symptomCards = section.fields['symptomCards']?.value as SymptomCard[]
 
-  // Atrybucja źródła — opcjonalna, renderowana jako mikrokopia pod opisem statystyki.
+  // Atrybucja źródła — opcjonalna. Renderowana POZA kartą (pod całym stats-row, nie
+  // wewnątrz .stat-card), bo stats-row jest dwukolumnowe nawet na mobile: długy tekst
+  // atrybucji wewnątrz karty rozciągał ją ponad sąsiednią kartę bez źródła.
   // Link zewnętrzny bez nofollow (źródło ma być traktowane jako zwykłe odesłanie).
-  const statSource = (s: StatCard): string => {
-    if (!s.sourceLabel) return ''
-    const label = s.sourceUrl
-      ? `<a href="${s.sourceUrl}" target="_blank" rel="noopener noreferrer">${s.sourceLabel}</a>`
-      : s.sourceLabel
-    return `
-            <p class="stat-source">${label}</p>`
-  }
+  const sourcesHtml = stats
+    .filter(s => s.sourceLabel)
+    .map(s => {
+      const label = s.sourceUrl
+        ? `<a href="${s.sourceUrl}" target="_blank" rel="noopener noreferrer">${s.sourceLabel}</a>`
+        : s.sourceLabel
+      return `
+          <p class="stat-source">${label}</p>`
+    }).join('')
 
   const statsHtml = stats.map(s => `
           <div class="stat-card interactive-card">
             <span class="f-stat counter-stat" data-target="${s.target}" data-suffix="${s.suffix}"
               aria-label="${s.ariaLabel}">${s.target}${s.suffix}</span>
-            <p>${s.description}</p>${statSource(s)}
+            <p>${s.description}</p>
           </div>`).join('')
 
   const cardsHtml = symptomCards.map(c => `
@@ -56,7 +59,9 @@ export function renderProblem(section: Section): string {
 
         <div class="stats-row stagger-reveal">
 ${statsHtml}
-        </div>
+        </div>${sourcesHtml ? `
+        <div class="stats-sources">${sourcesHtml}
+        </div>` : ''}
       </div>
 
     </div>

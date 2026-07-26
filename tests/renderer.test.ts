@@ -500,7 +500,10 @@ describe('Renderer — SEO strony głównej', () => {
   })
 
   it('statystyka 79% renderuje atrybucję źródła z bezpiecznym rel', () => {
-    const source = doc.querySelector('.stat-card .stat-source a') as HTMLAnchorElement | null
+    // Atrybucja renderuje się POZA kartą (w .stats-sources, pod całym stats-row) —
+    // stats-row jest dwukolumnowe nawet na mobile, więc źródło wewnątrz .stat-card
+    // rozciągało kartę ponad sąsiednią bez źródła.
+    const source = doc.querySelector('.stats-sources .stat-source a') as HTMLAnchorElement | null
     expect(source).not.toBeNull()
     expect(source!.getAttribute('href')).toBe(
       'https://www.martindale-avvo.com/wp-content/uploads/2023/12/Understanding-the-Legal-Consumer-2023.pdf'
@@ -509,7 +512,9 @@ describe('Renderer — SEO strony głównej', () => {
     expect(source!.getAttribute('rel')).not.toContain('nofollow')
     expect(source!.getAttribute('target')).toBe('_blank')
     // druga statystyka nie wymaga źródła
-    expect(doc.querySelectorAll('.stat-card .stat-source')).toHaveLength(1)
+    expect(doc.querySelectorAll('.stats-sources .stat-source')).toHaveLength(1)
+    // atrybucja nie jest już wewnątrz karty statystyki
+    expect(doc.querySelector('.stat-card .stat-source')).toBeNull()
   })
 
   it('nie zawiera pustych ani placeholderowych linków', () => {
