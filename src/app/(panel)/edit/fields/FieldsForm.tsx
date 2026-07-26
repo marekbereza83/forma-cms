@@ -593,8 +593,10 @@ const SECTION_LABELS: Record<string, string> = {
 }
 
 const FIELD_LABELS: Record<string, string> = {
+  tag:                 'Tag nad nagłówkiem',
   headline:            'Nagłówek',
   subheadline:         'Podnagłówek',
+  subheadlinePrefix:   'Podnagłówek (cena dopisywana automatycznie)',
   lead:                'Lead',
   body1:               'Treść (akapit 1)',
   body2:               'Treść (akapit 2)',

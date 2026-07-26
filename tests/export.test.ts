@@ -132,8 +132,20 @@ describe('renderStaticSite (fixture)', () => {
   })
 
   it('contains no absolute /uploads/ paths', () => {
+    // Chodzi o LOKALNE ścieżki uploadów (public/uploads/<tenantId>/...), które
+    // nie istnieją w eksporcie — obrazy muszą być absolutnymi URL-ami z R2.
+    // Sprawdzamy wartości atrybutów, a nie surowy tekst dokumentu: zewnętrzny
+    // URL może legalnie zawierać "/uploads/" w swojej ścieżce (np. link do
+    // źródła statystyki na cudzym WordPressie) i nie jest to wyciek.
     const html = readFileSync(join(FIXTURE_OUT, 'index.html'), 'utf-8')
-    expect(html).not.toContain('/uploads/')
+    const doc  = new JSDOM(html).window.document
+    const refs = Array.from(doc.querySelectorAll('[src], [href]'))
+      .flatMap(el => [el.getAttribute('src'), el.getAttribute('href')])
+      .filter((v): v is string => typeof v === 'string')
+
+    const isAbsolute = (v: string) => /^(https?:)?\/\//.test(v) || /^(mailto|tel|data):/.test(v)
+    const leaked = refs.filter(v => !isAbsolute(v) && v.includes('uploads/'))
+    expect(leaked).toEqual([])
   })
 })
 

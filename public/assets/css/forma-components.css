@@ -39,6 +39,9 @@
   font-size: var(--text-xs);
   color: var(--text-muted);
   margin-top: var(--space-2);
+  /* .stats-row jest dwukolumnowe także na mobile — długa atrybucja nie może
+     rozpychać karty ani wychodzić poza nią. */
+  overflow-wrap: anywhere;
 }
 .stat-card p.stat-source a {
   color: inherit;
