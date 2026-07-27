@@ -183,13 +183,13 @@ describe('renderStaticSite (fixture)', () => {
       throw new Error(`Broken image references in export:\n${missing.join('\n')}`)
   })
 
-  it('nav links in index.html are relative .html paths', () => {
+  it('nav links in index.html are relative .html paths (or "/" for the homepage)', () => {
     const html = readFileSync(join(FIXTURE_OUT, 'index.html'), 'utf-8')
     const doc  = new JSDOM(html).window.document
     const hrefs = Array.from(doc.querySelectorAll('.nav-links a')).map(a => a.getAttribute('href'))
     for (const href of hrefs) {
       expect(href).not.toContain('/preview')
-      expect(href?.endsWith('.html') || href === 'index.html').toBe(true)
+      expect(href?.endsWith('.html') || href === '/').toBe(true)
     }
   })
 
@@ -270,11 +270,14 @@ describe('renderStaticSite — sitemap i redirecty dla publikacji', () => {
   // Regresja: publikacje/<slug>.html lezy jeden poziom glebiej niz reszta eksportu.
   // basePath="" (jak dla plikow root-level) psulby wszystkie wzgledne linki (CSS/JS/nav) —
   // wykryte wizualnie (calkowicie nieostylowana strona), naprawione przekazaniem "../".
-  it('strona artykulu linkuje assets/CSS i strony nawigacji z prefiksem "../"', () => {
+  // Link do strony glownej jest wyjatkiem: "/" jest juz bezwzgledny, wiec NIE dostaje
+  // prefiksu "../" (patrz rootHref w renderer/utils.ts).
+  it('strona artykulu linkuje assets/CSS i strony nawigacji z prefiksem "../", ale stronę główną przez "/"', () => {
     const html = readFileSync(join(POSTS_OUT, 'publikacje', 'aktualny-slug.html'), 'utf-8')
     expect(html).toContain('href="../assets/css/design-system-agency.css"')
     expect(html).toContain('src="../assets/js/main.js"')
-    expect(html).toContain('href="../index.html"')
+    expect(html).toContain('href="/"')
+    expect(html).not.toContain('href="../index.html"')
     expect(html).not.toContain('href="assets/css/')
   })
 

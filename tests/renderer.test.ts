@@ -832,7 +832,7 @@ describe('Renderer — wycofana podstrona /strony-dla-kancelarii-prawnych', () =
       const link = Array.from(doc.querySelectorAll('footer a'))
         .find(a => a.textContent?.trim() === 'Strony internetowe dla kancelarii prawnych')
       expect(link, `brak kotwicy w stopce na ${slug}`).toBeDefined()
-      expect(link!.getAttribute('href')).toBe('index.html')
+      expect(link!.getAttribute('href')).toBe('/')
     }
   })
 })

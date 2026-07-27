@@ -1,6 +1,13 @@
 // tryb static = linki dla publikowanych plików .html, NIE zmieniać bez sprawdzenia eksportu
 export function pageHref(slug: string, linkMode: 'static' | 'preview'): string {
-  if (linkMode === 'static') return `${slug}.html`
+  if (linkMode === 'static') {
+    // Strona glowna: link bezposrednio na "/", nie "index.html". Worker i tak
+    // przekierowuje /index.html -> / (301, patrz workers/site-router/src/index.ts),
+    // wiec relatywny "index.html" kosztowalby zbedny dodatkowy redirect przy KAZDYM
+    // kliknieciu logo lub linku do strony glownej, na kazdej stronie serwisu.
+    if (slug === 'index') return '/'
+    return `${slug}.html`
+  }
   return `/preview?page=${slug}`
 }
 
@@ -8,7 +15,9 @@ export function pageHref(slug: string, linkMode: 'static' | 'preview'): string {
 // jedyna dotąd strona jeden poziom głębiej niż reszta eksportu) — w trybie static dodaje
 // basePath przed adresem root-relative. W trybie preview pageHref już zwraca ścieżkę
 // bezwzględną (/preview?page=...), więc basePath jest tu pomijany (dodanie go by ją zepsuło).
+// "/" zwrócone przez pageHref dla slug='index' jest już bezwzględne — z tego samego powodu
+// basePath też się dla niego pomija (doklejenie "../" przed "/" dałoby błędną ścieżkę).
 export function rootHref(slug: string, basePath: string, linkMode: 'static' | 'preview'): string {
   const href = pageHref(slug, linkMode)
-  return linkMode === 'static' ? `${basePath}${href}` : href
+  return linkMode === 'static' && href !== '/' ? `${basePath}${href}` : href
 }
