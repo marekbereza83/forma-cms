@@ -5,8 +5,9 @@ import { JSDOM } from 'jsdom'
 import { parseSiteModel } from '../src/lib/cms/schema'
 import { renderPage } from '../src/lib/cms/renderer/index'
 import { renderEventItem } from '../src/lib/cms/renderer/collections'
+import { renderPostsListPage, renderPostPage } from '../src/lib/cms/renderer/publikacje'
 import { buildStaticSiteFiles } from '../src/lib/cms/export'
-import type { EventItem, SiteModel } from '../src/lib/cms/types'
+import type { EventItem, PostItem, SiteModel } from '../src/lib/cms/types'
 
 const ROOT = resolve(process.cwd())
 
@@ -833,6 +834,178 @@ describe('Renderer — wycofana podstrona /strony-dla-kancelarii-prawnych', () =
       expect(link, `brak kotwicy w stopce na ${slug}`).toBeDefined()
       expect(link!.getAttribute('href')).toBe('index.html')
     }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// publikacje — lista + artykuł (structural, no reference fixture — brak
+// reference/forma-production/publikacje*.html, wzorem proces/portfolio powyżej)
+// ---------------------------------------------------------------------------
+describe('Renderer — publikacje lista', () => {
+  let model: SiteModel
+  let doc: Document
+
+  beforeAll(() => {
+    const fixtureJson = JSON.parse(readFileSync(resolve(ROOT, 'fixtures/forma-site.json'), 'utf-8'))
+    model = parseSiteModel(fixtureJson).model
+    doc = new JSDOM(renderPostsListPage(model)).window.document
+  })
+
+  it('jedna karta per opublikowany post, szkic nieobecny', () => {
+    const cards = doc.querySelectorAll('[data-pub-card]')
+    expect(cards).toHaveLength(2)
+    const titles = Array.from(cards).map(c => c.querySelector('.pub-card-title')?.textContent?.trim())
+    expect(titles.some(t => t?.includes('Szkic w przygotowaniu'))).toBe(false)
+  })
+
+  it('dokładnie jeden <h1>', () => {
+    expect(doc.querySelectorAll('h1')).toHaveLength(1)
+    expect(doc.querySelector('h1')?.textContent?.trim()).toBe('Publikacje')
+  })
+
+  it('kontrolki filtrów kategorii/roku, wyszukiwarki i paginacji obecne', () => {
+    expect(doc.querySelector('[data-pub-search]')).not.toBeNull()
+    expect(doc.querySelectorAll('[data-pub-category]').length).toBeGreaterThan(1)
+    expect(doc.querySelectorAll('[data-pub-year]').length).toBeGreaterThan(0)
+    expect(doc.querySelector('[data-pub-pagination]')).not.toBeNull()
+  })
+
+  it('podział na kolumny: GŁÓWNE PUBLIKACJE (featured) + POZOSTAŁE PUBLIKACJE (sidebar)', () => {
+    const featuredCol = doc.querySelector('[data-pub-featured-col]')
+    const sidebarCol = doc.querySelector('[data-pub-sidebar-col]')
+    expect(featuredCol).not.toBeNull()
+    expect(sidebarCol).not.toBeNull()
+    // Tylko 2 opublikowane posty w fixture, PUB_FEATURED_COUNT=3 -> oba w kolumnie featured.
+    expect(featuredCol!.querySelectorAll('.pub-card--featured')).toHaveLength(2)
+    expect(sidebarCol!.querySelectorAll('.pub-card--compact')).toHaveLength(0)
+  })
+
+  it('karta featured bez okładki nie ma overlay-klasy pub-card--has-thumb (unika nakładania się kategorii)', () => {
+    const cardWithoutCover = Array.from(doc.querySelectorAll('[data-pub-card]'))
+      .find(c => c.querySelector('.pub-card-title')?.textContent?.includes('minimalizm'))
+    expect(cardWithoutCover?.classList.contains('pub-card--has-thumb')).toBe(false)
+
+    const cardWithCover = Array.from(doc.querySelectorAll('[data-pub-card]'))
+      .find(c => c.querySelector('.pub-card-title')?.textContent?.includes('Typografia'))
+    expect(cardWithCover?.classList.contains('pub-card--has-thumb')).toBe(true)
+  })
+
+  it('nav podświetla "Publikacje" jako bieżącą stronę', () => {
+    const current = Array.from(doc.querySelectorAll('.nav-links a[aria-current="page"]'))
+    expect(current).toHaveLength(1)
+    expect(current[0].textContent?.trim()).toBe('Publikacje')
+  })
+
+  it('brak śladów polubień i komentarzy', () => {
+    const html = doc.documentElement.innerHTML
+    expect(html).not.toMatch(/polubien|komentarz|likesCount/i)
+  })
+
+  it('okładka ma loading=lazy gdy ustawiona', () => {
+    const img = doc.querySelector('.pub-card-thumb img')
+    expect(img?.getAttribute('loading')).toBe('lazy')
+  })
+
+  it('canonical wskazuje na publikacje.html', () => {
+    expect(doc.querySelector('link[rel="canonical"]')?.getAttribute('href'))
+      .toBe('https://formawizerunku.pl/publikacje.html')
+  })
+
+  it('publications.js linkowany, main.js tez obecny', () => {
+    const scripts = Array.from(doc.querySelectorAll('script[src]')).map(s => s.getAttribute('src'))
+    expect(scripts).toContain('assets/js/publications.js')
+    expect(scripts).toContain('assets/js/main.js')
+  })
+
+  it('publications.js NIE jest linkowany na innych stronach (np. index)', () => {
+    const indexDoc = new JSDOM(renderPage(model, 'index')).window.document
+    const scripts = Array.from(indexDoc.querySelectorAll('script[src]')).map(s => s.getAttribute('src'))
+    expect(scripts).not.toContain('assets/js/publications.js')
+  })
+
+  it('brak opublikowanych postów → komunikat pustej listy, bez rzucania wyjątku', () => {
+    const empty: SiteModel = { ...model, collections: { ...model.collections, posts: [] } }
+    const html = renderPostsListPage(empty)
+    const d = new JSDOM(html).window.document
+    expect(d.querySelector('.pub-empty')).not.toBeNull()
+  })
+})
+
+describe('Renderer — publikacje artykuł', () => {
+  let model: SiteModel
+  let doc: Document
+  let post: PostItem
+
+  beforeAll(() => {
+    const fixtureJson = JSON.parse(readFileSync(resolve(ROOT, 'fixtures/forma-site.json'), 'utf-8'))
+    model = parseSiteModel(fixtureJson).model
+    post = model.collections.posts.find(p => p.slug === 'minimalizm-w-projektowaniu-stron-kancelarii')!
+    doc = new JSDOM(renderPostPage(model, post)).window.document
+  })
+
+  it('dokładnie jeden <h1> z tytułem posta', () => {
+    expect(doc.querySelectorAll('h1')).toHaveLength(1)
+    expect(doc.querySelector('h1')?.textContent?.trim()).toBe(post.title)
+  })
+
+  it('canonical == publikacje/<slug>.html', () => {
+    expect(doc.querySelector('link[rel="canonical"]')?.getAttribute('href'))
+      .toBe(`https://formawizerunku.pl/publikacje/${post.slug}.html`)
+  })
+
+  it('JSON-LD BlogPosting i BreadcrumbList obecne', () => {
+    const scripts = Array.from(doc.querySelectorAll('script[type="application/ld+json"]'))
+      .map(s => JSON.parse(s.textContent ?? '{}'))
+    expect(scripts.some(s => s['@type'] === 'BlogPosting')).toBe(true)
+    expect(scripts.some(s => s['@type'] === 'BreadcrumbList')).toBe(true)
+  })
+
+  it('data publikacji jako <time datetime="">', () => {
+    const time = doc.querySelector('.pub-article-meta time')
+    expect(time?.getAttribute('datetime')).toBe(post.publishedAt)
+  })
+
+  it('czas czytania policzony i > 0', () => {
+    const text = doc.querySelector('.pub-read-time')?.textContent ?? ''
+    expect(text).toMatch(/\d+ MIN/)
+  })
+
+  it('kluczowe wnioski wyrenderowane', () => {
+    const items = doc.querySelectorAll('.pub-takeaways li')
+    expect(items.length).toBe(post.keyTakeaways?.length ?? 0)
+  })
+
+  it('belka autora nieobecna gdy meta.authorName nie jest ustawiony', () => {
+    expect(model.meta.authorName).toBeUndefined()
+    expect(doc.querySelector('.pub-author-badge')).toBeNull()
+  })
+
+  it('belka autora obecna gdy meta.authorName ustawiony', () => {
+    const withAuthor: SiteModel = { ...model, meta: { ...model.meta, authorName: 'Marek Bereza', authorRole: 'Head of Design' } }
+    const d = new JSDOM(renderPostPage(withAuthor, post)).window.document
+    const badge = d.querySelector('.pub-author-badge')
+    expect(badge).not.toBeNull()
+    expect(badge?.textContent).toContain('Marek Bereza')
+  })
+
+  it('z basePath="../" (rzeczywisty basePath przy eksporcie) linki CSS/nav maja prefiks', () => {
+    const d = new JSDOM(renderPostPage(model, post, '../', 'static')).window.document
+    const cssHref = d.querySelector('link[href*="design-system-agency.css"]')?.getAttribute('href')
+    expect(cssHref?.startsWith('../assets/css/')).toBe(true)
+    const scriptSrc = Array.from(d.querySelectorAll('script[src]')).map(s => s.getAttribute('src'))
+    expect(scriptSrc.some(s => s?.startsWith('../assets/js/'))).toBe(true)
+    const backLink = d.querySelector('.pub-back-link')?.getAttribute('href')
+    expect(backLink).toBe('../publikacje.html')
+  })
+
+  it('treść posta obecna, bez polubień/komentarzy', () => {
+    expect(doc.querySelector('.pub-article-body')?.innerHTML).toContain('ozdobników')
+    const html = doc.documentElement.innerHTML
+    expect(html).not.toMatch(/likesCount|komentarz/i)
+  })
+
+  it('#scroll-progress obecny (pasek postępu czytania)', () => {
+    expect(doc.getElementById('scroll-progress')).not.toBeNull()
   })
 })
 

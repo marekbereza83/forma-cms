@@ -1,3 +1,5 @@
+import type { PostCategory } from './post-categories'
+
 export type FieldType =
   | 'text'
   | 'richtext'
@@ -137,6 +139,13 @@ export interface PostItem {
   /** Historia poprzednich slugów tego posta — dopisywana automatycznie w saveSite()
    *  gdy slug sie zmienia. Zrodlo mapy przekierowan 301 w Workerze (_redirects.json). */
   previousSlugs?: string[]
+  category?: PostCategory
+  /** Maks. 8 (C10). */
+  tags?: string[]
+  /** Punkty w callout "Kluczowe wnioski" na stronie artykulu. */
+  keyTakeaways?: string[]
+  /** URL do R2, ustawiany wylacznie przez odpowiedz /api/upload — nie waliduj jako wolny tekst. */
+  coverImage?: string
 }
 
 export interface SiteMeta {
@@ -150,6 +159,11 @@ export interface SiteMeta {
   contactPhone: string
   contactPhoneDisplay: string
   gaId?: string
+  /** Belka autora na stronie artykulu — tylko gdy oba pola ustawione. Site-level, nie
+   *  per-post: CMS jest multi-tenant, wiec autor to ten sam czlowiek/kancelaria dla
+   *  wszystkich postow danego tenanta, nie osobne pole na kazdym PostItem. */
+  authorName?: string
+  authorRole?: string
 }
 
 export interface SiteModel {

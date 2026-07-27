@@ -1,17 +1,17 @@
 import type { Section } from '../../types'
 import type { RenderContext } from '../context'
-import { pageHref } from '../utils'
+import { rootHref } from '../utils'
 
 export function renderNav(section: Section, ctx: RenderContext): string {
   const logoText = section.fields['logoText']?.value as string
   const ctaLabel = section.fields['ctaLabel']?.value as string
 
-  const logoHref = pageHref('index',   ctx.linkMode)
-  const ctaHref  = pageHref('kontakt', ctx.linkMode)
+  const logoHref = rootHref('index',   ctx.basePath, ctx.linkMode)
+  const ctaHref  = rootHref('kontakt', ctx.basePath, ctx.linkMode)
 
   const navLinksHtml = ctx.navPages
     .map(p => {
-      const href = pageHref(p.slug, ctx.linkMode)
+      const href = rootHref(p.slug, ctx.basePath, ctx.linkMode)
       const current = p.slug === ctx.currentPage ? ' aria-current="page"' : ''
       return `        <li><a href="${href}"${current}>${p.navLabel}</a></li>`
     })
@@ -19,7 +19,7 @@ export function renderNav(section: Section, ctx: RenderContext): string {
 
   const overlayLinksHtml = ctx.navPages
     .map(p => {
-      const href = pageHref(p.slug, ctx.linkMode)
+      const href = rootHref(p.slug, ctx.basePath, ctx.linkMode)
       const current = p.slug === ctx.currentPage ? ' aria-current="page"' : ''
       return `    <li><a href="${href}"${current}>${p.navLabel}</a></li>`
     })

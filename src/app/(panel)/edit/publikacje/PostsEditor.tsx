@@ -1,9 +1,23 @@
 'use client'
-import { useState, useTransition } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import type { PostItem } from '@/lib/cms/types'
 import type { Violation } from '@/lib/cms/validation/types'
+import { POST_CATEGORIES } from '@/lib/cms/post-categories'
 import { savePosts } from './actions'
 import RichTextEditor from './RichTextEditor'
+
+// Usuwa okladke z R2 najlepiej-jak-sie-da — porzucony plik akceptujemy (jak w
+// FieldsForm.tsx PortfolioCardsEditor.removeCard), nie blokujemy UI na tym.
+async function deleteCoverBestEffort(coverImage: string | undefined): Promise<void> {
+  if (!coverImage) return
+  const filename = coverImage.split('?')[0].split('/').pop() ?? ''
+  if (!filename) return
+  try {
+    await fetch(`/api/upload?filename=${encodeURIComponent(filename)}`, { method: 'DELETE' })
+  } catch {
+    // orphan accepted — known debt, patrz PortfolioCardsEditor
+  }
+}
 
 const PL_CHARS: Record<string, string> = {
   ą: 'a', ć: 'c', ę: 'e', ł: 'l', ń: 'n', ó: 'o', ś: 's', ź: 'z', ż: 'z',
@@ -28,6 +42,8 @@ function emptyPost(): PostItem {
     excerpt: '',
     body: '',
     status: 'draft',
+    tags: [],
+    keyTakeaways: [],
   }
 }
 
@@ -38,6 +54,9 @@ export default function PostsEditor({ initialPosts }: { initialPosts: PostItem[]
   const [warnings, setWarnings] = useState<Violation[]>([])
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle')
   const [isPending, startTransition] = useTransition()
+  const [coverUploadStatus, setCoverUploadStatus] = useState<'idle' | 'uploading' | 'error'>('idle')
+  const [coverUploadError, setCoverUploadError] = useState('')
+  const coverInputRef = useRef<HTMLInputElement>(null)
 
   const active = posts.find(p => p.id === activeId) ?? null
   const activeIndex = posts.findIndex(p => p.id === activeId)
@@ -65,9 +84,45 @@ export default function PostsEditor({ initialPosts }: { initialPosts: PostItem[]
   function removePost(id: string) {
     const post = posts.find(p => p.id === id)
     if (!confirm(`Usunąć publikację "${post?.title || 'bez tytułu'}"? Tej operacji nie można cofnąć po zapisaniu.`)) return
+    void deleteCoverBestEffort(post?.coverImage)
     setPosts(prev => prev.filter(p => p.id !== id))
     if (activeId === id) setActiveId(null)
     setSaveStatus('idle')
+  }
+
+  async function handleCoverChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !active) return
+
+    setCoverUploadStatus('uploading')
+    setCoverUploadError('')
+
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('kind', 'post-cover')
+    fd.append('postId', active.id)
+
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: fd })
+      const json = await res.json() as { url?: string; error?: string }
+      if (!res.ok) {
+        setCoverUploadStatus('error')
+        setCoverUploadError(json.error ?? 'Błąd uploadu')
+        return
+      }
+      update({ coverImage: json.url! })
+      setCoverUploadStatus('idle')
+      if (coverInputRef.current) coverInputRef.current.value = ''
+    } catch {
+      setCoverUploadStatus('error')
+      setCoverUploadError('Błąd połączenia')
+    }
+  }
+
+  function removeCover() {
+    if (!active) return
+    void deleteCoverBestEffort(active.coverImage)
+    update({ coverImage: undefined })
   }
 
   function handleSave() {
@@ -197,6 +252,91 @@ export default function PostsEditor({ initialPosts }: { initialPosts: PostItem[]
                   placeholder="Jedno–dwa zdania. Pokazuje się na liście publikacji i w wynikach Google."
                   onChange={e => update({ excerpt: e.target.value })}
                 />
+              </div>
+
+              <div className="posts-form-row">
+                <div className="field-row" style={{ flex: 1 }}>
+                  <label className="field-label">Kategoria</label>
+                  <select
+                    value={active.category ?? ''}
+                    onChange={e => update({ category: (e.target.value || undefined) as PostItem['category'] })}
+                  >
+                    <option value="">— bez kategorii —</option>
+                    {POST_CATEGORIES.map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="field-row" style={{ flex: 1 }}>
+                  <label className="field-label">Tagi (oddzielone przecinkiem, maks. 8)</label>
+                  <input
+                    type="text"
+                    value={(active.tags ?? []).join(', ')}
+                    placeholder="design, ux, strategia"
+                    onChange={e => update({
+                      tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean),
+                    })}
+                  />
+                  {errorFor('tags') && <p className="field-error">{errorFor('tags')}</p>}
+                </div>
+              </div>
+
+              <div className="field-row">
+                <label className="field-label">Okładka (1200×675, 16:9)</label>
+                {active.coverImage && (
+                  <div style={{ marginBottom: '8px' }}>
+                    <img
+                      src={active.coverImage}
+                      alt="Podgląd okładki"
+                      style={{ display: 'block', maxWidth: '280px', aspectRatio: '16/9', objectFit: 'cover', marginBottom: '4px' }}
+                    />
+                    <button type="button" className="btn btn-ghost" onClick={removeCover}>Usuń okładkę</button>
+                  </div>
+                )}
+                <input
+                  ref={coverInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  disabled={coverUploadStatus === 'uploading'}
+                  onChange={handleCoverChange}
+                />
+                {coverUploadStatus === 'uploading' && (
+                  <p style={{ marginTop: '4px', color: 'var(--muted)' }}>Przesyłanie…</p>
+                )}
+                {coverUploadStatus === 'error' && <p className="field-error">{coverUploadError}</p>}
+              </div>
+
+              <div className="field-row">
+                <label className="field-label">Kluczowe wnioski (opcjonalnie — callout na stronie artykułu)</label>
+                {(active.keyTakeaways ?? []).map((point, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
+                    <input
+                      type="text"
+                      value={point}
+                      onChange={e => {
+                        const next = [...(active.keyTakeaways ?? [])]
+                        next[i] = e.target.value
+                        update({ keyTakeaways: next })
+                      }}
+                      style={{ flex: 1 }}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      onClick={() => update({ keyTakeaways: (active.keyTakeaways ?? []).filter((_, idx) => idx !== i) })}
+                    >
+                      Usuń
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => update({ keyTakeaways: [...(active.keyTakeaways ?? []), ''] })}
+                >
+                  + Dodaj punkt
+                </button>
               </div>
 
               <div className="field-row">

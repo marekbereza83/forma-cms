@@ -43,7 +43,18 @@ describe('buildBlogPostingJsonLd', () => {
     expect(data.datePublished).toBe(POST.publishedAt)
     expect(data.url).toBe('https://test.pl/publikacje/etyka-zawodowa.html')
     expect((data.mainEntityOfPage as Record<string, unknown>)['@id']).toBe('https://test.pl/publikacje/etyka-zawodowa.html')
+    expect((data.author as Record<string, unknown>)['@type']).toBe('Organization')
     expect((data.author as Record<string, unknown>).name).toBe(SITE_META.brandName)
+  })
+
+  it('author to Person z jobTitle, gdy SiteMeta.authorName/authorRole ustawione', () => {
+    const siteMetaWithAuthor: SiteMeta = { ...SITE_META, authorName: 'Marek Bereza', authorRole: 'Head of Design' }
+    const html = buildBlogPostingJsonLd(POST, siteMetaWithAuthor, 'https://test.pl/publikacje/etyka-zawodowa.html')
+    const data = extractJsonLd(html) as Record<string, unknown>
+    const author = data.author as Record<string, unknown>
+    expect(author['@type']).toBe('Person')
+    expect(author.name).toBe('Marek Bereza')
+    expect(author.jobTitle).toBe('Head of Design')
   })
 
   it('brakujaca zajawka/data nie psuje JSON (puste stringi zamiast undefined)', () => {

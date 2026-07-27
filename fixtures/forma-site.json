@@ -879,6 +879,11 @@
       }
     },
     {
+      "slug": "publikacje",
+      "navLabel": "Publikacje",
+      "sections": []
+    },
+    {
       "slug": "kontakt",
       "navLabel": "Kontakt",
       "meta": {
@@ -1323,6 +1328,41 @@
   ],
   "collections": {
     "events": [],
-    "posts": []
+    "posts": [
+      {
+        "id": "post-minimalizm",
+        "slug": "minimalizm-w-projektowaniu-stron-kancelarii",
+        "title": "Dlaczego minimalizm działa lepiej niż ozdobniki",
+        "publishedAt": "2026-05-10",
+        "excerpt": "Redukcja zbędnych elementów interfejsu poprawia czytelność i buduje zaufanie klienta kancelarii.",
+        "body": "<p>Współczesne strony kancelarii często cierpią na nadmiar ozdobników.</p><h2>Dlaczego to działa</h2><p>Prosta hierarchia typograficzna prowadzi wzrok klienta bez zbędnych elementów.</p>",
+        "status": "published",
+        "category": "DESIGN",
+        "tags": ["design", "ux"],
+        "keyTakeaways": [
+          "Mniej elementów oznacza większą czytelność.",
+          "Prostota buduje zaufanie klienta kancelarii."
+        ]
+      },
+      {
+        "id": "post-typografia",
+        "slug": "typografia-wizerunek-kancelarii",
+        "title": "Typografia jako wizerunek kancelarii",
+        "publishedAt": "2026-04-02",
+        "excerpt": "Dobrze dobrany krój pisma przekazuje powagę i profesjonalizm zanim klient przeczyta pierwsze zdanie.",
+        "body": "<p>Wprowadzenie o typografii w komunikacji kancelarii.</p><h3>Wybór kroju</h3><p>Praktyczne wskazówki doboru fontów dla stron prawniczych.</p>",
+        "status": "published",
+        "category": "STRATEGIA",
+        "tags": ["typografia", "branding", "strategia"],
+        "coverImage": "https://pub-forma.r2.dev/forma-tenant/post-cover-typografia.webp"
+      },
+      {
+        "id": "post-szkic",
+        "slug": "szkic-w-przygotowaniu",
+        "title": "Szkic w przygotowaniu",
+        "body": "<p>Wersja robocza tekstu.</p>",
+        "status": "draft"
+      }
+    ]
   }
 }

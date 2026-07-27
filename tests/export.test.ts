@@ -65,7 +65,28 @@ const POSTS_MODEL: SiteModel = {
     canonical: 'https://test.pl/', ogImage: '', brandName: 'Test',
     contactEmail: 'test@test.pl', contactPhone: '+48000000000', contactPhoneDisplay: '+48 000 000 000',
   },
-  pages: [{ slug: 'index', sections: [] }],
+  pages: [{
+    slug: 'index',
+    sections: [
+      {
+        id: 'nav',
+        recipe: 'A1',
+        fields: {
+          logoText: { type: 'text', value: 'Test', editable: false },
+          ctaLabel: { type: 'cta',  value: 'Zamow',  editable: false },
+        },
+      },
+      {
+        id: 'footer',
+        recipe: 'A9',
+        fields: {
+          logoText:  { type: 'text', value: 'Test', editable: false },
+          links:     { type: 'list', value: [], editable: false },
+          copyright: { type: 'text', value: '(c) Test', editable: false },
+        },
+      },
+    ],
+  }],
   collections: {
     events: [],
     posts: [
@@ -241,6 +262,44 @@ describe('renderStaticSite — sitemap i redirecty dla publikacji', () => {
     expect(xml).not.toContain('stary-szkic')
   })
 
+  it('publikacje.html i publikacje/<slug>.html sa faktycznie zapisywane na dysk', () => {
+    expect(existsSync(join(POSTS_OUT, 'publikacje.html'))).toBe(true)
+    expect(existsSync(join(POSTS_OUT, 'publikacje', 'aktualny-slug.html'))).toBe(true)
+  })
+
+  // Regresja: publikacje/<slug>.html lezy jeden poziom glebiej niz reszta eksportu.
+  // basePath="" (jak dla plikow root-level) psulby wszystkie wzgledne linki (CSS/JS/nav) —
+  // wykryte wizualnie (calkowicie nieostylowana strona), naprawione przekazaniem "../".
+  it('strona artykulu linkuje assets/CSS i strony nawigacji z prefiksem "../"', () => {
+    const html = readFileSync(join(POSTS_OUT, 'publikacje', 'aktualny-slug.html'), 'utf-8')
+    expect(html).toContain('href="../assets/css/design-system-agency.css"')
+    expect(html).toContain('src="../assets/js/main.js"')
+    expect(html).toContain('href="../index.html"')
+    expect(html).not.toContain('href="assets/css/')
+  })
+
+  it('lista publikacji (root-level) NIE ma prefiksu "../" w linkach', () => {
+    const html = readFileSync(join(POSTS_OUT, 'publikacje.html'), 'utf-8')
+    expect(html).toContain('href="assets/css/design-system-agency.css"')
+    expect(html).not.toContain('../assets/')
+  })
+
+  it('szkic nie generuje pliku publikacje/<slug>.html', () => {
+    expect(existsSync(join(POSTS_OUT, 'publikacje', 'szkic.html'))).toBe(false)
+  })
+
+  it('brak opublikowanych postow → publikacje.html w ogole nie jest zapisywany', () => {
+    const OUT = join(ROOT, 'tmp-export-posts-empty')
+    if (existsSync(OUT)) rmSync(OUT, { recursive: true })
+    const model: SiteModel = {
+      ...POSTS_MODEL,
+      collections: { events: [], posts: POSTS_MODEL.collections.posts.filter(p => p.status !== 'published') },
+    }
+    renderStaticSite(model, OUT)
+    expect(existsSync(join(OUT, 'publikacje.html'))).toBe(false)
+    rmSync(OUT, { recursive: true })
+  })
+
   it('sitemap.xml nie zawiera wpisu dla listy publikacji, gdy nie ma opublikowanych postow', () => {
     const model: SiteModel = {
       ...POSTS_MODEL,
@@ -277,5 +336,15 @@ describe('renderStaticSite — sitemap i redirecty dla publikacji', () => {
 
     expect(new TextDecoder().decode(out['sitemap.xml'])).toBe(sitemapFromDisk)
     expect(new TextDecoder().decode(out['_redirects.json'])).toBe(redirectsFromDisk)
+  })
+
+  it('buildStaticSiteFiles produkuje te same klucze publikacje.html / publikacje/<slug>.html co renderStaticSite', () => {
+    const out = buildStaticSiteFiles(POSTS_MODEL)
+    expect(out['publikacje.html']).toBeDefined()
+    expect(out['publikacje/aktualny-slug.html']).toBeDefined()
+    expect(out['publikacje/szkic.html']).toBeUndefined()
+
+    const htmlFromDisk = readFileSync(join(POSTS_OUT, 'publikacje.html'), 'utf-8')
+    expect(new TextDecoder().decode(out['publikacje.html'])).toBe(htmlFromDisk)
   })
 })

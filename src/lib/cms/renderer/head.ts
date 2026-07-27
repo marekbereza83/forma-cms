@@ -33,7 +33,8 @@ export function renderHead(
   siteMeta: SiteMeta,
   pageMeta: PageMeta | undefined,
   pricingAmount: string | undefined,
-  basePath = ''
+  basePath = '',
+  ogImage?: string
 ): string {
   const title = pageMeta?.title ?? siteMeta.title
   const description = pageMeta?.description ?? siteMeta.description
@@ -73,7 +74,7 @@ export function renderHead(
 <meta property="og:title" content="${ogTitle}">
 <meta property="og:description" content="${ogDescription}">
 <meta property="og:url" content="${ogUrl}">
-<meta property="og:image" content="${siteMeta.ogImage}">
+<meta property="og:image" content="${ogImage ?? siteMeta.ogImage}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${ogTitle}">
 <meta name="twitter:description" content="${ogDescription}">

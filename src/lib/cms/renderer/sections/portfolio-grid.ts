@@ -1,18 +1,7 @@
 import type { Section, PortfolioCard } from '../../types'
+import { resolveImageSrc } from '../image'
 
 const ARROW_ICON_SM = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`
-
-function resolveImageSrc(src: string | undefined, basePath: string, linkMode: 'static' | 'preview'): string {
-  const imgSrc = src || 'assets/images/wojtas-hero.png'
-  // R2/CDN absolute URL — use directly in both static and preview
-  if (imgSrc.startsWith('http')) return imgSrc
-  // Legacy local upload (pre-R2) — backward compat
-  if (imgSrc.startsWith('/uploads/')) {
-    if (linkMode === 'static') return `assets/images/${imgSrc.split('/').pop()!}`
-    return imgSrc  // preview: Next.js serves /uploads/
-  }
-  return imgSrc.startsWith('/') ? imgSrc : `${basePath}${imgSrc}`
-}
 
 function renderGridCard(card: PortfolioCard, basePath: string, linkMode: 'static' | 'preview'): string {
   const imgUrl = resolveImageSrc(card.image, basePath, linkMode)

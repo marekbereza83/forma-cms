@@ -1,9 +1,9 @@
 import type { Section, FooterLink } from '../../types'
 import type { RenderContext } from '../context'
-import { pageHref } from '../utils'
+import { rootHref } from '../utils'
 
-function transformFooterHref(href: string, linkMode: 'static' | 'preview'): string {
-  if (linkMode === 'static') return href
+function transformFooterHref(href: string, basePath: string, linkMode: 'static' | 'preview'): string {
+  if (linkMode === 'static') return `${basePath}${href}`
   const match = href.match(/^([\w-]+)\.html$/)
   if (!match) return href
   return `/preview?page=${match[1]}`
@@ -19,19 +19,19 @@ export function renderFooter(section: Section, ctx: RenderContext): string {
   const links     = section.fields['links']?.value as FooterLink[]
   const copyright = section.fields['copyright']?.value as string
 
-  const logoHref = pageHref('index', ctx.linkMode)
+  const logoHref = rootHref('index', ctx.basePath, ctx.linkMode)
 
   // Kotwica na frazę główną prowadzi teraz do strony głównej — dawna podstrona
   // /strony-dla-kancelarii-prawnych została z nią scalona (301 obsługuje Worker).
   // Tekst kotwicy zostaje: to jedyny wewnętrzny link z frazą docelową na "/".
-  const keywordHref = pageHref('index', ctx.linkMode)
+  const keywordHref = rootHref('index', ctx.basePath, ctx.linkMode)
   const keywordLabel = 'Strony internetowe dla kancelarii prawnych'
 
   if (ctx.showCurrentInFooter) {
     const seoLinkHtml = `\n      <li><a href="${keywordHref}">${keywordLabel}</a></li>`
     const linksHtml = links
       .map(l => {
-        const href = transformFooterHref(l.href, ctx.linkMode)
+        const href = transformFooterHref(l.href, ctx.basePath, ctx.linkMode)
         const isCurrent = l.href.replace(/\.html$/, '') === ctx.currentPage
         return `      <li><a href="${href}"${isCurrent ? ' aria-current="page"' : ''}>${l.label}</a></li>`
       })
@@ -55,7 +55,7 @@ ${linksHtml}
 
   const linksHtml = links
     .map(l => {
-      const href = transformFooterHref(l.href, ctx.linkMode)
+      const href = transformFooterHref(l.href, ctx.basePath, ctx.linkMode)
       return `        <li><a href="${href}">${l.label}</a></li>`
     })
     .join('\n') + `\n        <li><a href="${keywordHref}">${keywordLabel}</a></li>`

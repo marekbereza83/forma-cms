@@ -11,6 +11,12 @@ ${JSON.stringify(data, null, 2).replace(/</g, '\\u003c')}
 // BlogPosting — one per published article. canonicalUrl must match the <link rel="canonical">
 // emitted for the same page (single source of truth for the post's own URL).
 export function buildBlogPostingJsonLd(post: PostItem, siteMeta: SiteMeta, canonicalUrl: string): string {
+  // Person gdy tenant skonfigurowal autora site-level (jednoosobowa pracownia) —
+  // lepsze SEO niz Organization dla bloga eksperckiego podpisanego imieniem i nazwiskiem.
+  const author = siteMeta.authorName
+    ? { '@type': 'Person', name: siteMeta.authorName, ...(siteMeta.authorRole ? { jobTitle: siteMeta.authorRole } : {}) }
+    : { '@type': 'Organization', name: siteMeta.brandName }
+
   return toJsonLdScript({
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -19,7 +25,7 @@ export function buildBlogPostingJsonLd(post: PostItem, siteMeta: SiteMeta, canon
     datePublished: post.publishedAt ?? '',
     url: canonicalUrl,
     mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
-    author: { '@type': 'Organization', name: siteMeta.brandName },
+    author,
     publisher: { '@type': 'Organization', name: siteMeta.brandName },
   })
 }

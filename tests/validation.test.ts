@@ -451,11 +451,19 @@ describe('W3 — hero headline max 80 chars', () => {
 
 // ────────────────────────────────────────────────────────────────────────────
 describe('W4 — non-empty collections', () => {
-  it('fixture has empty collections → W4 warning', () => {
+  it('both collections empty → W4 warning', () => {
+    const model = loadFixture()
+    const m = clone(model)
+    m.collections.events = []
+    m.collections.posts = []
+    const warns = validateSoft(m).filter(v => v.rule === 'W4')
+    expect(warns).toHaveLength(1)
+  })
+
+  it('fixture has non-empty posts → no W4 warning', () => {
     const model = loadFixture()
     const warns = validateSoft(model).filter(v => v.rule === 'W4')
-    // Fixture has empty events + posts
-    expect(warns).toHaveLength(1)
+    expect(warns).toHaveLength(0)
   })
 
   it('at least one event → no W4 warning', () => {

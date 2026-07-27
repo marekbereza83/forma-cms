@@ -37,10 +37,16 @@ describe('buildStaticSiteFiles', () => {
     expect(files['index.html'].length).toBeGreaterThan(0)
     expect(Object.keys(files).some(k => k.startsWith('assets/css/'))).toBe(true)
 
-    // Pages with zero sections are skipped (same rule as renderStaticSite).
+    // Pages with zero sections are skipped (same rule as renderStaticSite) — EXCEPT
+    // "publikacje": that's a nav-only stub (Page.sections is deliberately empty, see
+    // migrate-add-publikacje-page.ts), and publikacje.html is written by a separate
+    // code path (renderPostsListPage, keyed off collections.posts, not Page.sections).
     for (const page of model.pages) {
-      if (page.sections.length === 0) expect(files[`${page.slug}.html`]).toBeUndefined()
+      if (page.sections.length === 0 && page.slug !== 'publikacje') {
+        expect(files[`${page.slug}.html`]).toBeUndefined()
+      }
     }
+    expect(files['publikacje.html']).toBeDefined()
   })
 })
 

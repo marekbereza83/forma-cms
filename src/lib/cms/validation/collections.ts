@@ -1,6 +1,9 @@
 import sanitizeHtml from 'sanitize-html'
 import type { EventItem, PostItem } from '../types'
 import type { Violation } from './types'
+import { POST_CATEGORIES } from '../post-categories'
+
+const MAX_TAGS = 8
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
@@ -173,6 +176,59 @@ export function validatePublishedPostBodies(posts: PostItem[]): Violation[] {
   return errors
 }
 
+// ── C9: PostItem.category musi byc jedna z POST_CATEGORIES, jesli ustawiona ─────
+export function validatePostCategories(posts: PostItem[]): Violation[] {
+  const errors: Violation[] = []
+  posts.forEach((post, i) => {
+    if (post.category !== undefined && !POST_CATEGORIES.includes(post.category)) {
+      errors.push({
+        rule: 'C9',
+        field: `collections.posts[${i}].category`,
+        message: `Kategoria "${post.category}" nie jest jedna z dozwolonych: ${POST_CATEGORIES.join(', ')}`,
+      })
+    }
+  })
+  return errors
+}
+
+// ── C10: PostItem.tags — kazdy niepusty po trim, maks. 8 ───────────────────────
+export function validatePostTags(posts: PostItem[]): Violation[] {
+  const errors: Violation[] = []
+  posts.forEach((post, i) => {
+    if (!post.tags) return
+    if (post.tags.length > MAX_TAGS) {
+      errors.push({
+        rule: 'C10',
+        field: `collections.posts[${i}].tags`,
+        message: `Publikacja "${post.title}" ma ${post.tags.length} tagow — maksimum to ${MAX_TAGS}`,
+      })
+    }
+    if (post.tags.some(t => t.trim() === '')) {
+      errors.push({
+        rule: 'C10',
+        field: `collections.posts[${i}].tags`,
+        message: `Publikacja "${post.title}" ma pusty tag`,
+      })
+    }
+  })
+  return errors
+}
+
+// ── C11: PostItem.keyTakeaways — kazdy wpis niepusty po trim ────────────────────
+export function validatePostKeyTakeaways(posts: PostItem[]): Violation[] {
+  const errors: Violation[] = []
+  posts.forEach((post, i) => {
+    if (post.keyTakeaways?.some(k => k.trim() === '')) {
+      errors.push({
+        rule: 'C11',
+        field: `collections.posts[${i}].keyTakeaways`,
+        message: `Publikacja "${post.title}" ma pusty punkt w kluczowych wnioskach`,
+      })
+    }
+  })
+  return errors
+}
+
 export function validateCollections(
   events: EventItem[],
   posts: PostItem[],
@@ -186,5 +242,8 @@ export function validateCollections(
     ...validatePostSlugUniqueness(posts),
     ...validatePublishedPostDates(posts),
     ...validatePublishedPostBodies(posts),
+    ...validatePostCategories(posts),
+    ...validatePostTags(posts),
+    ...validatePostKeyTakeaways(posts),
   ]
 }

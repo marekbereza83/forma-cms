@@ -24,8 +24,7 @@ import { renderLegalNotice, renderPrivacyPolicy, renderTermsOfService } from './
 import { renderNotFound } from './sections/not-found'
 import { redesignAnimatorScript } from './hardcoded/redesign-animator'
 import { formaGenesisScript } from './hardcoded/forma-genesis'
-import { cookieConsentBanner } from './hardcoded/cookie-consent'
-import { pageHref } from './utils'
+import { buildBaseRenderContext, renderShell } from './shell'
 
 const SECTION_REGISTRY: Record<string, (s: Section, ctx: RenderContext) => string> = {
   // ── index ────────────────────────────────────────────────────────────────────
@@ -67,33 +66,12 @@ export function renderPage(model: SiteModel, slug: string, basePath = '', linkMo
   const footerSection = page.sections.find(s => s.id === 'footer')
   const mainSections  = page.sections.filter(s => s.id !== 'nav' && s.id !== 'footer')
 
+  // pricingStandardAmount jest jedynym polem RenderContext zaleznym od SEKCJI tej
+  // konkretnej strony (tylko "index" ma wsrod mainSections sekcje "pricing") — patrz
+  // komentarz w shell.ts przy buildBaseRenderContext.
   const pricingSection   = mainSections.find(s => s.id === 'pricing')
   const standardPkg      = pricingSection?.fields['standard']?.value as PricingPackage | undefined
   const pricingStandardAmount = standardPkg?.amount
-
-  // Jedyne źródło prawdy dla ceny: zawsze z index.pricing, niezależnie od renderowanej strony.
-  // cennik-detail na /proces czyta stąd — brak własnych pól price w tej sekcji.
-  const indexPage            = model.pages.find(p => p.slug === 'index')
-  const indexPricingSection  = indexPage?.sections.find(s => s.id === 'pricing')
-  const indexPricing = indexPricingSection
-    ? {
-        standard: indexPricingSection.fields['standard']?.value as PricingPackage,
-        extended: indexPricingSection.fields['extended']?.value as PricingPackage,
-      }
-    : undefined
-
-  const navPages = model.pages
-    .filter((p): p is typeof p & { navLabel: string } => p.navLabel !== undefined)
-    .map(p => ({ slug: p.slug, navLabel: p.navLabel }))
-
-  // Jedyne źródło prawdy dla kontaktu — czytane zawsze z model.meta.
-  if (!model.meta.contactPhone || !model.meta.contactEmail) {
-    throw new Error('meta.contactPhone i meta.contactEmail są wymagane')
-  }
-  const contactPhone        = model.meta.contactPhone
-  const contactPhoneDisplay = model.meta.contactPhoneDisplay
-  const contactEmail        = model.meta.contactEmail
-  const contactEmailHref    = `mailto:${contactEmail}`
 
   // Strony z variant: 'legal' dostają uproszczony <head> (bez OG/canonical/schema.org)
   // i nie potrzebują preMain ani nav-wrapper w stopce.
@@ -105,7 +83,9 @@ export function renderPage(model: SiteModel, slug: string, basePath = '', linkMo
   // isLegal/is404 pochodzą z page.meta.variant; kontakt jest jedynym wyjątkiem bez variant.
   const showCurrentInFooter = isLegal || is404 || slug === 'kontakt'
 
-  const ctx: RenderContext = { basePath, pricingStandardAmount, currentPage: slug, linkMode, navPages, indexPricing, showCurrentInFooter, contactPhone, contactPhoneDisplay, contactEmail, contactEmailHref }
+  const ctx = buildBaseRenderContext(model, {
+    basePath, linkMode, currentPage: slug, showCurrentInFooter, pricingStandardAmount,
+  })
 
   const head = isLegal
     ? renderLegalHead(page.meta?.title ?? 'FORMA Wizerunku', basePath, 'noindex, follow', model.meta.gaId)
@@ -113,55 +93,43 @@ export function renderPage(model: SiteModel, slug: string, basePath = '', linkMo
       ? renderLegalHead(page.meta?.title ?? '404 — Strona nie istnieje | FORMA', basePath, 'noindex, nofollow', model.meta.gaId)
       : renderHead(model.meta, page.meta, pricingStandardAmount, basePath)
 
-  const bodyParts: string[] = []
-
+  let navHtml = ''
   if (navSection) {
     const renderer = SECTION_REGISTRY[navSection.id]
     if (!renderer) throw new Error(`Unknown section: "${navSection.id}" on page "${slug}"`)
-    bodyParts.push(renderer(navSection, ctx))
+    navHtml = renderer(navSection, ctx)
   }
 
-  bodyParts.push('<main id="main">')
-  for (const section of mainSections) {
-    const renderer = SECTION_REGISTRY[section.id]
-    if (!renderer) throw new Error(`Unknown section: "${section.id}" on page "${slug}"`)
-    bodyParts.push(renderer(section, ctx))
-  }
-  bodyParts.push('</main>')
+  const mainInner = mainSections
+    .map(section => {
+      const renderer = SECTION_REGISTRY[section.id]
+      if (!renderer) throw new Error(`Unknown section: "${section.id}" on page "${slug}"`)
+      return renderer(section, ctx)
+    })
+    .join('\n\n')
 
+  let footerHtml = ''
   if (footerSection) {
     const renderer = SECTION_REGISTRY[footerSection.id]
     if (!renderer) throw new Error(`Unknown section: "${footerSection.id}" on page "${slug}"`)
-    bodyParts.push(renderer(footerSection, ctx))
+    footerHtml = renderer(footerSection, ctx)
   }
 
-  if (slug === 'index') bodyParts.push(redesignAnimatorScript)
-  if (slug === 'kontakt' || slug === '404') bodyParts.push(formaGenesisScript)
-  // Baner zgody na cookies — tylko gdy GA jest aktywne (gaId ustawione).
-  if (model.meta.gaId) bodyParts.push(cookieConsentBanner(pageHref('privacy-policy', linkMode)))
-  bodyParts.push(`<script src="${basePath}assets/js/main.js" defer></script>`)
-
-  const body = bodyParts.join('\n\n')
+  const extraScripts: string[] = []
+  if (slug === 'index') extraScripts.push(redesignAnimatorScript)
+  if (slug === 'kontakt' || slug === '404') extraScripts.push(formaGenesisScript)
 
   // proces.html reference ma dot-grid-bg + role=progressbar (identycznie jak index).
   // kontakt.html nie ma dot-grid-bg i nie ma role=progressbar.
   // legal pages i 404: brak preMain w ogóle — sekcja not-found sama ma dot-grid-bg.
-  const preMain = (isLegal || is404)
-    ? ''
+  const preMainVariant = (isLegal || is404)
+    ? 'none' as const
     : (slug === 'index' || slug === 'proces' || slug === 'portfolio')
-      ? `<div class="dot-grid-bg" aria-hidden="true"></div>\n<div id="scroll-progress" role="progressbar" aria-hidden="true"></div>\n<div class="custom-cursor" id="custom-cursor" aria-hidden="true"></div>`
-      : `<div id="scroll-progress" aria-hidden="true"></div>\n\n<div class="custom-cursor" id="custom-cursor" aria-hidden="true"></div>`
+      ? 'rich' as const
+      : 'plain' as const
 
-  return `<!DOCTYPE html>
-<html lang="pl">
-${head}
-<body>
-
-<a href="#main" class="skip-link">Przejdź do treści</a>
-
-${preMain}
-
-${body}
-</body>
-</html>`
+  return renderShell({
+    head, navHtml, mainInner, footerHtml, preMainVariant, basePath, linkMode,
+    gaId: model.meta.gaId, extraScripts,
+  })
 }

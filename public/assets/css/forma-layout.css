@@ -727,3 +727,148 @@
     font-size: 2rem;
   }
 }
+
+/* ─── Publikacje — layout ─────────────────────────────────── */
+
+/* Domyślnie (bez JS) wszystkie karty widoczne — dopiero .js-on (dodawany przez
+   publications.js na starcie) pozwala ukryć strony >1 realną paginacją. Bez JS
+   nic nie znika z DOM, wiec tresc zostaje w pelni crawlowalna. */
+.pub-split .js-page-hidden { display: block; }
+.js-on .pub-split .js-page-hidden { display: none; }
+
+/* Widok "Siatka": dwie kolumny — GŁÓWNE PUBLIKACJE (featured, szersza) i
+   POZOSTAŁE PUBLIKACJE (sidebar, kompaktowa) — wzorem PublicationsView.tsx. */
+.pub-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-10);
+}
+@media (min-width: 1024px) {
+  .pub-split[data-pub-view="grid"] {
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+  }
+}
+
+.pub-featured-col,
+.pub-sidebar-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.pub-sidebar-col { gap: var(--space-4); }
+
+.pub-split-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.pub-split-tag { color: var(--text-muted); }
+.pub-split-count {
+  color: var(--accent);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.1rem 0.5rem;
+  font-weight: 700;
+}
+.pub-sidebar-empty { color: var(--text-secondary); font-size: 0.85rem; padding: var(--space-4) 0; }
+
+@media (min-width: 1024px) {
+  .pub-sidebar-col {
+    position: sticky;
+    top: calc(var(--space-8) + 64px);
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
+  }
+}
+
+/* Karta featured: duze zdjecie-hero z kategoria + zakladka jako overlay na obrazku. */
+.pub-card--featured {
+  flex-direction: column;
+}
+.pub-card--featured .pub-card-thumb { aspect-ratio: 21 / 9; }
+/* Overlay na zdjeciu tylko gdy zdjecie faktycznie istnieje (.pub-card--has-thumb) —
+   bez tego kategoria/zakladka nachodzilyby na wiersz z data u kart bez okladki. */
+.pub-card--featured.pub-card--has-thumb {
+  position: relative;
+}
+.pub-card--featured.pub-card--has-thumb .pub-cat-pill {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  z-index: 2;
+}
+.pub-card--featured.pub-card--has-thumb .pub-bookmark {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 2;
+  background: rgba(13, 17, 23, 0.75);
+  backdrop-filter: blur(4px);
+  border-radius: var(--radius-xl);
+  padding: 0.4rem;
+}
+.pub-card--featured .pub-card-title { font-size: 1.5rem; }
+.pub-card--featured .pub-card-excerpt { -webkit-line-clamp: 3; }
+.pub-card-author { display: none; }
+.pub-card--featured .pub-card-author {
+  display: inline-flex;
+  margin-left: auto;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+
+/* Karta kompaktowa (sidebar): maly thumbnail obok tresci (meta/tytul/zajawka
+   ulozone pionowo w .pub-card-body) — wzorem sidebarArticles w PublicationsView.tsx.
+   Zajawka zostaje widoczna, przyciecia do 2 linii (line-clamp), nie jest ukrywana. */
+.pub-card--compact { flex-direction: row; gap: var(--space-3); padding: var(--space-3); }
+.pub-card--compact .pub-card-thumb { width: 72px; flex-shrink: 0; aspect-ratio: 4 / 3; align-self: flex-start; }
+.pub-card--compact .pub-card-body { padding: 0; gap: var(--space-1); }
+.pub-card--compact .pub-card-title { font-size: 0.9rem; }
+.pub-card--compact .pub-card-excerpt { -webkit-line-clamp: 2; }
+
+/* Widok "Lista": obie kolumny spłaszczone do jednej, featured traci powiekszony styl —
+   wszystkie karty wygladaja identycznie (kompaktowy rzad), zgodnie z trybem "Lista" ze Stitcha. */
+.pub-split[data-pub-view="list"] {
+  grid-template-columns: 1fr;
+  max-width: 760px;
+}
+.pub-split[data-pub-view="list"] .pub-sidebar-col { position: static; max-height: none; overflow: visible; }
+.pub-split[data-pub-view="list"] .pub-card--featured { flex-direction: row; }
+.pub-split[data-pub-view="list"] .pub-card--featured .pub-card-thumb { aspect-ratio: 4/3; width: 96px; flex-shrink: 0; }
+.pub-split[data-pub-view="list"] .pub-card--featured .pub-cat-pill,
+.pub-split[data-pub-view="list"] .pub-card--featured .pub-bookmark { position: static; background: none; backdrop-filter: none; padding: 0.2rem; }
+.pub-split[data-pub-view="list"] .pub-card--featured .pub-card-title { font-size: 0.95rem; }
+.pub-split[data-pub-view="list"] .pub-card--featured .pub-card-excerpt { display: none; }
+
+@media (max-width: 639px) {
+  .pub-card--compact,
+  .pub-split[data-pub-view="list"] .pub-card--featured { flex-direction: column; }
+  .pub-card--compact .pub-card-thumb,
+  .pub-split[data-pub-view="list"] .pub-card--featured .pub-card-thumb { width: 100%; aspect-ratio: 16 / 9; }
+}
+
+@media (max-width: 767px) {
+  .pub-filter-row { flex-direction: column; align-items: stretch; }
+  .pub-controls-group { margin-left: 0; justify-content: space-between; }
+}
+
+@media (max-width: 639px) {
+  .pub-adjacent-nav { flex-direction: column; gap: var(--space-4); }
+  .pub-adjacent-link { max-width: 100%; }
+  .pub-adjacent-next { text-align: left; margin-left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pub-card { transition: none; transform: none; }
+}

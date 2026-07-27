@@ -79,6 +79,14 @@ function makePostRequest(file: File, cardId: string): Request {
   return new Request('http://localhost/api/upload', { method: 'POST', body: fd })
 }
 
+function makePostCoverRequest(file: File, postId: string): Request {
+  const fd = new FormData()
+  fd.append('file', file)
+  fd.append('kind', 'post-cover')
+  fd.append('postId', postId)
+  return new Request('http://localhost/api/upload', { method: 'POST', body: fd })
+}
+
 function makeDeleteRequest(filename: string): Request {
   return new Request(
     `http://localhost/api/upload?filename=${encodeURIComponent(filename)}`,
@@ -168,6 +176,61 @@ describe('POST /api/upload', () => {
     expect(meta.format).toBe('webp')
     expect(meta.width).toBe(800)
     expect(meta.height).toBe(450)
+  })
+})
+
+// ── post-cover (okladki publikacji) ────────────────────────────────────────────
+
+describe('POST /api/upload — kind=post-cover', () => {
+  it('poprawny PNG z postId A → 200, klucz post-cover-<id>.webp, plik webp 1200×675', async () => {
+    mockS3Send.mockResolvedValueOnce({})
+    const file = new File([minimalPng()], 'cover.png', { type: 'image/png' })
+    const res = await POST(makePostCoverRequest(file, ID_A))
+    expect(res.status).toBe(200)
+
+    const json = await res.json() as { url: string }
+    const expectedKey = `${TEST_TENANT}/post-cover-${ID_A}.webp`
+    expect(json.url).toBe(`${R2_BASE}/${expectedKey}`)
+
+    const callArgs = mockS3Send.mock.calls.at(-1)?.[0] as { Body: Buffer; ContentType: string }
+    expect(callArgs.ContentType).toBe('image/webp')
+    const sharpModule = await import('sharp')
+    const meta = await sharpModule.default(callArgs.Body).metadata()
+    expect(meta.format).toBe('webp')
+    expect(meta.width).toBe(1200)
+    expect(meta.height).toBe(675)
+  })
+
+  it('brak postId (tylko kind=post-cover) → 400', async () => {
+    const fd = new FormData()
+    fd.append('file', new File([minimalPng()], 'cover.png', { type: 'image/png' }))
+    fd.append('kind', 'post-cover')
+    const req = new Request('http://localhost/api/upload', { method: 'POST', body: fd })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+  })
+
+  it('brak kind → domyslnie portfolio-card (wsteczna zgodnosc), 800×450', async () => {
+    mockS3Send.mockResolvedValueOnce({})
+    const file = new File([minimalPng()], 'photo.png', { type: 'image/png' })
+    const res = await POST(makePostRequest(file, ID_A))
+    const json = await res.json() as { url: string }
+    expect(json.url).toContain(`portfolio-card-${ID_A}.webp`)
+  })
+})
+
+describe('DELETE /api/upload — kind=post-cover', () => {
+  it('DELETE post-cover-<uuid>.webp → 200', async () => {
+    mockS3Send.mockClear()
+    const res = await DELETE(makeDeleteRequest(`post-cover-${ID_A}.webp`))
+    expect(res.status).toBe(200)
+    const callArgs = mockS3Send.mock.calls[0]?.[0] as { Key: string }
+    expect(callArgs?.Key).toBe(`${TEST_TENANT}/post-cover-${ID_A}.webp`)
+  })
+
+  it('nazwa spoza dozwolonych prefiksow (np. "cover-<uuid>.webp") → 400', async () => {
+    const res = await DELETE(makeDeleteRequest(`cover-${ID_A}.webp`))
+    expect(res.status).toBe(400)
   })
 })
 

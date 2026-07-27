@@ -2,16 +2,8 @@ import { mkdirSync, writeFileSync, copyFileSync, readdirSync, existsSync, statSy
 import { join, resolve } from 'path'
 import type { SiteModel } from './types'
 import { renderPage } from './renderer/index'
-
-// Adres publikacji: publikacje/<slug>.html (patrz PostItem.slug w types.ts oraz
-// PostsEditor.tsx, ktore ta sama konwencje pokazuje uzytkownikowi w panelu).
-function postUrl(siteRoot: string, slug: string): string {
-  return `${siteRoot}/publikacje/${slug}.html`
-}
-
-function postsListUrl(siteRoot: string): string {
-  return `${siteRoot}/publikacje.html`
-}
+import { renderPostsListPage, renderPostPage } from './renderer/publikacje'
+import { postUrl, postsListUrl } from './urls'
 
 function buildSitemapXml(model: SiteModel): string {
   const today = new Date().toISOString().slice(0, 10)
@@ -84,6 +76,16 @@ export function renderStaticSite(
     writeFileSync(join(outputDir, `${page.slug}.html`), html, 'utf-8')
   }
 
+  const publishedPosts = model.collections.posts.filter(p => p.status === 'published')
+  if (publishedPosts.length > 0) {
+    writeFileSync(join(outputDir, 'publikacje.html'), renderPostsListPage(model, '', 'static'), 'utf-8')
+    mkdirSync(join(outputDir, 'publikacje'), { recursive: true })
+    for (const post of publishedPosts) {
+      // basePath="../" — plik lezy w podkatalogu publikacje/, jeden poziom glebiej niz reszta eksportu.
+      writeFileSync(join(outputDir, 'publikacje', `${post.slug}.html`), renderPostPage(model, post, '../', 'static'), 'utf-8')
+    }
+  }
+
   copyDir(join(publicDir, 'assets'), join(outputDir, 'assets'))
   writeFileSync(join(outputDir, 'sitemap.xml'), buildSitemapXml(model), 'utf-8')
   writeFileSync(join(outputDir, 'robots.txt'), buildRobotsTxt(model), 'utf-8')
@@ -122,6 +124,14 @@ export function buildStaticSiteFiles(
     if (page.sections.length === 0) continue
     const html = renderPage(model, page.slug, '', 'static')
     out[`${page.slug}.html`] = enc.encode(html)
+  }
+
+  const publishedPosts = model.collections.posts.filter(p => p.status === 'published')
+  if (publishedPosts.length > 0) {
+    out['publikacje.html'] = enc.encode(renderPostsListPage(model, '', 'static'))
+    for (const post of publishedPosts) {
+      out[`publikacje/${post.slug}.html`] = enc.encode(renderPostPage(model, post, '../', 'static'))
+    }
   }
 
   collectAssets(join(publicDir, 'assets'), 'assets', out)
