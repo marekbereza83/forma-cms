@@ -134,6 +134,9 @@ export interface PostItem {
   /** HTML przepuszczony przez sanitizePostBody() PRZED zapisem — patrz invariant #5. */
   body: string
   status: 'draft' | 'published'
+  /** Historia poprzednich slugów tego posta — dopisywana automatycznie w saveSite()
+   *  gdy slug sie zmienia. Zrodlo mapy przekierowan 301 w Workerze (_redirects.json). */
+  previousSlugs?: string[]
 }
 
 export interface SiteMeta {

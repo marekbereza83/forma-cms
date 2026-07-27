@@ -34,6 +34,21 @@ function serve(obj: R2ObjectBody, status = 200): Response {
   return new Response(obj.body, { status, headers })
 }
 
+// _redirects.json (written by lib/cms/export.ts alongside sitemap.xml/robots.txt) maps
+// old publikacje/<slug>.html paths to their current address, so a slug change made in
+// the panel doesn't 404 old links. Read only on a miss — not on every request.
+async function resolveRedirect(bucket: R2Bucket, base: string, path: string): Promise<string | null> {
+  const obj = await bucket.get(`${base}/_redirects.json`)
+  if (!obj) return null
+  try {
+    const map = JSON.parse(await obj.text()) as Record<string, string>
+    const key = path.replace(/^\/+/, '')
+    return map[key] ?? null
+  } catch {
+    return null
+  }
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     if (request.method !== 'GET' && request.method !== 'HEAD') {
@@ -71,6 +86,12 @@ export default {
     for (const key of candidates) {
       const obj = await env.SITE_BUCKET.get(key)
       if (obj) return serve(obj)
+    }
+
+    const redirectTo = await resolveRedirect(env.SITE_BUCKET, base, path)
+    if (redirectTo) {
+      const target = new URL(redirectTo, canonicalUrl.origin)
+      return Response.redirect(target.toString(), 301)
     }
 
     const notFound = await env.SITE_BUCKET.get(`${base}/404.html`)

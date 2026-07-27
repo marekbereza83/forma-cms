@@ -23,6 +23,7 @@ import { getTenantScopedClient, type TenantSession } from '../src/lib/tenant/cli
 import { saveSite } from '../src/lib/cms/persistence'
 import { parseSiteModel } from '../src/lib/cms/schema'
 import { renderPage } from '../src/lib/cms/renderer/index'
+import type { PostItem } from '../src/lib/cms/types'
 
 const ROOT = resolve(process.cwd())
 
@@ -237,5 +238,77 @@ describe('DB round-trip integrity', () => {
     expect(saved.body).not.toContain('<script')
     expect(saved.body).not.toContain('onerror')
     expect(saved.body).not.toContain('javascript:')
+  })
+
+  // Plan publikacje, krok 7: previousSlugs zasila _redirects.json / 301 w Workerze.
+  it('saveSite dopisuje stary slug do previousSlugs gdy klient zmienia adres posta', async () => {
+    const raw = JSON.parse(readFileSync(resolve(ROOT, 'fixtures/forma-site.json'), 'utf-8'))
+    raw.tenantId = session.tenantId
+    raw.collections.posts = [{
+      id: 'redirect-1',
+      slug: 'stary-adres',
+      title: 'Test przekierowania',
+      publishedAt: '2026-07-01',
+      body: '<p>Tresc</p>',
+      status: 'published',
+    }]
+    await saveSite(session, raw)
+
+    raw.collections.posts = [{
+      id: 'redirect-1',
+      slug: 'nowy-adres',
+      title: 'Test przekierowania',
+      publishedAt: '2026-07-01',
+      body: '<p>Tresc</p>',
+      status: 'published',
+    }]
+    const { model } = await saveSite(session, raw)
+    const post = model.collections.posts.find(p => p.id === 'redirect-1')!
+    expect(post.slug).toBe('nowy-adres')
+    expect(post.previousSlugs).toEqual(['stary-adres'])
+  })
+
+  it('kolejny zapis bez zmiany sluga nie gubi previousSlugs (klient wysyla pelny obiekt posta)', async () => {
+    const db = getTenantScopedClient(session)
+    const site = await db.getSite()
+    const raw = JSON.parse(JSON.stringify(site!.model))
+
+    await saveSite(session, raw)
+
+    const site2 = await db.getSite()
+    const post2 = site2!.model.collections.posts.find(p => p.id === 'redirect-1')!
+    expect(post2.previousSlugs).toEqual(['stary-adres'])
+  })
+
+  it('druga zmiana sluga dopisuje kolejny wpis do previousSlugs, bez duplikatow', async () => {
+    const db = getTenantScopedClient(session)
+    const site = await db.getSite()
+    const raw = JSON.parse(JSON.stringify(site!.model))
+    raw.collections.posts = raw.collections.posts.map((p: PostItem) =>
+      p.id === 'redirect-1' ? { ...p, slug: 'najnowszy-adres' } : p
+    )
+
+    const { model } = await saveSite(session, raw)
+    const post = model.collections.posts.find(p => p.id === 'redirect-1')!
+    expect(post.slug).toBe('najnowszy-adres')
+    expect(post.previousSlugs).toEqual(['stary-adres', 'nowy-adres'])
+  })
+
+  it('nowy post (bez odpowiednika w DB) nie dostaje previousSlugs', async () => {
+    const db = getTenantScopedClient(session)
+    const site = await db.getSite()
+    const raw = JSON.parse(JSON.stringify(site!.model))
+    raw.collections.posts.push({
+      id: 'brand-new-post',
+      slug: 'nowy-post',
+      title: 'Nowy post',
+      publishedAt: '2026-07-27',
+      body: '<p>Tresc</p>',
+      status: 'draft',
+    })
+
+    const { model } = await saveSite(session, raw)
+    const post = model.collections.posts.find(p => p.id === 'brand-new-post')!
+    expect(post.previousSlugs).toBeUndefined()
   })
 })

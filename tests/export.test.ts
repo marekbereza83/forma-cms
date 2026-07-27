@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync, rmSync, readFileSync, existsSync } from 'fs'
 import { resolve, join } from 'path'
 import { JSDOM } from 'jsdom'
 import { parseSiteModel } from '../src/lib/cms/schema'
-import { renderStaticSite } from '../src/lib/cms/export'
+import { renderStaticSite, buildStaticSiteFiles } from '../src/lib/cms/export'
 import type { SiteModel } from '../src/lib/cms/types'
 
 const ROOT = resolve(process.cwd())
@@ -53,9 +53,47 @@ const UPLOAD_MODEL: SiteModel = {
   collections: { events: [], posts: [] },
 }
 
+// --- Publikacje: sitemap + _redirects.json (design-independent backend pieces) ---
+const POSTS_OUT = join(ROOT, 'tmp-export-posts')
+
+const POSTS_MODEL: SiteModel = {
+  tenantId: 'posts-test-tenant',
+  archetype: 'trust-led',
+  designSystem: 'forma',
+  meta: {
+    title: 'Test', description: 'Test', ogDescription: 'Test',
+    canonical: 'https://test.pl/', ogImage: '', brandName: 'Test',
+    contactEmail: 'test@test.pl', contactPhone: '+48000000000', contactPhoneDisplay: '+48 000 000 000',
+  },
+  pages: [{ slug: 'index', sections: [] }],
+  collections: {
+    events: [],
+    posts: [
+      {
+        id: 'p1',
+        slug: 'aktualny-slug',
+        title: 'Opublikowany artykul',
+        publishedAt: '2026-05-10',
+        excerpt: 'Zajawka.',
+        body: '<p>Tresc</p>',
+        status: 'published',
+        previousSlugs: ['pierwszy-slug', 'drugi-slug'],
+      },
+      {
+        id: 'p2',
+        slug: 'szkic',
+        title: 'Szkic',
+        body: '<p>Tresc szkicu</p>',
+        status: 'draft',
+        previousSlugs: ['stary-szkic'],
+      },
+    ],
+  },
+}
+
 beforeAll(() => {
   // Clean previous runs
-  for (const dir of [FIXTURE_OUT, UPLOAD_PUB, UPLOAD_OUT]) {
+  for (const dir of [FIXTURE_OUT, UPLOAD_PUB, UPLOAD_OUT, POSTS_OUT]) {
     if (existsSync(dir)) rmSync(dir, { recursive: true })
   }
 
@@ -76,10 +114,13 @@ beforeAll(() => {
 
   // Upload export
   renderStaticSite(UPLOAD_MODEL, UPLOAD_OUT, UPLOAD_PUB)
+
+  // Publikacje export (sitemap + _redirects.json)
+  renderStaticSite(POSTS_MODEL, POSTS_OUT)
 })
 
 afterAll(() => {
-  for (const dir of [FIXTURE_OUT, UPLOAD_PUB, UPLOAD_OUT]) {
+  for (const dir of [FIXTURE_OUT, UPLOAD_PUB, UPLOAD_OUT, POSTS_OUT]) {
     if (existsSync(dir)) rmSync(dir, { recursive: true })
   }
 })
@@ -181,5 +222,60 @@ describe('renderStaticSite — R2 image URL handling', () => {
 
   it('empty-section stub page is not exported', () => {
     expect(existsSync(join(UPLOAD_OUT, 'portfolio.html'))).toBe(false)
+  })
+})
+
+// ---- publikacje: sitemap.xml + _redirects.json ----
+
+describe('renderStaticSite — sitemap i redirecty dla publikacji', () => {
+  it('sitemap.xml zawiera opublikowany post i liste publikacji, z lastmod = publishedAt', () => {
+    const xml = readFileSync(join(POSTS_OUT, 'sitemap.xml'), 'utf-8')
+    expect(xml).toContain('<loc>https://test.pl/publikacje/aktualny-slug.html</loc>')
+    expect(xml).toContain('<lastmod>2026-05-10</lastmod>')
+    expect(xml).toContain('<loc>https://test.pl/publikacje.html</loc>')
+  })
+
+  it('sitemap.xml nie zawiera szkicu ani jego starego sluga', () => {
+    const xml = readFileSync(join(POSTS_OUT, 'sitemap.xml'), 'utf-8')
+    expect(xml).not.toContain('/publikacje/szkic.html')
+    expect(xml).not.toContain('stary-szkic')
+  })
+
+  it('sitemap.xml nie zawiera wpisu dla listy publikacji, gdy nie ma opublikowanych postow', () => {
+    const model: SiteModel = {
+      ...POSTS_MODEL,
+      collections: { events: [], posts: POSTS_MODEL.collections.posts.filter(p => p.status !== 'published') },
+    }
+    const out = buildStaticSiteFiles(model)
+    const xml = new TextDecoder().decode(out['sitemap.xml'])
+    expect(xml).not.toContain('publikacje.html')
+  })
+
+  it('_redirects.json mapuje stare slugi opublikowanego posta na aktualny adres', () => {
+    const redirects = JSON.parse(readFileSync(join(POSTS_OUT, '_redirects.json'), 'utf-8'))
+    expect(redirects).toEqual({
+      'publikacje/pierwszy-slug.html': '/publikacje/aktualny-slug.html',
+      'publikacje/drugi-slug.html': '/publikacje/aktualny-slug.html',
+    })
+  })
+
+  it('_redirects.json pomija historie sluga szkicu (brak wygenerowanego pliku docelowego)', () => {
+    const redirects = JSON.parse(readFileSync(join(POSTS_OUT, '_redirects.json'), 'utf-8'))
+    expect(redirects['publikacje/stary-szkic.html']).toBeUndefined()
+  })
+
+  it('_redirects.json nie jest generowany, gdy zaden post nie ma historii slugow', () => {
+    const model: SiteModel = { ...POSTS_MODEL, collections: { events: [], posts: [] } }
+    const out = buildStaticSiteFiles(model)
+    expect(out['_redirects.json']).toBeUndefined()
+  })
+
+  it('buildStaticSiteFiles (sciezka publish) produkuje ten sam sitemap i redirecty co renderStaticSite', () => {
+    const out = buildStaticSiteFiles(POSTS_MODEL)
+    const sitemapFromDisk = readFileSync(join(POSTS_OUT, 'sitemap.xml'), 'utf-8')
+    const redirectsFromDisk = readFileSync(join(POSTS_OUT, '_redirects.json'), 'utf-8')
+
+    expect(new TextDecoder().decode(out['sitemap.xml'])).toBe(sitemapFromDisk)
+    expect(new TextDecoder().decode(out['_redirects.json'])).toBe(redirectsFromDisk)
   })
 })

@@ -63,6 +63,7 @@ export const PostItemSchema = z.object({
   excerpt: z.string().optional(),
   body: z.string(),
   status: z.enum(['draft', 'published']),
+  previousSlugs: z.array(z.string()).optional(),
 })
 
 export const SiteModelSchema = z.object({
