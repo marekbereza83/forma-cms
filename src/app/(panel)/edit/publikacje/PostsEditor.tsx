@@ -7,6 +7,7 @@ import { postUrl } from '@/lib/cms/urls'
 import { savePosts } from './actions'
 import RichTextEditor from './RichTextEditor'
 import GooglePreview from './GooglePreview'
+import FieldHelp from '@/app/(panel)/FieldHelp'
 
 // Usuwa okladke z R2 najlepiej-jak-sie-da — porzucony plik akceptujemy (jak w
 // FieldsForm.tsx PortfolioCardsEditor.removeCard), nie blokujemy UI na tym.
@@ -211,7 +212,10 @@ export default function PostsEditor({ initialPosts, meta }: { initialPosts: Post
           {active && (
             <div className="posts-form">
               <div className="field-row">
-                <label className="field-label">Tytuł</label>
+                <label className="field-label">
+                  Tytuł
+                  <FieldHelp label="Tytuł" text="Główny tytuł widoczny na stronie artykułu. Zostanie użyty jako nagłówek H1." />
+                </label>
                 <input
                   type="text"
                   value={active.title}
@@ -222,7 +226,10 @@ export default function PostsEditor({ initialPosts, meta }: { initialPosts: Post
               </div>
 
               <div className="field-row">
-                <label className="field-label">Adres (slug)</label>
+                <label className="field-label">
+                  Adres (slug)
+                  <FieldHelp label="Adres (slug)" text="Fragment adresu artykułu. Używaj krótkich słów bez polskich znaków, oddzielonych myślnikami. Po publikacji nie zmieniaj go bez przekierowania." />
+                </label>
                 <input
                   type="text"
                   value={active.slug}
@@ -259,7 +266,10 @@ export default function PostsEditor({ initialPosts, meta }: { initialPosts: Post
               </div>
 
               <div className="field-row">
-                <label className="field-label">Zajawka</label>
+                <label className="field-label">
+                  Zajawka
+                  <FieldHelp label="Zajawka" text="Krótkie wprowadzenie widoczne na liście publikacji. Gdy nie podasz osobnego opisu SEO, CMS wykorzysta zajawkę jako meta description." />
+                </label>
                 <textarea
                   rows={2}
                   value={active.excerpt ?? ''}
@@ -270,7 +280,10 @@ export default function PostsEditor({ initialPosts, meta }: { initialPosts: Post
 
               <div className="posts-form-row">
                 <div className="field-row" style={{ flex: 1 }}>
-                  <label className="field-label">Kategoria</label>
+                  <label className="field-label">
+                    Kategoria
+                    <FieldHelp label="Kategoria" text="Główny obszar tematyczny artykułu. Wybierz jedną kategorię, która najlepiej opisuje publikację." />
+                  </label>
                   <select
                     value={active.category ?? ''}
                     onChange={e => update({ category: (e.target.value || undefined) as PostItem['category'] })}
@@ -357,7 +370,10 @@ export default function PostsEditor({ initialPosts, meta }: { initialPosts: Post
                 <summary>Zaawansowane ustawienia SEO</summary>
 
                 <div className="field-row">
-                  <label className="field-label">Tytuł SEO</label>
+                  <label className="field-label">
+                    Tytuł SEO
+                    <FieldHelp label="Tytuł SEO" text="Tytuł używany w kodzie strony, na karcie przeglądarki i zwykle w Google. Gdy pole pozostanie puste, CMS użyje tytułu artykułu i nazwy marki." />
+                  </label>
                   <input
                     type="text"
                     value={active.metaTitle ?? ''}
@@ -369,7 +385,10 @@ export default function PostsEditor({ initialPosts, meta }: { initialPosts: Post
                 </div>
 
                 <div className="field-row">
-                  <label className="field-label">Opis SEO</label>
+                  <label className="field-label">
+                    Opis SEO
+                    <FieldHelp label="Opis SEO" text="Krótki opis strony przeznaczony dla wyszukiwarki. Nie jest widoczny w treści artykułu. Gdy pozostanie pusty, CMS użyje zajawki." />
+                  </label>
                   <textarea
                     rows={2}
                     value={active.metaDescription ?? ''}
@@ -381,7 +400,10 @@ export default function PostsEditor({ initialPosts, meta }: { initialPosts: Post
                 </div>
 
                 <div className="field-row">
-                  <label className="field-label">Podgląd w wynikach Google</label>
+                  <label className="field-label">
+                    Podgląd w wynikach Google
+                    <FieldHelp label="Podgląd w wynikach Google" text="Przybliżony wygląd wyniku wyszukiwania. Google może zmienić tytuł lub opis zależnie od zapytania użytkownika." />
+                  </label>
                   <GooglePreview
                     title={active.metaTitle || `${active.title || 'Bez tytułu'} | ${meta.brandName}`}
                     description={active.metaDescription || active.excerpt || meta.description}

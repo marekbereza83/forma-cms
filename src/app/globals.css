@@ -200,7 +200,11 @@ a {
 }
 
 .field-label {
-  display: block;
+  /* flex zamiast block, zeby FieldHelp (ikona pomocy) mogla stac obok tekstu etykiety —
+     bez drugiego dziecka (wiekszosc etykiet) wyglada identycznie jak wczesniej. */
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--muted);
@@ -212,6 +216,84 @@ a {
   font-size: 0.78rem;
   color: var(--error);
   margin-top: 4px;
+}
+
+/* ── FieldHelp: ikona "i" + tooltip przy etykiecie pola ──────── */
+
+.field-help {
+  position: relative;
+  display: inline-flex;
+}
+
+.field-help-button {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+.field-help-button::after {
+  content: 'i';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+.field-help-button:hover::after,
+.field-help-button:focus-visible::after {
+  border-color: var(--fg);
+  color: var(--fg);
+}
+.field-help-button:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
+
+.field-help-bubble {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 10;
+  width: max-content;
+  max-width: 280px;
+  padding: 8px 10px;
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: normal;
+  text-transform: none;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  /* Zawsze w DOM (patrz FieldHelp.tsx) — ukryte tylko wizualnie, zeby aria-describedby
+     dzialalo niezaleznie od stanu widocznosci. pointer-events:none, zeby niewidoczny
+     dymek nie przechwytywal klikniec/hoverow z elementow pod nim. */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.1s ease;
+}
+.field-help-bubble.is-right {
+  left: auto;
+  right: 0;
+}
+.field-help-bubble.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 /* ── Inputs ───────────────────────────────────────────────── */
