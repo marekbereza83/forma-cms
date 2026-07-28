@@ -8,12 +8,79 @@ import { useEffect, useRef, useState } from 'react'
  * (p, strong, em, ul, ol, li, a, h2, h3, br) — klient nie moze wprowadzic
  * znacznika, ktory i tak zostalby usuniety przy zapisie.
  *
- * Wklejanie jest zawsze konwertowane na czysty tekst: tresc kopiowana z Worda
- * czy stron WWW niesie wlasne style i klasy, ktore lamalyby spojnosc typografii
- * (klient edytuje TRESC, nie FORME — patrz CLAUDE.md).
+ * Wklejanie normalizuje HTML (2026-07-28, patrz normalizePastedHtml ponizej) do tej
+ * samej allowlisty zamiast kasowac je do czystego tekstu — klient nadal edytuje
+ * TRESC/STRUKTURE (nagłowki, pogrubienia, listy, linki), nie FORME (fonty, kolory,
+ * marginesy Worda i tak sa tu wycinane), zgodnie z CLAUDE.md. Listy w starym stylu
+ * Worda (akapit + atrybut mso-list zamiast <ul><li>) NIE sa rekonstruowane — swiadoma
+ * decyzja: rzadkie w praktyce, latwiej nadac punktory recznie przyciskiem "• Lista".
  *
  * Autorytatywna sanityzacja i tak dzieje sie po stronie serwera w saveSite().
  */
+
+// Aliasy: tagi spoza allowlisty, ktore maja bliski semantyczny odpowiednik NA liscie —
+// zamiast je wycinac (jak reszta), zamieniamy na odpowiednik, zeby tresc z Worda
+// (ktory uzywa <b>/<i>/<h1>) nie traicla calego formatowania bez potrzeby.
+const PASTE_TAG_ALIASES: Record<string, string> = {
+  B: 'STRONG',
+  I: 'EM',
+  H1: 'H2',
+  H4: 'H3',
+  H5: 'H3',
+  H6: 'H3',
+}
+
+// Musi pokrywac sie 1:1 z allowedTags w sanitizePostBody (collections.ts) — inaczej
+// normalizacja po stronie klienta i serwera moglyby sie rozjechac.
+const PASTE_ALLOWED_TAGS = new Set(['P', 'STRONG', 'EM', 'UL', 'OL', 'LI', 'A', 'H2', 'H3', 'BR'])
+
+/**
+ * Przepisuje drzewo wklejonego HTML na allowlist zgodna z sanitizePostBody: tagi spoza
+ * listy sa "odwijane" (dzieci zostaja, znacznik znika — tak samo jak disallowedTagsMode:
+ * 'discard' po stronie serwera), aliasy (b/i/h1/h4-6) zamieniane na odpowiednik z listy,
+ * a wszystkie atrybuty poza href linku odrzucane (Word niesie mnostwo inline style/class).
+ * Uzywa DOMParser (natywne API przegladarki) — bez nowej zaleznosci.
+ */
+function normalizePastedHtml(html: string): string {
+  const sourceDoc = new DOMParser().parseFromString(html, 'text/html')
+
+  function walk(source: Node, target: Node): void {
+    source.childNodes.forEach(child => {
+      if (child.nodeType === Node.TEXT_NODE) {
+        target.appendChild(child.cloneNode())
+        return
+      }
+      if (child.nodeType !== Node.ELEMENT_NODE) return // komentarze (mso conditional) itp. — pomijamy
+
+      const el = child as HTMLElement
+      const tagName = PASTE_TAG_ALIASES[el.tagName] ?? el.tagName
+
+      if (tagName === 'A') {
+        const href = el.getAttribute('href')
+        const a = document.createElement('a')
+        if (href && /^(https?:|mailto:)/i.test(href)) a.setAttribute('href', href)
+        walk(el, a)
+        target.appendChild(a)
+        return
+      }
+
+      if (PASTE_ALLOWED_TAGS.has(tagName)) {
+        const clean = document.createElement(tagName.toLowerCase())
+        walk(el, clean)
+        target.appendChild(clean)
+        return
+      }
+
+      // Tag spoza allowlisty (span/div/font/o:p ze stylami Worda, style/script...) —
+      // odwijamy: tresc zostaje, sam znacznik i jego atrybuty znikaja.
+      walk(el, target)
+    })
+  }
+
+  const wrapper = document.createElement('div')
+  walk(sourceDoc.body, wrapper)
+  return wrapper.innerHTML
+}
 
 type Props = {
   value: string
@@ -163,8 +230,16 @@ export default function RichTextEditor({ value, onChange }: Props) {
         onBlur={emitChange}
         onPaste={e => {
           e.preventDefault()
-          const text = e.clipboardData.getData('text/plain')
-          document.execCommand('insertText', false, text)
+          const html = e.clipboardData.getData('text/html')
+          const cleanHtml = html.trim() ? normalizePastedHtml(html) : ''
+          if (cleanHtml.trim()) {
+            document.execCommand('insertHTML', false, cleanHtml)
+          } else {
+            // Brak HTML w schowku (albo normalizacja zostawila pustke) — czysty tekst,
+            // jak wczesniej.
+            const text = e.clipboardData.getData('text/plain')
+            document.execCommand('insertText', false, text)
+          }
           emitChange()
         }}
       />
