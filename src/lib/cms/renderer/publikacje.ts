@@ -1,5 +1,4 @@
 import type { PostItem, SiteModel } from '../types'
-import { POST_CATEGORIES } from '../post-categories'
 import { postUrl, postsListUrl } from '../urls'
 import { renderHead } from './head'
 import { renderNav } from './sections/nav'
@@ -52,9 +51,9 @@ function renderNavAndFooter(model: SiteModel, basePath: string, linkMode: 'stati
   return { navHtml: renderNav(navSection, ctx), footerHtml: renderFooter(footerSection, ctx) }
 }
 
-function renderCategoryPill(post: PostItem): string {
-  return post.category ? `<span class="pub-cat-pill">${post.category}</span>` : ''
-}
+// Kategorie sa wylaczone w UI (decyzja 2026-07-28: brak ustalonej taksonomii tematow).
+// Pole PostItem.category, walidator i atrybut data-category zostaja — wlaczenie z
+// powrotem to przywrocenie pigulki i grupy przyciskow, bez migracji danych.
 
 function renderTags(tags: string[] | undefined, max?: number): string {
   const list = max ? (tags ?? []).slice(0, max) : (tags ?? [])
@@ -103,7 +102,6 @@ function renderCard(post: PostItem, basePath: string, linkMode: 'static' | 'prev
     ${thumbHtml}
     <div class="pub-card-body">
       <div class="pub-card-meta">
-        ${renderCategoryPill(post)}
         <time datetime="${post.publishedAt ?? ''}">${formatDate(post.publishedAt)}</time>
         <span class="pub-read-time">${readTime} MIN</span>
         ${opts.authorHtml}
@@ -116,7 +114,7 @@ function renderCard(post: PostItem, basePath: string, linkMode: 'static' | 'prev
           <button type="button" class="pub-bookmark" data-pub-bookmark="${post.id}"
             aria-label="Zapisz w zakładkach" aria-pressed="false">${BOOKMARK_ICON}</button>
           <a href="${href}" class="pub-card-link" aria-label="Czytaj: ${post.title}">
-            Czytaj ${ARROW_ICON_SM}
+            <span class="pub-card-link-long">CZYTAJ PUBLIKACJĘ</span><span class="pub-card-link-short">Otwórz</span>${ARROW_ICON_SM}
           </a>
         </div>
       </div>
@@ -147,10 +145,6 @@ export function renderPostsListPage(model: SiteModel, basePath = '', linkMode: '
 
   const filterBar = `<div class="pub-filter-bar" data-pub-filter-bar>
     <div class="pub-filter-row">
-      <div class="pub-filter-group" role="group" aria-label="Filtruj wg kategorii">
-        <button type="button" class="pub-filter-btn is-active" data-pub-category="WSZYSTKIE">WSZYSTKIE</button>
-        ${POST_CATEGORIES.map(c => `<button type="button" class="pub-filter-btn" data-pub-category="${c}">${c}</button>`).join('\n        ')}
-      </div>
       <div class="pub-search-wrap">
         ${SEARCH_ICON}
         <input type="search" class="pub-search" placeholder="Szukaj publikacji…" aria-label="Szukaj publikacji" data-pub-search>
@@ -206,7 +200,7 @@ export function renderPostsListPage(model: SiteModel, basePath = '', linkMode: '
           <span class="pub-split-label">POZOSTAŁE PUBLIKACJE</span>
           <span class="pub-split-count" data-pub-sidebar-total>${Math.max(0, posts.length - PUB_FEATURED_COUNT)}</span>
         </div>
-        ${sidebarCards || '<p class="pub-sidebar-empty">Brak dodatkowych publikacji w tej kategorii.</p>'}
+        ${sidebarCards || '<p class="pub-sidebar-empty">Brak dodatkowych publikacji.</p>'}
       </aside>
     </div>
     <nav class="pub-pagination" data-pub-pagination aria-label="Paginacja publikacji">
@@ -311,12 +305,11 @@ export function renderPostPage(model: SiteModel, post: PostItem, basePath = '', 
   const mainInner = `${jsonLd}
 <!-- SEKCJA: publikacje (artykuł) -->
 <section id="publikacje-artykul" class="section bg-base pub-article-page" aria-labelledby="pub-article-title">
-  <div class="container max-prose">
+  <div class="container">
     <a href="${rootHref('publikacje', basePath, linkMode)}" class="pub-back-link">← Wróć do publikacji</a>
 
     <header class="pub-article-header">
       <div class="pub-article-meta">
-        ${renderCategoryPill(post)}
         <time datetime="${post.publishedAt ?? ''}">${formatDate(post.publishedAt)}</time>
         <span class="pub-read-time">${readTime} MIN CZYTANIA</span>
         <button type="button" class="pub-bookmark" data-pub-bookmark="${post.id}"

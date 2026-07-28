@@ -853,7 +853,7 @@ describe('Renderer — publikacje lista', () => {
 
   it('jedna karta per opublikowany post, szkic nieobecny', () => {
     const cards = doc.querySelectorAll('[data-pub-card]')
-    expect(cards).toHaveLength(2)
+    expect(cards).toHaveLength(6)
     const titles = Array.from(cards).map(c => c.querySelector('.pub-card-title')?.textContent?.trim())
     expect(titles.some(t => t?.includes('Szkic w przygotowaniu'))).toBe(false)
   })
@@ -863,11 +863,18 @@ describe('Renderer — publikacje lista', () => {
     expect(doc.querySelector('h1')?.textContent?.trim()).toBe('Publikacje')
   })
 
-  it('kontrolki filtrów kategorii/roku, wyszukiwarki i paginacji obecne', () => {
+  it('kontrolki filtru roku, wyszukiwarki i paginacji obecne', () => {
     expect(doc.querySelector('[data-pub-search]')).not.toBeNull()
-    expect(doc.querySelectorAll('[data-pub-category]').length).toBeGreaterThan(1)
     expect(doc.querySelectorAll('[data-pub-year]').length).toBeGreaterThan(0)
     expect(doc.querySelector('[data-pub-pagination]')).not.toBeNull()
+  })
+
+  // Kategorie wylaczone w UI (2026-07-28) — brak ustalonej taksonomii tematow.
+  // Dane (PostItem.category, data-category) zostaja, wiec wlaczenie z powrotem nie
+  // wymaga migracji. Ten test pilnuje, zeby pigulki nie wrocily przypadkiem.
+  it('kategorie nie sa renderowane: brak przyciskow filtra i pigulek na kartach', () => {
+    expect(doc.querySelectorAll('[data-pub-category]')).toHaveLength(0)
+    expect(doc.querySelectorAll('.pub-cat-pill')).toHaveLength(0)
   })
 
   it('podział na kolumny: GŁÓWNE PUBLIKACJE (featured) + POZOSTAŁE PUBLIKACJE (sidebar)', () => {
@@ -875,9 +882,9 @@ describe('Renderer — publikacje lista', () => {
     const sidebarCol = doc.querySelector('[data-pub-sidebar-col]')
     expect(featuredCol).not.toBeNull()
     expect(sidebarCol).not.toBeNull()
-    // Tylko 2 opublikowane posty w fixture, PUB_FEATURED_COUNT=3 -> oba w kolumnie featured.
-    expect(featuredCol!.querySelectorAll('.pub-card--featured')).toHaveLength(2)
-    expect(sidebarCol!.querySelectorAll('.pub-card--compact')).toHaveLength(0)
+    // 6 opublikowanych postow, PUB_FEATURED_COUNT=3 -> 3 featured + 3 w sidebarze.
+    expect(featuredCol!.querySelectorAll('.pub-card--featured')).toHaveLength(3)
+    expect(sidebarCol!.querySelectorAll('.pub-card--compact')).toHaveLength(3)
   })
 
   it('karta featured bez okładki nie ma overlay-klasy pub-card--has-thumb (unika nakładania się kategorii)', () => {

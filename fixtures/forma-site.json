@@ -1357,6 +1357,46 @@
         "coverImage": "https://pub-forma.r2.dev/forma-tenant/post-cover-typografia.webp"
       },
       {
+        "id": "post-pierwsze-wrazenie",
+        "slug": "pierwsze-wrazenie-strona-kancelarii",
+        "title": "Osiem sekund na pierwsze wrażenie",
+        "publishedAt": "2026-06-14",
+        "excerpt": "Tyle średnio ma strona kancelarii, zanim odwiedzający zdecyduje, czy zostać, czy wrócić do wyników wyszukiwania.",
+        "body": "<p>Pierwsze wrażenie na stronie internetowej buduje się szybciej niż podczas rozmowy telefonicznej.</p><h2>Co ocenia odwiedzający</h2><p>Czytelność nagłówka, szybkość ładowania i to, czy strona wygląda na aktualną — te trzy czynniki decydują, zanim ktokolwiek przeczyta ofertę.</p>",
+        "status": "published",
+        "tags": ["ux", "konwersja"]
+      },
+      {
+        "id": "post-formularz-kontaktowy",
+        "slug": "formularz-kontaktowy-ktory-dziala",
+        "title": "Formularz kontaktowy, który naprawdę działa",
+        "publishedAt": "2026-06-28",
+        "excerpt": "Trzy pola zamiast dziesięciu i jeden przycisk zamiast trzech — mniej pytań na starcie oznacza więcej wysłanych wiadomości.",
+        "body": "<p>Klienci kancelarii rzadko wypełniają długie formularze przed pierwszym kontaktem.</p><h2>Minimalny zestaw pól</h2><p>Imię, adres e-mail i krótki opis sprawy wystarczą, żeby rozpocząć rozmowę — resztę ustala się telefonicznie.</p>",
+        "status": "published",
+        "tags": ["formularze", "konwersja"]
+      },
+      {
+        "id": "post-zdjecia-czy-ikony",
+        "slug": "zdjecia-prawnikow-czy-ikony",
+        "title": "Zdjęcia prawników czy generyczne ikony?",
+        "publishedAt": "2026-07-05",
+        "excerpt": "Strona bez twarzy zespołu wygląda anonimowo — a to ostatnie skojarzenie, jakiego potrzebuje kancelaria budująca zaufanie.",
+        "body": "<p>Profesjonalne zdjęcie prawnika mówi więcej niż akapit opisu doświadczenia.</p><h3>Kiedy ikony wystarczą</h3><p>Tylko tam, gdzie nie chodzi o konkretną osobę — na przykład przy opisie etapów współpracy.</p>",
+        "status": "published",
+        "tags": ["branding", "zaufanie"]
+      },
+      {
+        "id": "post-szybkosc-ladowania",
+        "slug": "szybkosc-ladowania-strony-kancelarii",
+        "title": "Szybkość ładowania jako część wizerunku",
+        "publishedAt": "2026-07-18",
+        "excerpt": "Strona, która ładuje się dłużej niż trzy sekundy, traci część odwiedzających zanim zdążą zobaczyć ofertę.",
+        "body": "<p>Wolno działająca strona kancelarii sugeruje odwiedzającemu, że firma nie inwestuje w szczegóły.</p><h2>Najczęstsze przyczyny</h2><p>Nieoptymalizowane zdjęcia i zbędne skrypty odpowiadają za większość opóźnień na stronach prawniczych.</p>",
+        "status": "published",
+        "tags": ["wydajnosc", "seo"]
+      },
+      {
         "id": "post-szkic",
         "slug": "szkic-w-przygotowaniu",
         "title": "Szkic w przygotowaniu",

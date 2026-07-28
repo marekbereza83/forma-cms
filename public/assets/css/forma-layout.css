@@ -758,6 +758,22 @@
 }
 .pub-sidebar-col { gap: var(--space-4); }
 
+/* Cienka linia oddzielajaca kolumny — wzorem referencji (aside: border-t lg:border-t-0
+   lg:border-l, pt-8 lg:pt-0 lg:pl-8). Pozioma na mobile (kolumny w kolumnie), pionowa
+   od 1024px (kolumny obok siebie). */
+.pub-sidebar-col {
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-8);
+}
+@media (min-width: 1024px) {
+  .pub-sidebar-col {
+    border-top: none;
+    border-left: 1px solid var(--border);
+    padding-top: 0;
+    padding-left: var(--space-8);
+  }
+}
+
 .pub-split-header {
   display: flex;
   align-items: center;
@@ -771,7 +787,8 @@
   text-transform: uppercase;
   color: var(--text-secondary);
 }
-.pub-split-tag { color: var(--text-muted); }
+/* text-secondary, nie text-muted — patrz uzasadnienie przy .pub-read-time w forma-components.css. */
+.pub-split-tag { color: var(--text-secondary); }
 .pub-split-count {
   color: var(--accent);
   background: var(--surface);
@@ -795,7 +812,12 @@
 .pub-card--featured {
   flex-direction: column;
 }
-.pub-card--featured .pub-card-thumb { aspect-ratio: 21 / 9; }
+/* max-height wzorem referencji (Stitch: aspect-[21/9] max-h-[220px] md:max-h-[250px]) —
+   sam aspect-ratio przy szerokiej kolumnie dawalby kadr wyzszy niz w projekcie. */
+.pub-card--featured .pub-card-thumb { aspect-ratio: 21 / 9; max-height: 220px; }
+@media (min-width: 768px) {
+  .pub-card--featured .pub-card-thumb { max-height: 250px; }
+}
 /* Overlay na zdjeciu tylko gdy zdjecie faktycznie istnieje (.pub-card--has-thumb) —
    bez tego kategoria/zakladka nachodzilyby na wiersz z data u kart bez okladki. */
 .pub-card--featured.pub-card--has-thumb {
@@ -817,8 +839,17 @@
   border-radius: var(--radius-xl);
   padding: 0.4rem;
 }
-.pub-card--featured .pub-card-title { font-size: 1.5rem; }
-.pub-card--featured .pub-card-excerpt { -webkit-line-clamp: 3; }
+/* --text-2xl -> --text-3xl na >=768px wzorem referencji (text-2xl md:text-3xl) —
+   bez tego tytul zostawal 24px na kazdej szerokosci, mniejszy niz w projekcie na desktopie. */
+.pub-card--featured .pub-card-title { font-size: var(--text-2xl); font-weight: var(--weight-extrabold); }
+@media (min-width: 768px) {
+  .pub-card--featured .pub-card-title { font-size: var(--text-3xl); }
+}
+/* text-sm -> text-base na >=768px — wzorem referencji (text-sm md:text-base). */
+.pub-card--featured .pub-card-excerpt { font-size: var(--text-sm); -webkit-line-clamp: 3; }
+@media (min-width: 768px) {
+  .pub-card--featured .pub-card-excerpt { font-size: var(--text-base); }
+}
 .pub-card-author { display: none; }
 .pub-card--featured .pub-card-author {
   display: inline-flex;
@@ -828,14 +859,99 @@
   font-weight: 600;
 }
 
-/* Karta kompaktowa (sidebar): maly thumbnail obok tresci (meta/tytul/zajawka
-   ulozone pionowo w .pub-card-body) — wzorem sidebarArticles w PublicationsView.tsx.
-   Zajawka zostaje widoczna, przyciecia do 2 linii (line-clamp), nie jest ukrywana. */
-.pub-card--compact { flex-direction: row; gap: var(--space-3); padding: var(--space-3); }
-.pub-card--compact .pub-card-thumb { width: 72px; flex-shrink: 0; aspect-ratio: 4 / 3; align-self: flex-start; }
-.pub-card--compact .pub-card-body { padding: 0; gap: var(--space-1); }
-.pub-card--compact .pub-card-title { font-size: 0.9rem; }
-.pub-card--compact .pub-card-excerpt { -webkit-line-clamp: 2; }
+/* Szerokosc strony artykulu = szerokosc kontenera site-wide (--container-max, 1280px),
+   zeby nie bylo skoku wizualnego wzgledem /publikacje i reszty serwisu (decyzja
+   2026-07-28 — wczesniej 896px wzorem ArticleDetailModal.tsx ze Stitcha, ale to modal
+   w tamtej aplikacji demo, nie pelna strona, wiec 1:1 dopasowanie nie mialo sensu tutaj).
+   Sama tresc (naglowek, tresc, wnioski) dostaje osobny, wezszy limit ponizej —
+   pelna szerokosc na 1280px zrobilaby z akapitow niewygodnie dlugie linie tekstu. */
+.pub-article-header,
+.pub-article-cover,
+.pub-takeaways,
+.pub-article-body,
+.pub-article-footer,
+.pub-adjacent-nav {
+  max-width: 896px;
+}
+.pub-back-link { display: inline-block; }
+
+/* Karty glowne w stylu edytorskim (referencja: border-b + pb-10, bez ramki/tla) —
+   sekwencja artykulow rozdzielona kreska zamiast kafelkow. */
+/* Podwojna klasa (.pub-card.pub-card--*) jest konieczna: forma-components.css laduje sie
+   PO tym pliku, a .pub-card ma te sama specyficznosc co .pub-card--featured — bez tego
+   ramka/tlo i display:flex z .pub-card wygrywaja z regulami wariantow ponizej. */
+.pub-card.pub-card--featured {
+  background: none;
+  border: none;
+  border-radius: 0;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-8);
+  overflow: visible;
+}
+.pub-card.pub-card--featured:hover { box-shadow: none; transform: none; border-color: var(--border); }
+.pub-featured-col .pub-card--featured:last-child { border-bottom: none; padding-bottom: 0; }
+.pub-card--featured .pub-card-body { padding-inline: 0; }
+.pub-card--featured .pub-card-thumb { border-radius: var(--radius-lg); }
+
+/* Karta kompaktowa (sidebar) — uklad wzorem sidebarArticles w PublicationsView.tsx:
+   wiersz meta (data z lewej, kategoria z prawej), pod nim miniatura OBOK tytulu,
+   dalej zajawka i stopka. Grid + display:contents zamiast innego HTML, bo
+   publications.js przelacza .pub-card--featured/--compact w locie przy filtrowaniu,
+   wiec oba warianty musza dzielic dokladnie ten sam markup. */
+/* Tlo 40% krycia (nie pelne var(--surface)) — wzorem referencji (bg-[#161B22]/40,
+   hover:bg-[#161B22]). Karta zlewa sie bardziej z tlem strony w spoczynku, odrozniajac
+   sie od "kafelkowego" stylu kart glownych, ktore i tak nie maja juz tla (patrz wyzej). */
+.pub-card.pub-card--compact {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  grid-template-areas:
+    "meta  meta"
+    "thumb title"
+    "exc   exc"
+    "foot  foot";
+  column-gap: var(--space-3);
+  row-gap: var(--space-2);
+  padding: var(--space-3);
+  align-items: start;
+  background: rgba(22, 27, 34, 0.4);
+}
+.pub-card.pub-card--compact:hover { background: var(--surface); }
+.pub-card.pub-card--compact:not(.pub-card--has-thumb) {
+  grid-template-columns: 1fr;
+  grid-template-areas: "meta" "title" "exc" "foot";
+}
+.pub-card--compact .pub-card-body { display: contents; }
+.pub-card--compact .pub-card-meta { grid-area: meta; display: flex; flex-wrap: wrap; align-items: center; }
+.pub-card--compact .pub-card-meta time { order: 1; }
+.pub-card--compact .pub-read-time { order: 2; }
+.pub-card--compact .pub-cat-pill { order: 3; margin-left: auto; }
+/* Stale 64x56 (nie aspect-ratio) — wzorem referencji (w-16 h-14). Miniatura kompaktowa
+   ma byc zauwazalnie mniejsza niz featured, nie tylko wezsza kolumna z tym samym kadrem. */
+.pub-card--compact .pub-card-thumb { grid-area: thumb; width: 64px; height: 56px; border-radius: var(--radius-sm); }
+.pub-card--compact .pub-card-title { grid-area: title; font-size: 0.9rem; }
+/* font-size mniejszy niz baza (0.9rem) — wzorem referencji (text-xs na kompaktowej
+   karcie vs text-sm/text-base na glownej). Bazowa .pub-card-excerpt nie byla
+   nigdzie rozniona miedzy wariantami, wiec zajawka wygladala identycznie wszedzie. */
+.pub-card--compact .pub-card-excerpt { grid-area: exc; font-size: var(--text-xs); line-height: 1.5; -webkit-line-clamp: 2; }
+.pub-card--compact .pub-card-footer { grid-area: foot; }
+/* Sidebar zostaje kompaktowy — tagi tylko na kartach glownych (referencja). */
+.pub-card--compact .pub-card-tags { display: none; }
+
+/* Link "czytaj": na kartach glownych przycisk w ramce (CZYTAJ PUBLIKACJĘ),
+   w sidebarze zwykly link (Otwórz). Oba teksty sa w HTML i przelaczane CSS-em,
+   bo JS zmienia wariant karty w locie; <a> ma aria-label, wiec czytniki ekranu
+   biora etykiete, nie oba napisy. */
+.pub-card-link-long { display: none; }
+.pub-card--featured .pub-card-link-long { display: inline; }
+.pub-card--featured .pub-card-link-short { display: none; }
+.pub-card--featured .pub-card-link {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.75rem;
+  font-weight: 700;
+}
+.pub-card--featured .pub-card-link:hover { border-color: var(--accent); }
 
 /* Widok "Lista": obie kolumny spłaszczone do jednej, featured traci powiekszony styl —
    wszystkie karty wygladaja identycznie (kompaktowy rzad), zgodnie z trybem "Lista" ze Stitcha. */
@@ -844,18 +960,27 @@
   max-width: 760px;
 }
 .pub-split[data-pub-view="list"] .pub-sidebar-col { position: static; max-height: none; overflow: visible; }
-.pub-split[data-pub-view="list"] .pub-card--featured { flex-direction: row; }
-.pub-split[data-pub-view="list"] .pub-card--featured .pub-card-thumb { aspect-ratio: 4/3; width: 96px; flex-shrink: 0; }
+.pub-split[data-pub-view="list"] .pub-card--featured { flex-direction: row; gap: var(--space-3); align-items: flex-start; }
+/* align-self: flex-start — bez tego miniatura jako element flex rozciaga sie (stretch)
+   na cala wysokosc karty i gubi aspect-ratio. */
+.pub-split[data-pub-view="list"] .pub-card--featured .pub-card-thumb { aspect-ratio: 4/3; width: 96px; flex-shrink: 0; align-self: flex-start; }
 .pub-split[data-pub-view="list"] .pub-card--featured .pub-cat-pill,
 .pub-split[data-pub-view="list"] .pub-card--featured .pub-bookmark { position: static; background: none; backdrop-filter: none; padding: 0.2rem; }
-.pub-split[data-pub-view="list"] .pub-card--featured .pub-card-title { font-size: 0.95rem; }
+/* font-weight semibold — bez override dziedziczylby extrabold z .pub-card--featured
+   .pub-card-title (linia ~823), za ciezkie przy tak malym rozmiarze w trybie Lista. */
+.pub-split[data-pub-view="list"] .pub-card--featured .pub-card-title { font-size: 0.95rem; font-weight: var(--weight-semibold); }
 .pub-split[data-pub-view="list"] .pub-card--featured .pub-card-excerpt { display: none; }
 
 @media (max-width: 639px) {
-  .pub-card--compact,
+  /* Karta kompaktowa jest gridem — na mobile jedna kolumna, miniatura pelnej szerokosci
+     nad tytulem (flex-direction nie ma tu zastosowania). */
+  .pub-card.pub-card--compact {
+    grid-template-columns: 1fr;
+    grid-template-areas: "meta" "thumb" "title" "exc" "foot";
+  }
   .pub-split[data-pub-view="list"] .pub-card--featured { flex-direction: column; }
   .pub-card--compact .pub-card-thumb,
-  .pub-split[data-pub-view="list"] .pub-card--featured .pub-card-thumb { width: 100%; aspect-ratio: 16 / 9; }
+  .pub-split[data-pub-view="list"] .pub-card--featured .pub-card-thumb { width: 100%; height: auto; aspect-ratio: 16 / 9; }
 }
 
 @media (max-width: 767px) {
