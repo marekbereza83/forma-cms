@@ -670,8 +670,22 @@
 /* position:relative + obrazek absolutny — bez tego wysokosc procentowa obrazka nie
    rozwiazuje sie wzgledem aspect-ratio kontenera, wiec <img> wraca do naturalnych
    proporcji (16/9 z atrybutow width/height) i rozpycha kadr ponad zadany aspect-ratio. */
-.pub-card-thumb { display: block; position: relative; aspect-ratio: 16 / 9; background: var(--background); overflow: hidden; }
+.pub-card-thumb { display: block; position: relative; aspect-ratio: 16 / 9; background: var(--background); overflow: hidden; border: 1px solid var(--border); transition: border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease); }
 .pub-card-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* Poswiata na KONTENERZE ZDJECIA, nie na calej karcie — wzorem referencji
+   (PublicationsView.tsx: border-[#21262D] + group-hover:border-[#6366F1]/70 +
+   group-hover:shadow). Karty glowne nie maja juz wlasnej ramki (styl edytorski),
+   wiec hover calej karty zostal wylaczony i poswiata musi siedziec tutaj. */
+.pub-card:hover .pub-card-thumb {
+  border-color: rgba(99, 102, 241, 0.7);
+  box-shadow: 0 0 25px rgba(99, 102, 241, 0.2);
+}
+/* Sidebar: slabszy akcent i bez poswiaty (referencja: /40, brak shadow) —
+   miniatura ma 64x56, pelny glow bylby tam nieproporcjonalny. */
+.pub-card--compact:hover .pub-card-thumb {
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: none;
+}
 
 .pub-card-body { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-5); flex: 1; }
 
