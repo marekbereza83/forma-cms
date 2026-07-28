@@ -1014,5 +1014,35 @@ describe('Renderer — publikacje artykuł', () => {
   it('#scroll-progress obecny (pasek postępu czytania)', () => {
     expect(doc.getElementById('scroll-progress')).not.toBeNull()
   })
+
+  it('bez metaTitle/metaDescription: <title> i meta description z domyślnych wartości (title+brandName / excerpt)', () => {
+    expect(post.metaTitle).toBeUndefined()
+    expect(post.metaDescription).toBeUndefined()
+    expect(doc.querySelector('title')?.textContent).toBe(`${post.title} | ${model.meta.brandName}`)
+    expect(doc.querySelector('meta[name="description"]')?.getAttribute('content')).toBe(post.excerpt)
+  })
+
+  it('z metaTitle/metaDescription: nadpisują <title>, meta description, og:title/og:description i BlogPosting.description', () => {
+    const overridden: PostItem = {
+      ...post,
+      metaTitle: 'Tytuł SEO nadpisany ręcznie',
+      metaDescription: 'Opis SEO nadpisany ręcznie, inny niż zajawka artykułu.',
+    }
+    const d = new JSDOM(renderPostPage(model, overridden)).window.document
+
+    expect(d.querySelector('title')?.textContent).toBe('Tytuł SEO nadpisany ręcznie')
+    expect(d.querySelector('meta[name="description"]')?.getAttribute('content'))
+      .toBe('Opis SEO nadpisany ręcznie, inny niż zajawka artykułu.')
+    expect(d.querySelector('meta[property="og:title"]')?.getAttribute('content')).toBe('Tytuł SEO nadpisany ręcznie')
+    expect(d.querySelector('meta[property="og:description"]')?.getAttribute('content'))
+      .toBe('Opis SEO nadpisany ręcznie, inny niż zajawka artykułu.')
+
+    const blogPosting = Array.from(d.querySelectorAll('script[type="application/ld+json"]'))
+      .map(s => JSON.parse(s.textContent ?? '{}'))
+      .find(s => s['@type'] === 'BlogPosting')
+    expect(blogPosting.description).toBe('Opis SEO nadpisany ręcznie, inny niż zajawka artykułu.')
+    // H1 (widoczny tytul artykulu) nie zmienia sie przez metaTitle — to nadpisuje tylko <title>/og, nie naglowek.
+    expect(d.querySelector('h1')?.textContent?.trim()).toBe(post.title)
+  })
 })
 

@@ -21,7 +21,7 @@ export function buildBlogPostingJsonLd(post: PostItem, siteMeta: SiteMeta, canon
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: post.title,
-    description: post.excerpt ?? '',
+    description: post.metaDescription ?? post.excerpt ?? '',
     datePublished: post.publishedAt ?? '',
     url: canonicalUrl,
     mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },

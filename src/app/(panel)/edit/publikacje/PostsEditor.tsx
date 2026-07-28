@@ -1,10 +1,12 @@
 'use client'
 import { useRef, useState, useTransition } from 'react'
-import type { PostItem } from '@/lib/cms/types'
+import type { PostItem, SiteMeta } from '@/lib/cms/types'
 import type { Violation } from '@/lib/cms/validation/types'
 import { POST_CATEGORIES } from '@/lib/cms/post-categories'
+import { postUrl } from '@/lib/cms/urls'
 import { savePosts } from './actions'
 import RichTextEditor from './RichTextEditor'
+import GooglePreview from './GooglePreview'
 
 // Usuwa okladke z R2 najlepiej-jak-sie-da — porzucony plik akceptujemy (jak w
 // FieldsForm.tsx PortfolioCardsEditor.removeCard), nie blokujemy UI na tym.
@@ -33,6 +35,18 @@ function slugify(input: string): string {
     .slice(0, 80)
 }
 
+/** Licznik znakow z progiem zalecanym (W6/W7) — nie blokuje, tylko informuje;
+ *  twardy limit (C12) zglasza sie osobno przez errorFor(). */
+function CharCount({ value, min, max }: { value: string; min: number; max: number }) {
+  if (!value) return null
+  const outOfRange = value.length < min || value.length > max
+  return (
+    <p className={outOfRange ? 'field-charcount is-out-of-range' : 'field-charcount'}>
+      {value.length} znaków — zalecane {min}–{max}
+    </p>
+  )
+}
+
 function emptyPost(): PostItem {
   return {
     id: crypto.randomUUID(),
@@ -47,7 +61,7 @@ function emptyPost(): PostItem {
   }
 }
 
-export default function PostsEditor({ initialPosts }: { initialPosts: PostItem[] }) {
+export default function PostsEditor({ initialPosts, meta }: { initialPosts: PostItem[]; meta: SiteMeta }) {
   const [posts, setPosts] = useState<PostItem[]>(initialPosts)
   const [activeId, setActiveId] = useState<string | null>(initialPosts[0]?.id ?? null)
   const [errors, setErrors] = useState<Violation[]>([])
@@ -338,6 +352,43 @@ export default function PostsEditor({ initialPosts }: { initialPosts: PostItem[]
                   + Dodaj punkt
                 </button>
               </div>
+
+              <details className="posts-advanced">
+                <summary>Zaawansowane ustawienia SEO</summary>
+
+                <div className="field-row">
+                  <label className="field-label">Tytuł SEO</label>
+                  <input
+                    type="text"
+                    value={active.metaTitle ?? ''}
+                    placeholder={`Domyślnie: ${active.title || '…'} | ${meta.brandName}`}
+                    onChange={e => update({ metaTitle: e.target.value || undefined })}
+                  />
+                  <CharCount value={active.metaTitle ?? ''} min={50} max={60} />
+                  {errorFor('metaTitle') && <p className="field-error">{errorFor('metaTitle')}</p>}
+                </div>
+
+                <div className="field-row">
+                  <label className="field-label">Opis SEO</label>
+                  <textarea
+                    rows={2}
+                    value={active.metaDescription ?? ''}
+                    placeholder={`Domyślnie: zajawka artykułu${active.excerpt ? ` — "${active.excerpt}"` : ''}`}
+                    onChange={e => update({ metaDescription: e.target.value || undefined })}
+                  />
+                  <CharCount value={active.metaDescription ?? ''} min={120} max={160} />
+                  {errorFor('metaDescription') && <p className="field-error">{errorFor('metaDescription')}</p>}
+                </div>
+
+                <div className="field-row">
+                  <label className="field-label">Podgląd w wynikach Google</label>
+                  <GooglePreview
+                    title={active.metaTitle || `${active.title || 'Bez tytułu'} | ${meta.brandName}`}
+                    description={active.metaDescription || active.excerpt || meta.description}
+                    url={postUrl(meta.canonical.replace(/\/$/, ''), active.slug || '…')}
+                  />
+                </div>
+              </details>
 
               <div className="field-row">
                 <label className="field-label">Treść</label>

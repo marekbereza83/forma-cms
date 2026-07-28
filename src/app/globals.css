@@ -312,6 +312,68 @@ input[readonly] {
   margin: 6px 0 0 16px;
 }
 
+/* ── Zaawansowane ustawienia SEO (publikacje) ────────────────── */
+
+.posts-advanced {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 16px 16px;
+  margin: 24px 0;
+}
+
+.posts-advanced > summary {
+  cursor: pointer;
+  padding: 12px 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--fg);
+  list-style: none;
+}
+.posts-advanced > summary::-webkit-details-marker { display: none; }
+.posts-advanced > summary::before {
+  content: '▸ ';
+  color: var(--muted);
+}
+.posts-advanced[open] > summary::before {
+  content: '▾ ';
+}
+
+.field-charcount {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.field-charcount.is-out-of-range {
+  color: var(--warning-text, #8a6d00);
+}
+
+/* Mockup wyniku Google — kolory stale (marka Google), niezalezne od motywu panelu. */
+.google-preview {
+  font-family: arial, sans-serif;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 10px;
+  max-width: 560px;
+}
+.google-preview-url {
+  font-size: 0.8rem;
+  color: #202124;
+}
+.google-preview-title {
+  font-size: 1.15rem;
+  line-height: 1.3;
+  color: #1a0dab;
+  margin-top: 2px;
+}
+.google-preview-description {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #4d5156;
+  margin-top: 2px;
+}
+
 .alert-error {
   background: #fff5f5;
   border: 1px solid #ffc0c0;

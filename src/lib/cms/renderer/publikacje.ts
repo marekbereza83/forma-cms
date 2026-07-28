@@ -235,14 +235,19 @@ export function renderPostPage(model: SiteModel, post: PostItem, basePath = '', 
   const { navHtml, footerHtml } = renderNavAndFooter(model, basePath, linkMode)
   const readTime = computeReadTime(post.body)
 
+  // metaTitle/metaDescription nadpisuja domyslny tytul/opis (patrz C12 dlugosc,
+  // W6/W7 zalecane zakresy) — puste pole = zachowanie bez zmian.
+  const effectiveTitle = post.metaTitle || `${post.title} | ${model.meta.brandName}`
+  const effectiveDescription = post.metaDescription || post.excerpt || model.meta.description
+
   const head = renderHead(
     model.meta,
     {
-      title: `${post.title} | ${model.meta.brandName}`,
-      description: post.excerpt ?? model.meta.description,
+      title: effectiveTitle,
+      description: effectiveDescription,
       canonical: canonicalUrl,
-      ogTitle: post.title,
-      ogDescription: post.excerpt ?? model.meta.description,
+      ogTitle: post.metaTitle || post.title,
+      ogDescription: effectiveDescription,
       ogUrl: canonicalUrl,
     },
     undefined,

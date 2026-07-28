@@ -11,5 +11,5 @@ export default async function PublikacjePage() {
   const site = await db.getSite()
   if (!site) notFound()
 
-  return <PostsEditor initialPosts={site.model.collections.posts} />
+  return <PostsEditor initialPosts={site.model.collections.posts} meta={site.model.meta} />
 }

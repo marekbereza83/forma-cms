@@ -5,6 +5,12 @@ import { POST_CATEGORIES } from '../post-categories'
 
 const MAX_TAGS = 8
 
+// Twarde granice sanity-check dla nadpisan SEO (C12) — nie zalecenia SEO (te sa
+// miekkie, W6/W7 w soft.ts). Chronia tylko przed wklejeniem calego akapitu w pole
+// tytulu/opisu.
+const MAX_META_TITLE_LENGTH = 70
+const MAX_META_DESCRIPTION_LENGTH = 200
+
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
 // Patterns that must never appear in a post body that passed through the sanitizer.
@@ -229,6 +235,30 @@ export function validatePostKeyTakeaways(posts: PostItem[]): Violation[] {
   return errors
 }
 
+// ── C12: PostItem.metaTitle/metaDescription — twarde limity dlugosci ────────────
+// Sanity-check, nie zalecenie SEO (to W6/W7) — chroni tylko przed wklejeniem calego
+// akapitu w pole przeznaczone na jedno zdanie.
+export function validatePostMetaLengths(posts: PostItem[]): Violation[] {
+  const errors: Violation[] = []
+  posts.forEach((post, i) => {
+    if (post.metaTitle && post.metaTitle.length > MAX_META_TITLE_LENGTH) {
+      errors.push({
+        rule: 'C12',
+        field: `collections.posts[${i}].metaTitle`,
+        message: `Tytuł SEO publikacji "${post.title}" ma ${post.metaTitle.length} znaków — maksimum to ${MAX_META_TITLE_LENGTH}`,
+      })
+    }
+    if (post.metaDescription && post.metaDescription.length > MAX_META_DESCRIPTION_LENGTH) {
+      errors.push({
+        rule: 'C12',
+        field: `collections.posts[${i}].metaDescription`,
+        message: `Opis SEO publikacji "${post.title}" ma ${post.metaDescription.length} znaków — maksimum to ${MAX_META_DESCRIPTION_LENGTH}`,
+      })
+    }
+  })
+  return errors
+}
+
 export function validateCollections(
   events: EventItem[],
   posts: PostItem[],
@@ -245,5 +275,6 @@ export function validateCollections(
     ...validatePostCategories(posts),
     ...validatePostTags(posts),
     ...validatePostKeyTakeaways(posts),
+    ...validatePostMetaLengths(posts),
   ]
 }

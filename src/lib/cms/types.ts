@@ -146,6 +146,12 @@ export interface PostItem {
   keyTakeaways?: string[]
   /** URL do R2, ustawiany wylacznie przez odpowiedz /api/upload — nie waliduj jako wolny tekst. */
   coverImage?: string
+  /** Nadpisuje <title> (domyslnie: title + " | " + brandName). Twardy limit 70 znakow (C12),
+   *  zalecane 50-60 (W6). */
+  metaTitle?: string
+  /** Nadpisuje meta description + BlogPosting.description (domyslnie: excerpt). Twardy limit
+   *  200 znakow (C12), zalecane 120-160 (W7). */
+  metaDescription?: string
 }
 
 export interface SiteMeta {

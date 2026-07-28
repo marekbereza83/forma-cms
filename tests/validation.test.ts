@@ -13,6 +13,7 @@ import {
   validatePostSlugUniqueness,
   validatePublishedPostDates,
   validatePublishedPostBodies,
+  validatePostMetaLengths,
   sanitizePostBody,
 } from '../src/lib/cms/validation/collections'
 import { FormaValidationError } from '../src/lib/cms/validation/types'
@@ -434,6 +435,45 @@ describe('W2 — meta title length', () => {
 })
 
 // ────────────────────────────────────────────────────────────────────────────
+describe('W6 — PostItem.metaTitle length (tylko gdy ustawiony)', () => {
+  it('metaTitle nieustawiony → brak ostrzeżenia (fixture)', () => {
+    const model = loadFixture()
+    expect(validateSoft(model).filter(v => v.rule === 'W6')).toHaveLength(0)
+  })
+
+  it('metaTitle w zakresie 50-60 → brak ostrzeżenia', () => {
+    const m = clone(loadFixture())
+    m.collections.posts[0].metaTitle = 'x'.repeat(55)
+    expect(validateSoft(m).filter(v => v.rule === 'W6')).toHaveLength(0)
+  })
+
+  it('metaTitle za krótki → W6', () => {
+    const m = clone(loadFixture())
+    m.collections.posts[0].metaTitle = 'Za krótki tytuł'
+    expect(validateSoft(m).filter(v => v.rule === 'W6')).toHaveLength(1)
+  })
+})
+
+describe('W7 — PostItem.metaDescription length (tylko gdy ustawiony)', () => {
+  it('metaDescription nieustawiony → brak ostrzeżenia (fixture)', () => {
+    const model = loadFixture()
+    expect(validateSoft(model).filter(v => v.rule === 'W7')).toHaveLength(0)
+  })
+
+  it('metaDescription w zakresie 120-160 → brak ostrzeżenia', () => {
+    const m = clone(loadFixture())
+    m.collections.posts[0].metaDescription = 'x'.repeat(140)
+    expect(validateSoft(m).filter(v => v.rule === 'W7')).toHaveLength(0)
+  })
+
+  it('metaDescription za krótki → W7', () => {
+    const m = clone(loadFixture())
+    m.collections.posts[0].metaDescription = 'Za krótki opis.'
+    expect(validateSoft(m).filter(v => v.rule === 'W7')).toHaveLength(1)
+  })
+})
+
+// ────────────────────────────────────────────────────────────────────────────
 describe('W3 — hero headline max 80 chars', () => {
   it('fixture headline <= 80 chars → no W3 warning', () => {
     const model = loadFixture()
@@ -686,6 +726,34 @@ describe('C8 — opublikowany post wymaga treści', () => {
     const errs = validatePublishedPostBodies([post({ body })])
     expect(errs).toHaveLength(1)
     expect(errs[0].rule).toBe('C8')
+  })
+})
+
+describe('C12 — metaTitle/metaDescription: twarde limity długości', () => {
+  it('brak obu pól → brak błędu', () => {
+    expect(validatePostMetaLengths([post()])).toHaveLength(0)
+  })
+
+  it('metaTitle w limicie (70) → brak błędu', () => {
+    expect(validatePostMetaLengths([post({ metaTitle: 'x'.repeat(70) })])).toHaveLength(0)
+  })
+
+  it('metaTitle powyżej limitu (71) → błąd C12', () => {
+    const errs = validatePostMetaLengths([post({ metaTitle: 'x'.repeat(71) })])
+    expect(errs).toHaveLength(1)
+    expect(errs[0].rule).toBe('C12')
+    expect(errs[0].field).toContain('metaTitle')
+  })
+
+  it('metaDescription w limicie (200) → brak błędu', () => {
+    expect(validatePostMetaLengths([post({ metaDescription: 'x'.repeat(200) })])).toHaveLength(0)
+  })
+
+  it('metaDescription powyżej limitu (201) → błąd C12', () => {
+    const errs = validatePostMetaLengths([post({ metaDescription: 'x'.repeat(201) })])
+    expect(errs).toHaveLength(1)
+    expect(errs[0].rule).toBe('C12')
+    expect(errs[0].field).toContain('metaDescription')
   })
 })
 

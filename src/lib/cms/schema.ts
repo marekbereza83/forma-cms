@@ -71,6 +71,8 @@ export const PostItemSchema = z.object({
   tags: z.array(z.string()).optional(),
   keyTakeaways: z.array(z.string()).optional(),
   coverImage: z.string().optional(),
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
 })
 
 export const SiteModelSchema = z.object({

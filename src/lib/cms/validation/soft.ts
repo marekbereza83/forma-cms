@@ -1,6 +1,26 @@
 import type { SiteModel, Section } from '../types'
 import type { Violation } from './types'
 
+// Wspolny helper dla wszystkich regul "dlugosc poza zalecanym zakresem SEO"
+// (W1/W2/W6/W7) — zamiast kopiowac ten sam warunek min/max przy kazdym polu.
+function lengthRangeWarning(
+  rule: string,
+  field: string,
+  label: string,
+  value: string,
+  min: number,
+  max: number,
+): Violation | undefined {
+  if (value.length < min || value.length > max) {
+    return {
+      rule,
+      field,
+      message: `${label} ma ${value.length} znaków — zalecane ${min}–${max} dla SEO`,
+    }
+  }
+  return undefined
+}
+
 function findSection(model: SiteModel, id: string): Section | undefined {
   for (const page of model.pages) {
     const s = page.sections.find(s => s.id === id)
@@ -20,24 +40,12 @@ export function validateSoft(model: SiteModel): Violation[] {
   const warnings: Violation[] = []
 
   // ── W1: meta description should be 120–160 chars ────────────────────────────
-  const desc = model.meta.description ?? ''
-  if (desc.length < 120 || desc.length > 160) {
-    warnings.push({
-      rule: 'W1',
-      field: 'meta.description',
-      message: `Meta description ma ${desc.length} znaków — zalecane 120–160 dla SEO`,
-    })
-  }
+  const w1 = lengthRangeWarning('W1', 'meta.description', 'Meta description', model.meta.description ?? '', 120, 160)
+  if (w1) warnings.push(w1)
 
   // ── W2: meta title should be 50–60 chars ────────────────────────────────────
-  const title = model.meta.title ?? ''
-  if (title.length < 50 || title.length > 60) {
-    warnings.push({
-      rule: 'W2',
-      field: 'meta.title',
-      message: `Meta title ma ${title.length} znaków — zalecane 50–60 dla SEO`,
-    })
-  }
+  const w2 = lengthRangeWarning('W2', 'meta.title', 'Meta title', model.meta.title ?? '', 50, 60)
+  if (w2) warnings.push(w2)
 
   // ── W3: hero headline should be at most 80 chars ─────────────────────────────
   const heroSection = findSection(model, 'hero')
@@ -76,6 +84,20 @@ export function validateSoft(model: SiteModel): Violation[] {
       })
     }
   }
+
+  // ── W6/W7: PostItem.metaTitle/metaDescription, tylko gdy ustawione (override) ──
+  // Brak wartosci nie jest ostrzezeniem — post uzywa wtedy domyslnego tytulu/opisu
+  // (title+brandName / excerpt), ktore nie sa czescia tej reguly.
+  model.collections.posts.forEach((post, i) => {
+    if (post.metaTitle) {
+      const w6 = lengthRangeWarning('W6', `collections.posts[${i}].metaTitle`, `Tytuł SEO publikacji "${post.title}"`, post.metaTitle, 50, 60)
+      if (w6) warnings.push(w6)
+    }
+    if (post.metaDescription) {
+      const w7 = lengthRangeWarning('W7', `collections.posts[${i}].metaDescription`, `Opis SEO publikacji "${post.title}"`, post.metaDescription, 120, 160)
+      if (w7) warnings.push(w7)
+    }
+  })
 
   return warnings
 }
