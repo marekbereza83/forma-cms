@@ -270,12 +270,12 @@ export function renderPostPage(model: SiteModel, post: PostItem, basePath = '', 
     : ''
 
   const takeawaysHtml = post.keyTakeaways && post.keyTakeaways.length > 0
-    ? `<div class="pub-takeaways">
-        <p class="pub-takeaways-label">Kluczowe wnioski</p>
+    ? `<aside class="pub-takeaways" aria-labelledby="pub-takeaways-heading">
+        <h2 id="pub-takeaways-heading" class="pub-takeaways-label">Kluczowe wnioski</h2>
         <ul>
           ${post.keyTakeaways.map((k, i) => `<li><span class="pub-takeaways-num">0${i + 1}.</span> ${k}</li>`).join('\n          ')}
         </ul>
-      </div>`
+      </aside>`
     : ''
 
   const sorted = publishedPostsSortedDesc(model)
@@ -308,26 +308,28 @@ export function renderPostPage(model: SiteModel, post: PostItem, basePath = '', 
   <div class="container">
     <a href="${rootHref('publikacje', basePath, linkMode)}" class="pub-back-link">← Wróć do publikacji</a>
 
-    <header class="pub-article-header">
-      <div class="pub-article-meta">
-        <time datetime="${post.publishedAt ?? ''}">${formatDate(post.publishedAt)}</time>
-        <span class="pub-read-time">${readTime} MIN CZYTANIA</span>
-        <button type="button" class="pub-bookmark" data-pub-bookmark="${post.id}"
-          aria-label="Zapisz w zakładkach" aria-pressed="false">${BOOKMARK_ICON}</button>
+    <article aria-labelledby="pub-article-title">
+      <header class="pub-article-header">
+        <div class="pub-article-meta">
+          <time datetime="${post.publishedAt ?? ''}">${formatDate(post.publishedAt)}</time>
+          <span class="pub-read-time">${readTime} MIN CZYTANIA</span>
+          <button type="button" class="pub-bookmark" data-pub-bookmark="${post.id}"
+            aria-label="Zapisz w zakładkach" aria-pressed="false">${BOOKMARK_ICON}</button>
+        </div>
+        <h1 id="pub-article-title" class="pub-article-title">${post.title}</h1>
+        ${post.excerpt ? `<p class="pub-article-lead">${post.excerpt}</p>` : ''}
+        ${authorBadge}
+      </header>
+
+      ${coverHtml}
+      ${takeawaysHtml}
+
+      <div class="pub-article-body">
+        ${post.body}
       </div>
-      <h1 id="pub-article-title" class="pub-article-title">${post.title}</h1>
-      ${post.excerpt ? `<p class="pub-article-lead">${post.excerpt}</p>` : ''}
-      ${authorBadge}
-    </header>
 
-    ${coverHtml}
-    ${takeawaysHtml}
-
-    <div class="pub-article-body">
-      ${post.body}
-    </div>
-
-    ${renderTags(post.tags)}
+      ${renderTags(post.tags)}
+    </article>
 
     <div class="pub-article-footer">
       <button type="button" class="pub-copy-link" data-pub-copy-link data-url="${canonicalUrl}">
