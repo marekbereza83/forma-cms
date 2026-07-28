@@ -3,7 +3,7 @@ import { useRef, useState, useTransition } from 'react'
 import type { PostItem, SiteMeta } from '@/lib/cms/types'
 import type { Violation } from '@/lib/cms/validation/types'
 import { POST_CATEGORIES } from '@/lib/cms/post-categories'
-import { postUrl } from '@/lib/cms/urls'
+import { postUrl, postPath } from '@/lib/cms/urls'
 import { savePosts } from './actions'
 import RichTextEditor from './RichTextEditor'
 import GooglePreview from './GooglePreview'
@@ -237,7 +237,7 @@ export default function PostsEditor({ initialPosts, meta }: { initialPosts: Post
                   onChange={e => update({ slug: e.target.value })}
                 />
                 <p style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '4px' }}>
-                  Adres artykułu: /publikacje/{active.slug || '…'}
+                  Adres artykułu: {postPath(active.slug || '…')}
                 </p>
                 {errorFor('slug') && <p className="field-error">{errorFor('slug')}</p>}
               </div>
