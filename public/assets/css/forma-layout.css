@@ -251,6 +251,21 @@
   gap: var(--space-6);
 }
 
+/* ─── Portfolio hero ──────────────────────────────────────── */
+/* Wlasna klasa zamiast .cta-finale-inner (2026-07-29) — 600px bylo zaprojektowane
+   dla malego bloku CTA na dole strony, nie dla naglowka .f-display (clamp do 5rem).
+   Krotki tekst lamal sie na 3 ciasne linie po jednym-dwoch slowach. 900px zostawia
+   miejsce na 1-2 pelne linie przy zachowaniu tego samego wyosrodkowanego ukladu. */
+.portfolio-hero-inner {
+  max-width: 900px;
+  margin-inline: auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+}
+
 /* ─── Contact page — 60/40 split ─────────────────────────── */
 .contact-inner {
   display: grid;

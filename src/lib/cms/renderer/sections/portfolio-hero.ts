@@ -10,7 +10,7 @@ export function renderPortfolioHero(section: Section): string {
   return `<!-- SEKCJA: portfolio-hero -->
 <section id="portfolio-hero" class="section bg-base" aria-labelledby="portfolio-hero-heading">
   <div class="container">
-    <div class="cta-finale-inner">
+    <div class="portfolio-hero-inner">
       <span class="tag tag-inline">
         ${CHECK_ICON}
         ${tag}
