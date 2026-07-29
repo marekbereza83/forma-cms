@@ -2,7 +2,6 @@
 import { useRef, useState, useTransition } from 'react'
 import type { PostItem, SiteMeta } from '@/lib/cms/types'
 import type { Violation } from '@/lib/cms/validation/types'
-import { POST_CATEGORIES } from '@/lib/cms/post-categories'
 import { postUrl, postPath } from '@/lib/cms/urls'
 import { savePosts } from './actions'
 import RichTextEditor from './RichTextEditor'
@@ -282,17 +281,14 @@ export default function PostsEditor({ initialPosts, meta }: { initialPosts: Post
                 <div className="field-row" style={{ flex: 1 }}>
                   <label className="field-label">
                     Kategoria
-                    <FieldHelp label="Kategoria" text="Główny obszar tematyczny artykułu. Wybierz jedną kategorię, która najlepiej opisuje publikację." />
+                    <FieldHelp label="Kategoria" text="Główny obszar tematyczny artykułu. Wpisz własną nazwę — np. Etyka zawodowa, Marketing kancelarii." />
                   </label>
-                  <select
+                  <input
+                    type="text"
                     value={active.category ?? ''}
-                    onChange={e => update({ category: (e.target.value || undefined) as PostItem['category'] })}
-                  >
-                    <option value="">— bez kategorii —</option>
-                    {POST_CATEGORIES.map(c => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
+                    placeholder="np. Etyka zawodowa"
+                    onChange={e => update({ category: e.target.value || undefined })}
+                  />
                 </div>
 
                 <div className="field-row" style={{ flex: 1 }}>

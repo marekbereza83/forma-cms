@@ -1,5 +1,3 @@
-import type { PostCategory } from './post-categories'
-
 export type FieldType =
   | 'text'
   | 'richtext'
@@ -139,7 +137,9 @@ export interface PostItem {
   /** Historia poprzednich slugów tego posta — dopisywana automatycznie w saveSite()
    *  gdy slug sie zmienia. Zrodlo mapy przekierowan 301 w Workerze (_redirects.json). */
   previousSlugs?: string[]
-  category?: PostCategory
+  /** Wolny tekst, nie enum (do 2026-07-29 byl to zamkniety zestaw z post-categories.ts —
+   *  odziedziczony z demo agencji webowej, nie pasowal do tematyki klientow-kancelarii). */
+  category?: string
   /** Maks. 8 (C10). */
   tags?: string[]
   /** Punkty w callout "Kluczowe wnioski" na stronie artykulu. */

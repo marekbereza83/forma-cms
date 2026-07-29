@@ -2,7 +2,6 @@ import { z } from 'zod'
 import type { SiteModel } from './types'
 import type { Violation } from './validation/types'
 import { validateSiteModel, FormaValidationError } from './validation/index'
-import { POST_CATEGORIES } from './post-categories'
 
 const FieldSchema = z.object({
   type: z.enum(['text', 'richtext', 'price', 'stat', 'cta', 'contact', 'list', 'image']),
@@ -67,7 +66,7 @@ export const PostItemSchema = z.object({
   body: z.string(),
   status: z.enum(['draft', 'published']),
   previousSlugs: z.array(z.string()).optional(),
-  category: z.enum(POST_CATEGORIES).optional(),
+  category: z.string().optional(),
   tags: z.array(z.string()).optional(),
   keyTakeaways: z.array(z.string()).optional(),
   coverImage: z.string().optional(),

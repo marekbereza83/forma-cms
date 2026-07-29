@@ -104,10 +104,15 @@ Wartość tego podglądu to **nie wygląd, tylko pokazanie ucięcia** przy limit
 
 ## Dług do posprzątania przy okazji
 
-- **Panel nadal pokazuje select "Kategoria"** (`PostsEditor.tsx`, ~linia 259) mimo że
-  kategorie zostały wyłączone z renderowania (2026-07-28). Klient może dziś ustawić
-  kategorię, która nie pojawia się nigdzie na stronie. Albo ukryć select, albo
-  przywrócić kategorie w UI — obecny stan jest niespójny.
+- ~~Panel nadal pokazuje select "Kategoria" mimo że kategorie zostały wyłączone
+  z renderowania~~ — **rozwiązane 2026-07-29**. Zamknięty enum `POST_CATEGORIES`
+  (odziedziczony z demo agencji webowej: DESIGN/TECHNOLOGIA/STRATEGIA/UX-UI/CASE STUDY)
+  nie pasował do tematyki klientów-kancelarii. `category` jest teraz wolnym tekstem
+  (`string`, nie enum) w `types.ts`/`schema.ts`; select zamieniony na `<input type="text">`
+  w `PostsEditor.tsx`. Usunięta reguła C9 (sprawdzała przynależność do enuma — nie ma już
+  czego sprawdzać) i plik `post-categories.ts` (martwy kod). Nadal niewidoczne na stronie
+  publicznej (świadomie, patrz decyzja 2026-07-28) — pole służy dziś tylko do porządkowania
+  w panelu, `data-category` na karcie.
 - **Etykieta "Tagi (oddzielone przecinkiem, maks. 8)"** — jeśli limit zejdzie do 2–4
   (decyzja redakcyjna, nie SEO — tagi nie mają dziś żadnej powierzchni SEO), trzeba
   zmienić etykietę razem z `MAX_TAGS` w `validation/collections.ts:6`.

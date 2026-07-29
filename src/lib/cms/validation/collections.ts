@@ -1,7 +1,6 @@
 import sanitizeHtml from 'sanitize-html'
 import type { EventItem, PostItem } from '../types'
 import type { Violation } from './types'
-import { POST_CATEGORIES } from '../post-categories'
 
 const MAX_TAGS = 8
 
@@ -192,20 +191,8 @@ export function validatePublishedPostBodies(posts: PostItem[]): Violation[] {
   return errors
 }
 
-// ── C9: PostItem.category musi byc jedna z POST_CATEGORIES, jesli ustawiona ─────
-export function validatePostCategories(posts: PostItem[]): Violation[] {
-  const errors: Violation[] = []
-  posts.forEach((post, i) => {
-    if (post.category !== undefined && !POST_CATEGORIES.includes(post.category)) {
-      errors.push({
-        rule: 'C9',
-        field: `collections.posts[${i}].category`,
-        message: `Kategoria "${post.category}" nie jest jedna z dozwolonych: ${POST_CATEGORIES.join(', ')}`,
-      })
-    }
-  })
-  return errors
-}
+// C9 usunieta 2026-07-29 — category jest teraz wolnym tekstem (nie enumem), wiec nie ma
+// juz zamknietej listy do sprawdzenia. Numeracja C10+ celowo zostaje bez zmian.
 
 // ── C10: PostItem.tags — kazdy niepusty po trim, maks. 8 ───────────────────────
 export function validatePostTags(posts: PostItem[]): Violation[] {
@@ -282,7 +269,6 @@ export function validateCollections(
     ...validatePostSlugUniqueness(posts),
     ...validatePublishedPostDates(posts),
     ...validatePublishedPostBodies(posts),
-    ...validatePostCategories(posts),
     ...validatePostTags(posts),
     ...validatePostKeyTakeaways(posts),
     ...validatePostMetaLengths(posts),
