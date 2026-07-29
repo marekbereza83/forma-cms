@@ -150,6 +150,17 @@ export default function RichTextEditor({ value, onChange }: Props) {
     emitChange()
   }
 
+  // 'removeFormat' czysci TYLKO inline formatowanie (bold/italic/link) — udokumentowane
+  // zachowanie tej komendy w kazdej przegladarce, nie usuwa formatBlock (h2/h3). Bez
+  // dolozenia formatBlock('p') przycisk "Wyczysc" nie potrafil sprowadzic naglowka
+  // z powrotem do zwyklego akapitu, mimo ze do tego mial sluzyc.
+  function clearFormatting() {
+    document.execCommand('removeFormat')
+    document.execCommand('formatBlock', false, 'p')
+    editorRef.current?.focus()
+    emitChange()
+  }
+
   function openLinkInput() {
     const selection = window.getSelection()
     if (selection && selection.rangeCount > 0) {
@@ -211,10 +222,10 @@ export default function RichTextEditor({ value, onChange }: Props) {
         </button>
         <button
           type="button"
-          title="Usuń formatowanie z zaznaczenia"
+          title="Usuń formatowanie z zaznaczenia (w tym nagłówki — wraca do zwykłego akapitu)"
           className="rte-btn"
           onMouseDown={e => e.preventDefault()}
-          onClick={() => exec('removeFormat')}
+          onClick={clearFormatting}
         >
           Wyczyść
         </button>
