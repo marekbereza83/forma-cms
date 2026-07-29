@@ -22,10 +22,20 @@ const DANGEROUS_SCHEME_RE = /javascript:/i
 // Allowlist for sanitizePostBody — covers typical rich-text newsletter content.
 // sanitizePostBody is the first line of defence used at SAVE time (KROK 5).
 // It cleans silently; Word junk (<span style>, <o:p>) is stripped without error.
+//
+// Tabele (2026-07-29): tabela to STRUKTURA tresci ("te dane sa tabelaryczne"), nie forma —
+// o wyglad dba renderer (patrz strategia-seo.md §2). colspan/rowspan sa dopuszczone, bo
+// bez nich scalone komorki rozjezdzaja tabele; to jedyne atrybuty strukturalne, cala reszta
+// (width, border, cellpadding, style, class z Worda) nadal wylatuje.
 const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
-  allowedTags: ['p', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'h2', 'h3', 'br'],
+  allowedTags: [
+    'p', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'h2', 'h3', 'br',
+    'table', 'thead', 'tbody', 'tr', 'th', 'td', 'caption',
+  ],
   allowedAttributes: {
     a: ['href', 'target', 'rel'],
+    th: ['colspan', 'rowspan'],
+    td: ['colspan', 'rowspan'],
   },
   allowedSchemes: ['http', 'https', 'mailto'],
   disallowedTagsMode: 'discard',

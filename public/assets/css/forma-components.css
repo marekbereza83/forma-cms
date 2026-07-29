@@ -884,6 +884,46 @@
 .pub-article-body a { color: var(--accent); text-decoration: underline; }
 .pub-article-body a:hover { color: var(--accent-hover); }
 
+/* ── Tabele w tresci artykulu ─────────────────────────────────
+   display:block + overflow-x:auto — tabela wklejona z Worda/arkusza bywa szersza
+   niz kolumna tekstu (896px); bez tego rozpychalaby cala strone i wywolywala
+   poziomy scroll calego dokumentu na mobile. Wiersze i komorki zachowuja swoje
+   display: table-row/table-cell, wiec uklad tabeli dziala normalnie. */
+.pub-article-body table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--space-5);
+  font-size: 0.9rem;
+}
+.pub-article-body th,
+.pub-article-body td {
+  border: 1px solid var(--border);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  vertical-align: top;
+}
+.pub-article-body th {
+  background: var(--surface);
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.pub-article-body tbody tr:nth-child(even) {
+  background: rgba(22, 27, 34, 0.4);
+}
+.pub-article-body caption {
+  caption-side: bottom;
+  padding-top: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-align: left;
+}
+/* Word pakuje tresc komorki w <p> — bez tego kazda komorka niesie margines akapitu. */
+.pub-article-body td p:last-child,
+.pub-article-body th p:last-child { margin-bottom: 0; }
+
 .pub-article-footer {
   display: flex;
   flex-wrap: wrap;

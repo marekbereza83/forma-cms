@@ -5,8 +5,13 @@ import { useEffect, useRef, useState } from 'react'
  * Minimalny edytor WYSIWYG dla tresci publikacji.
  *
  * Zakres formatowania celowo pokrywa sie 1:1 z allowlista sanitizePostBody
- * (p, strong, em, ul, ol, li, a, h2, h3, br) — klient nie moze wprowadzic
+ * (p, strong, em, ul, ol, li, a, h2, h3, br + tabele) — klient nie moze wprowadzic
  * znacznika, ktory i tak zostalby usuniety przy zapisie.
+ *
+ * Tabel nie da sie wstawic z paska narzedzi (brak przycisku) — wchodza wylacznie
+ * przez wklejenie z Worda/arkusza. Tworzenie tabeli od zera w contentEditable
+ * wymagaloby wlasnego UI (dodaj wiersz/kolumne, scalanie), co jest nieproporcjonalne
+ * do potrzeby; kto ma tabele, ma ja juz w zrodle.
  *
  * Wklejanie normalizuje HTML (2026-07-28, patrz normalizePastedHtml ponizej) do tej
  * samej allowlisty zamiast kasowac je do czystego tekstu — klient nadal edytuje
@@ -32,7 +37,14 @@ const PASTE_TAG_ALIASES: Record<string, string> = {
 
 // Musi pokrywac sie 1:1 z allowedTags w sanitizePostBody (collections.ts) — inaczej
 // normalizacja po stronie klienta i serwera moglyby sie rozjechac.
-const PASTE_ALLOWED_TAGS = new Set(['P', 'STRONG', 'EM', 'UL', 'OL', 'LI', 'A', 'H2', 'H3', 'BR'])
+const PASTE_ALLOWED_TAGS = new Set([
+  'P', 'STRONG', 'EM', 'UL', 'OL', 'LI', 'A', 'H2', 'H3', 'BR',
+  'TABLE', 'THEAD', 'TBODY', 'TR', 'TH', 'TD', 'CAPTION',
+])
+
+// Jedyne atrybuty strukturalne przepuszczane poza href linku — bez nich scalone komorki
+// rozjezdzaja tabele. Zgodne z allowedAttributes w sanitizePostBody.
+const PASTE_CELL_ATTRS = ['colspan', 'rowspan']
 
 /**
  * Przepisuje drzewo wklejonego HTML na allowlist zgodna z sanitizePostBody: tagi spoza
@@ -66,6 +78,14 @@ function normalizePastedHtml(html: string): string {
 
       if (PASTE_ALLOWED_TAGS.has(tagName)) {
         const clean = document.createElement(tagName.toLowerCase())
+        if (tagName === 'TH' || tagName === 'TD') {
+          for (const attr of PASTE_CELL_ATTRS) {
+            const v = el.getAttribute(attr)
+            // Tylko dodatnie liczby calkowite — Word potrafi wstawic smieci, a sanitizer
+            // po stronie serwera nie waliduje WARTOSCI atrybutu, tylko jego nazwe.
+            if (v && /^[1-9]\d*$/.test(v.trim())) clean.setAttribute(attr, v.trim())
+          }
+        }
         walk(el, clean)
         target.appendChild(clean)
         return

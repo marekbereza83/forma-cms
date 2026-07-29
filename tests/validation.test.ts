@@ -627,6 +627,36 @@ describe('C3 — XSS in post body', () => {
     expect(out).not.toContain('<o:p')
     expect(out).toContain('wklejony z Worda')
   })
+
+  // ── Tabele: struktura przechodzi, prezentacja wylatuje (2026-07-29) ──────
+  it('sanitizePostBody — struktura tabeli zachowana', () => {
+    const body = '<table><thead><tr><th>Usługa</th><th>Cena</th></tr></thead>'
+      + '<tbody><tr><td>Analiza</td><td>1 200 zł</td></tr></tbody></table>'
+    const out = sanitizePostBody(body)
+    for (const tag of ['<table', '<thead', '<tbody', '<tr', '<th', '<td']) {
+      expect(out, `brak ${tag}`).toContain(tag)
+    }
+    expect(out).toContain('1 200 zł')
+  })
+
+  it('sanitizePostBody — colspan/rowspan zachowane, reszta atrybutow tabeli usunieta', () => {
+    const body = '<table border="1" cellpadding="4" style="width:600px" class="MsoTableGrid">'
+      + '<tr><td colspan="2" rowspan="3" width="120" style="background:red" class="x">A</td></tr></table>'
+    const out = sanitizePostBody(body)
+    expect(out).toContain('colspan="2"')
+    expect(out).toContain('rowspan="3"')
+    expect(out).not.toContain('border=')
+    expect(out).not.toContain('cellpadding')
+    expect(out).not.toContain('style=')
+    expect(out).not.toContain('MsoTableGrid')
+    expect(out).not.toContain('width=')
+  })
+
+  it('sanitizePostBody — skrypt wewnatrz komorki tabeli usuniety', () => {
+    const out = sanitizePostBody('<table><tr><td><script>alert(1)</script>Bezpieczne</td></tr></table>')
+    expect(out).not.toContain('<script')
+    expect(out).toContain('Bezpieczne')
+  })
 })
 
 // ────────────────────────────────────────────────────────────────────────────

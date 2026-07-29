@@ -41,11 +41,27 @@ Dowód, że architektura to rozróżnia — allowlista sanitizera
 (`validation/collections.ts`):
 
 ```
-allowedTags: ['p','strong','em','ul','ol','li','a','h2','h3','br']
-allowedAttributes: { a: ['href','target','rel'] }   ← zero atrybutów poza linkiem
+allowedTags: ['p','strong','em','ul','ol','li','a','h2','h3','br',
+              'table','thead','tbody','tr','th','td','caption']
+allowedAttributes: { a: ['href','target','rel'],
+                     th/td: ['colspan','rowspan'] }   ← tylko strukturalne
 ```
 
 Znaczniki semantyczne przechodzą, całe stylowanie wylatuje.
+
+**Tabele (dodane 2026-07-29)** to ten sam przypadek co nagłówki i listy: „te dane są
+tabelaryczne" to struktura treści, a nie wygląd. Dopuszczone są wyłącznie `colspan`
+i `rowspan` — bez nich scalone komórki rozjeżdżają tabelę. Wszystko prezentacyjne
+(`width`, `border`, `cellpadding`, `style`, `class="MsoTableGrid"`) nadal wylatuje,
+a o wygląd dba CSS renderera.
+
+Dwa szczegóły warte zapamiętania przy podobnych rozszerzeniach:
+- Sanitizer po stronie serwera waliduje **nazwę** atrybutu, nie jego wartość. Dlatego
+  normalizator w edytorze dodatkowo sprawdza, że `colspan`/`rowspan` to dodatnia liczba
+  całkowita — Word potrafi wstawić tam śmieć.
+- Tabela wklejona z arkusza bywa szersza niż kolumna tekstu. CSS używa
+  `display:block; overflow-x:auto`, żeby przewijała się **w sobie** zamiast rozpychać
+  stronę. Zweryfikowane pomiarem: przy 375px tabela scrolluje, dokument nie.
 
 **Znalezisko:** edytor kasował wklejaną treść do czystego tekstu (`text/plain`),
 tłumacząc to zasadą „klient edytuje treść, nie formę". To była **nadmiarowa korekta** —
