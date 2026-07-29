@@ -1,10 +1,14 @@
+import { randomBytes } from 'crypto'
 import { auth } from '@/lib/auth'
 import sharp from 'sharp'
 import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { r2, R2_BUCKET } from '@/lib/storage/r2'
 
 const ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
-const FILENAME_RE = /^(portfolio-card|post-cover)-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.webp$/
+// Suffix -[0-9a-f]{8} jest OPCJONALNY — pliki wgrane przed 2026-07-29 nie maja go,
+// a DELETE musi dalej dzialac na starych kluczach (patrz komentarz przy generowaniu
+// nazwy nizej, dlaczego nowe uploady zawsze go dodaja).
+const FILENAME_RE = /^(portfolio-card|post-cover)-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(-[0-9a-f]{8})?\.webp$/
 
 // 'portfolio-card' — karta portfolio na index/portfolio, 16:9 miniatura w gridzie.
 // 'post-cover' — okladka publikacji, wieksza bo pelni role hero-image na stronie artykulu.
@@ -81,7 +85,13 @@ export async function POST(req: Request): Promise<Response> {
     return err(400, 'Image processing failed')
   }
 
-  const filename = `${kind}-${id}.webp`
+  // Suffix losowy przy KAZDYM uploadzie (nie tylko id encji) — bez niego dwa kolejne
+  // uploady dla tego samego posta/karty ladowaly pod IDENTYCZNYM kluczem R2. Obiekt
+  // w R2 byl wtedy poprawnie nadpisywany, ale URL sie nie zmienial, wiec CDN/przegladarka
+  // nadal serwowaly stara, zbuforowana wersje zdjecia — klient widzial "stare zdjecie"
+  // mimo poprawnego uploadu nowego. Nowy klucz = gwarantowane cache miss.
+  const version = randomBytes(4).toString('hex')
+  const filename = `${kind}-${id}-${version}.webp`
   const key = `${tenantId}/${filename}`
 
   try {

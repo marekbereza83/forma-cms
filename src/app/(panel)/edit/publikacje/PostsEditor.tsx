@@ -108,6 +108,11 @@ export default function PostsEditor({ initialPosts, meta }: { initialPosts: Post
     const file = e.target.files?.[0]
     if (!file || !active) return
 
+    // Zapamietane PRZED uploadem — kazdy upload dostaje teraz unikalny klucz R2 (patrz
+    // route.ts), wiec stara okladka juz nie jest nadpisywana automatycznie i trzeba ja
+    // posprzatac recznie, inaczej zostaje osierocona w R2.
+    const previousCover = active.coverImage
+
     setCoverUploadStatus('uploading')
     setCoverUploadError('')
 
@@ -127,6 +132,9 @@ export default function PostsEditor({ initialPosts, meta }: { initialPosts: Post
       update({ coverImage: json.url! })
       setCoverUploadStatus('idle')
       if (coverInputRef.current) coverInputRef.current.value = ''
+      // Dopiero PO udanym uploadzie nowego pliku — gdyby upload sie nie udal, stara
+      // okladka ma zostac nietknieta.
+      void deleteCoverBestEffort(previousCover)
     } catch {
       setCoverUploadStatus('error')
       setCoverUploadError('Błąd połączenia')

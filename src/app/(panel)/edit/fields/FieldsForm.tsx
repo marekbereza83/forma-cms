@@ -9,6 +9,20 @@ interface Props {
   initialModel: SiteModel
 }
 
+// Best-effort delete of uploaded file from R2 (lub legacy /uploads/) — porzucony plik
+// akceptujemy, jesli sied polaczenie. DELETE endpoint waliduje format nazwy (FILENAME_RE)
+// i odrzuca nieprawidlowe klucze 400. Uzywane przy usuwaniu karty ORAZ przy podmianie
+// zdjecia na nowe (kazdy upload dostaje od 2026-07-29 unikalny klucz R2 — patrz
+// route.ts — wiec stare zdjecie nie jest juz nadpisywane automatycznie).
+async function deleteImageBestEffort(image: string | undefined): Promise<void> {
+  if (!image || image.length === 0) return
+  const filename = image.split('?')[0].split('/').pop() ?? ''
+  if (!filename) return
+  try {
+    await fetch(`/api/upload?filename=${encodeURIComponent(filename)}`, { method: 'DELETE' })
+  } catch { /* orphan accepted — known debt */ }
+}
+
 // ── Error matching ────────────────────────────────────────────────────────────
 //
 // Violation.field format from validators:
@@ -157,6 +171,9 @@ function PortfolioCardEditor({
     const file = e.target.files?.[0]
     if (!file) return
 
+    // Zapamietane PRZED uploadem — patrz komentarz przy deleteImageBestEffort.
+    const previousImage = card.image
+
     setUploadStatus('uploading')
     setUploadError('')
 
@@ -175,6 +192,8 @@ function PortfolioCardEditor({
       onChange({ ...card, image: json.url! })
       setUploadStatus('idle')
       if (fileInputRef.current) fileInputRef.current.value = ''
+      // Dopiero PO udanym uploadzie — gdyby sie nie udal, stare zdjecie ma zostac.
+      void deleteImageBestEffort(previousImage)
     } catch {
       setUploadStatus('error')
       setUploadError('Błąd połączenia')
@@ -264,16 +283,7 @@ function PortfolioCardsEditor({
 
   async function removeCard(i: number) {
     const card = cards[i]
-    // Best-effort delete of uploaded file from R2 (or legacy /uploads/) — accept orphan if network fails.
-    // DELETE endpoint validates filename format (FILENAME_RE) and rejects invalid keys with 400.
-    if (card.image && card.image.length > 0) {
-      const filename = card.image.split('?')[0].split('/').pop() ?? ''
-      if (filename) {
-        try {
-          await fetch(`/api/upload?filename=${encodeURIComponent(filename)}`, { method: 'DELETE' })
-        } catch { /* orphan accepted — known debt */ }
-      }
-    }
+    await deleteImageBestEffort(card.image)
     onChange(cards.filter((_, idx) => idx !== i))
   }
 

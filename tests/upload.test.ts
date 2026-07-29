@@ -165,8 +165,9 @@ describe('POST /api/upload', () => {
     expect(res.status).toBe(200)
 
     const json = await res.json() as { url: string }
-    const expectedKey = `${TEST_TENANT}/portfolio-card-${ID_A}.webp`
-    expect(json.url).toBe(`${R2_BASE}/${expectedKey}`)
+    // Sufiks losowy przy kazdym uploadzie (cache-busting, patrz route.ts) — wzorzec,
+    // nie dokladny string.
+    expect(json.url).toMatch(new RegExp(`^${R2_BASE}/${TEST_TENANT}/portfolio-card-${ID_A}-[0-9a-f]{8}\\.webp$`))
 
     // Verify the uploaded buffer is webp 800×450
     const callArgs = mockS3Send.mock.calls.at(-1)?.[0] as { Body: Buffer; ContentType: string }
@@ -189,8 +190,7 @@ describe('POST /api/upload — kind=post-cover', () => {
     expect(res.status).toBe(200)
 
     const json = await res.json() as { url: string }
-    const expectedKey = `${TEST_TENANT}/post-cover-${ID_A}.webp`
-    expect(json.url).toBe(`${R2_BASE}/${expectedKey}`)
+    expect(json.url).toMatch(new RegExp(`^${R2_BASE}/${TEST_TENANT}/post-cover-${ID_A}-[0-9a-f]{8}\\.webp$`))
 
     const callArgs = mockS3Send.mock.calls.at(-1)?.[0] as { Body: Buffer; ContentType: string }
     expect(callArgs.ContentType).toBe('image/webp')
@@ -215,17 +215,25 @@ describe('POST /api/upload — kind=post-cover', () => {
     const file = new File([minimalPng()], 'photo.png', { type: 'image/png' })
     const res = await POST(makePostRequest(file, ID_A))
     const json = await res.json() as { url: string }
-    expect(json.url).toContain(`portfolio-card-${ID_A}.webp`)
+    expect(json.url).toMatch(new RegExp(`portfolio-card-${ID_A}-[0-9a-f]{8}\\.webp$`))
   })
 })
 
 describe('DELETE /api/upload — kind=post-cover', () => {
-  it('DELETE post-cover-<uuid>.webp → 200', async () => {
+  it('DELETE post-cover-<uuid>.webp (STARY format, bez sufiksu) → 200 — wsteczna zgodnosc', async () => {
     mockS3Send.mockClear()
     const res = await DELETE(makeDeleteRequest(`post-cover-${ID_A}.webp`))
     expect(res.status).toBe(200)
     const callArgs = mockS3Send.mock.calls[0]?.[0] as { Key: string }
     expect(callArgs?.Key).toBe(`${TEST_TENANT}/post-cover-${ID_A}.webp`)
+  })
+
+  it('DELETE post-cover-<uuid>-<sufiks>.webp (NOWY format) → 200', async () => {
+    mockS3Send.mockClear()
+    const res = await DELETE(makeDeleteRequest(`post-cover-${ID_A}-abcd1234.webp`))
+    expect(res.status).toBe(200)
+    const callArgs = mockS3Send.mock.calls[0]?.[0] as { Key: string }
+    expect(callArgs?.Key).toBe(`${TEST_TENANT}/post-cover-${ID_A}-abcd1234.webp`)
   })
 
   it('nazwa spoza dozwolonych prefiksow (np. "cover-<uuid>.webp") → 400', async () => {
@@ -235,10 +243,10 @@ describe('DELETE /api/upload — kind=post-cover', () => {
 })
 
 // ── Isolation tests ───────────────────────────────────────────────────────────
-// Verify that each cardId maps to its own stable R2 key and operations
-// on one key do not affect others.
+// Verify that each cardId maps to its own R2 key namespace, distinct from other
+// cardIds, and that operations on one key do not affect others.
 
-describe('Izolacja slotów — stabilne cardId', () => {
+describe('Izolacja slotów — rozne cardId', () => {
   it('upload ISO_A, ISO_B, ISO_C → 200 każdy, klucze R2 są izolowane', async () => {
     const png = new File([minimalPng()], 'p.png', { type: 'image/png' })
 
@@ -254,10 +262,10 @@ describe('Izolacja slotów — stabilne cardId', () => {
     const urlB = ((await rB.json()) as { url: string }).url
     const urlC = ((await rC.json()) as { url: string }).url
 
-    // Each card gets its own distinct R2 key
-    expect(urlA).toContain(`portfolio-card-${ISO_A}.webp`)
-    expect(urlB).toContain(`portfolio-card-${ISO_B}.webp`)
-    expect(urlC).toContain(`portfolio-card-${ISO_C}.webp`)
+    // Each card gets its own distinct R2 key (id segment), niezaleznie od losowego sufiksu
+    expect(urlA).toMatch(new RegExp(`portfolio-card-${ISO_A}-[0-9a-f]{8}\\.webp$`))
+    expect(urlB).toMatch(new RegExp(`portfolio-card-${ISO_B}-[0-9a-f]{8}\\.webp$`))
+    expect(urlC).toMatch(new RegExp(`portfolio-card-${ISO_C}-[0-9a-f]{8}\\.webp$`))
     expect(urlA).not.toBe(urlB)
     expect(urlB).not.toBe(urlC)
   })
@@ -272,7 +280,26 @@ describe('Izolacja slotów — stabilne cardId', () => {
     const res = await POST(makePostRequest(png, ISO_D))
     expect(res.status).toBe(200)
     const json = await res.json() as { url: string }
-    expect(json.url).toContain(`portfolio-card-${ISO_D}.webp`)
+    expect(json.url).toMatch(new RegExp(`portfolio-card-${ISO_D}-[0-9a-f]{8}\\.webp$`))
+  })
+
+  // ── Cache-busting: rdzen naprawy 2026-07-29 ──────────────────────────────────
+  it('dwa kolejne uploady dla TEGO SAMEGO cardId → 200 kazdy, RÓŻNE URL-e', async () => {
+    const png = new File([minimalPng()], 'p.png', { type: 'image/png' })
+
+    const r1 = await POST(makePostRequest(png, ISO_A))
+    const r2 = await POST(makePostRequest(png, ISO_A))
+    expect(r1.status).toBe(200)
+    expect(r2.status).toBe(200)
+
+    const url1 = ((await r1.json()) as { url: string }).url
+    const url2 = ((await r2.json()) as { url: string }).url
+
+    // Bez tego przegladarka/CDN serwuja stare, zbuforowane zdjecie po podmianie —
+    // to byl zglaszany blad ("wgralem nowe zdjecie, a pokazuje sie stare").
+    expect(url1).not.toBe(url2)
+    expect(url1).toMatch(new RegExp(`portfolio-card-${ISO_A}-[0-9a-f]{8}\\.webp$`))
+    expect(url2).toMatch(new RegExp(`portfolio-card-${ISO_A}-[0-9a-f]{8}\\.webp$`))
   })
 })
 
