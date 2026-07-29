@@ -167,7 +167,7 @@ describe('POST /api/upload', () => {
     const json = await res.json() as { url: string }
     // Sufiks losowy przy kazdym uploadzie (cache-busting, patrz route.ts) — wzorzec,
     // nie dokladny string.
-    expect(json.url).toMatch(new RegExp(`^${R2_BASE}/${TEST_TENANT}/portfolio-card-${ID_A}-[0-9a-f]{8}\\.webp$`))
+    expect(json.url).toMatch(new RegExp(`^${R2_BASE}/${TEST_TENANT}/portfolio-card-${ID_A}\\.webp\\?v=[0-9a-f]{8}$`))
 
     // Verify the uploaded buffer is webp 800×450
     const callArgs = mockS3Send.mock.calls.at(-1)?.[0] as { Body: Buffer; ContentType: string }
@@ -190,7 +190,7 @@ describe('POST /api/upload — kind=post-cover', () => {
     expect(res.status).toBe(200)
 
     const json = await res.json() as { url: string }
-    expect(json.url).toMatch(new RegExp(`^${R2_BASE}/${TEST_TENANT}/post-cover-${ID_A}-[0-9a-f]{8}\\.webp$`))
+    expect(json.url).toMatch(new RegExp(`^${R2_BASE}/${TEST_TENANT}/post-cover-${ID_A}\\.webp\\?v=[0-9a-f]{8}$`))
 
     const callArgs = mockS3Send.mock.calls.at(-1)?.[0] as { Body: Buffer; ContentType: string }
     expect(callArgs.ContentType).toBe('image/webp')
@@ -215,7 +215,7 @@ describe('POST /api/upload — kind=post-cover', () => {
     const file = new File([minimalPng()], 'photo.png', { type: 'image/png' })
     const res = await POST(makePostRequest(file, ID_A))
     const json = await res.json() as { url: string }
-    expect(json.url).toMatch(new RegExp(`portfolio-card-${ID_A}-[0-9a-f]{8}\\.webp$`))
+    expect(json.url).toMatch(new RegExp(`portfolio-card-${ID_A}\\.webp\\?v=[0-9a-f]{8}$`))
   })
 })
 
@@ -262,10 +262,10 @@ describe('Izolacja slotów — rozne cardId', () => {
     const urlB = ((await rB.json()) as { url: string }).url
     const urlC = ((await rC.json()) as { url: string }).url
 
-    // Each card gets its own distinct R2 key (id segment), niezaleznie od losowego sufiksu
-    expect(urlA).toMatch(new RegExp(`portfolio-card-${ISO_A}-[0-9a-f]{8}\\.webp$`))
-    expect(urlB).toMatch(new RegExp(`portfolio-card-${ISO_B}-[0-9a-f]{8}\\.webp$`))
-    expect(urlC).toMatch(new RegExp(`portfolio-card-${ISO_C}-[0-9a-f]{8}\\.webp$`))
+    // Each card gets its own distinct R2 key (id segment)
+    expect(urlA).toMatch(new RegExp(`portfolio-card-${ISO_A}\\.webp\\?v=[0-9a-f]{8}$`))
+    expect(urlB).toMatch(new RegExp(`portfolio-card-${ISO_B}\\.webp\\?v=[0-9a-f]{8}$`))
+    expect(urlC).toMatch(new RegExp(`portfolio-card-${ISO_C}\\.webp\\?v=[0-9a-f]{8}$`))
     expect(urlA).not.toBe(urlB)
     expect(urlB).not.toBe(urlC)
   })
@@ -280,7 +280,7 @@ describe('Izolacja slotów — rozne cardId', () => {
     const res = await POST(makePostRequest(png, ISO_D))
     expect(res.status).toBe(200)
     const json = await res.json() as { url: string }
-    expect(json.url).toMatch(new RegExp(`portfolio-card-${ISO_D}-[0-9a-f]{8}\\.webp$`))
+    expect(json.url).toMatch(new RegExp(`portfolio-card-${ISO_D}\\.webp\\?v=[0-9a-f]{8}$`))
   })
 
   // ── Cache-busting: rdzen naprawy 2026-07-29 ──────────────────────────────────
@@ -298,8 +298,26 @@ describe('Izolacja slotów — rozne cardId', () => {
     // Bez tego przegladarka/CDN serwuja stare, zbuforowane zdjecie po podmianie —
     // to byl zglaszany blad ("wgralem nowe zdjecie, a pokazuje sie stare").
     expect(url1).not.toBe(url2)
-    expect(url1).toMatch(new RegExp(`portfolio-card-${ISO_A}-[0-9a-f]{8}\\.webp$`))
-    expect(url2).toMatch(new RegExp(`portfolio-card-${ISO_A}-[0-9a-f]{8}\\.webp$`))
+    expect(url1).toMatch(new RegExp(`portfolio-card-${ISO_A}\\.webp\\?v=[0-9a-f]{8}$`))
+    expect(url2).toMatch(new RegExp(`portfolio-card-${ISO_A}\\.webp\\?v=[0-9a-f]{8}$`))
+  })
+
+  // REGRESJA: zywa strona to statyczny HTML wskazujacy na URL sprzed podmiany. Gdyby
+  // podmiana tworzyla NOWY klucz R2, stary plik trzeba by kasowac — a skasowanie go
+  // przed klknieciem "Publikuj" dawaloby 404 na dzialajacej stronie. Klucz musi wiec
+  // zostac STABILNY (zmienia sie tylko ?v=), a obiekt ma byc nadpisany w miejscu.
+  it('podmiana zdjecia nadpisuje TEN SAM klucz R2 — stary URL nie przestaje dzialac', async () => {
+    const png = new File([minimalPng()], 'p.png', { type: 'image/png' })
+
+    const r1 = await POST(makePostRequest(png, ISO_A))
+    const r2 = await POST(makePostRequest(png, ISO_A))
+
+    const key1 = ((await r1.json()) as { url: string }).url.split('?')[0]
+    const key2 = ((await r2.json()) as { url: string }).url.split('?')[0]
+
+    // Sciezka do pliku identyczna — rozni sie wylacznie parametr wersji.
+    expect(key1).toBe(key2)
+    expect(key1).not.toContain('?')
   })
 })
 

@@ -85,13 +85,20 @@ export async function POST(req: Request): Promise<Response> {
     return err(400, 'Image processing failed')
   }
 
-  // Suffix losowy przy KAZDYM uploadzie (nie tylko id encji) — bez niego dwa kolejne
-  // uploady dla tego samego posta/karty ladowaly pod IDENTYCZNYM kluczem R2. Obiekt
-  // w R2 byl wtedy poprawnie nadpisywany, ale URL sie nie zmienial, wiec CDN/przegladarka
-  // nadal serwowaly stara, zbuforowana wersje zdjecia — klient widzial "stare zdjecie"
-  // mimo poprawnego uploadu nowego. Nowy klucz = gwarantowane cache miss.
+  // KLUCZ R2 JEST DETERMINISTYCZNY (bez losowego sufiksu) — obiekt jest nadpisywany
+  // w miejscu przy kazdej podmianie zdjecia. To swiadoma decyzja, nie niedopatrzenie:
+  //
+  // Zywa strona to statyczny HTML na R2, ktory wskazuje na STARY URL az do momentu
+  // kliknięcia "Publikuj". Gdyby kazdy upload tworzyl nowy klucz, stary plik trzeba by
+  // kasowac — a skasowanie go przed publikacja zepsulo by zdjecie na dzialajacej stronie
+  // (404). Nadpisywanie w miejscu usuwa ten problem calkowicie i przy okazji likwiduje
+  // klase osieroconych plikow w R2 (nie ma czego sprzatac).
+  //
+  // Cache rozwiazujemy w URL, nie w kluczu: ?v=<losowy> zmienia sie przy kazdym uploadzie,
+  // wiec przegladarka i CDN traktuja to jako nowy zasob i nie serwuja starej, zbuforowanej
+  // wersji. To byl pierwotny zglaszany blad ("wgralem nowe zdjecie, a pokazuje sie stare").
   const version = randomBytes(4).toString('hex')
-  const filename = `${kind}-${id}-${version}.webp`
+  const filename = `${kind}-${id}.webp`
   const key = `${tenantId}/${filename}`
 
   try {
@@ -107,7 +114,10 @@ export async function POST(req: Request): Promise<Response> {
     return err(500, 'Upload failed')
   }
 
-  return new Response(JSON.stringify({ url: publicUrl(key) }), {
+  // ?v= — cache-busting po stronie URL (patrz komentarz przy generowaniu klucza).
+  // deleteUploadBestEffort po stronie klienta obcina query string przed wyslaniem
+  // nazwy do DELETE, wiec ta forma jest wspierana od konca do konca.
+  return new Response(JSON.stringify({ url: `${publicUrl(key)}?v=${version}` }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' },
   })

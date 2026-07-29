@@ -3,23 +3,11 @@ import { useRef, useState, useTransition } from 'react'
 import type { PostItem, SiteMeta } from '@/lib/cms/types'
 import type { Violation } from '@/lib/cms/validation/types'
 import { postUrl, postPath } from '@/lib/cms/urls'
+import { deleteUploadBestEffort } from '@/lib/cms/upload-client'
 import { savePosts } from './actions'
 import RichTextEditor from './RichTextEditor'
 import GooglePreview from './GooglePreview'
 import FieldHelp from '@/app/(panel)/FieldHelp'
-
-// Usuwa okladke z R2 najlepiej-jak-sie-da — porzucony plik akceptujemy (jak w
-// FieldsForm.tsx PortfolioCardsEditor.removeCard), nie blokujemy UI na tym.
-async function deleteCoverBestEffort(coverImage: string | undefined): Promise<void> {
-  if (!coverImage) return
-  const filename = coverImage.split('?')[0].split('/').pop() ?? ''
-  if (!filename) return
-  try {
-    await fetch(`/api/upload?filename=${encodeURIComponent(filename)}`, { method: 'DELETE' })
-  } catch {
-    // orphan accepted — known debt, patrz PortfolioCardsEditor
-  }
-}
 
 const PL_CHARS: Record<string, string> = {
   ą: 'a', ć: 'c', ę: 'e', ł: 'l', ń: 'n', ó: 'o', ś: 's', ź: 'z', ż: 'z',
@@ -98,20 +86,21 @@ export default function PostsEditor({ initialPosts, meta }: { initialPosts: Post
   function removePost(id: string) {
     const post = posts.find(p => p.id === id)
     if (!confirm(`Usunąć publikację "${post?.title || 'bez tytułu'}"? Tej operacji nie można cofnąć po zapisaniu.`)) return
-    void deleteCoverBestEffort(post?.coverImage)
+    void deleteUploadBestEffort(post?.coverImage)
     setPosts(prev => prev.filter(p => p.id !== id))
     if (activeId === id) setActiveId(null)
     setSaveStatus('idle')
   }
 
+  // Input pliku trzeba wyczyscic po KAZDEJ probie, takze nieudanej: bez tego ponowny
+  // wybor TEGO SAMEGO pliku nie generuje zdarzenia change i retry po bledzie nic nie robi.
+  function resetCoverInput() {
+    if (coverInputRef.current) coverInputRef.current.value = ''
+  }
+
   async function handleCoverChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !active) return
-
-    // Zapamietane PRZED uploadem — kazdy upload dostaje teraz unikalny klucz R2 (patrz
-    // route.ts), wiec stara okladka juz nie jest nadpisywana automatycznie i trzeba ja
-    // posprzatac recznie, inaczej zostaje osierocona w R2.
-    const previousCover = active.coverImage
 
     setCoverUploadStatus('uploading')
     setCoverUploadError('')
@@ -127,23 +116,26 @@ export default function PostsEditor({ initialPosts, meta }: { initialPosts: Post
       if (!res.ok) {
         setCoverUploadStatus('error')
         setCoverUploadError(json.error ?? 'Błąd uploadu')
+        resetCoverInput()
         return
       }
+      // update() patchuje funkcyjnie po id, wiec zmiany w innych polach wprowadzone
+      // w trakcie uploadu nie zostana cofniete.
       update({ coverImage: json.url! })
       setCoverUploadStatus('idle')
-      if (coverInputRef.current) coverInputRef.current.value = ''
-      // Dopiero PO udanym uploadzie nowego pliku — gdyby upload sie nie udal, stara
-      // okladka ma zostac nietknieta.
-      void deleteCoverBestEffort(previousCover)
+      resetCoverInput()
+      // Bez kasowania starej okladki — klucz R2 jest deterministyczny, wiec obiekt
+      // zostal wlasnie nadpisany w miejscu (patrz api/upload/route.ts).
     } catch {
       setCoverUploadStatus('error')
       setCoverUploadError('Błąd połączenia')
+      resetCoverInput()
     }
   }
 
   function removeCover() {
     if (!active) return
-    void deleteCoverBestEffort(active.coverImage)
+    void deleteUploadBestEffort(active.coverImage)
     update({ coverImage: undefined })
   }
 

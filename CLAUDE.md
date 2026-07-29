@@ -164,7 +164,13 @@ All panel routes are protected by `src/middleware.ts` (NextAuth matcher). Per-ro
 
 ### Image uploads
 
-`POST /api/upload` accepts a `multipart/form-data` with `file` (PNG/JPEG/WebP, ≤5 MB) and `cardId` (UUID). The route resizes to 800×450 WebP via `sharp`, then stores at `<tenantId>/portfolio-card-<cardId>.webp` in **Cloudflare R2** (S3-compatible). Returns `{ url }` pointing to `R2_PUBLIC_BASE_URL/<key>`. `DELETE /api/upload?filename=<name>` removes the object from R2; failures are accepted (best-effort). SVG uploads are rejected.
+`POST /api/upload` accepts a `multipart/form-data` with `file` (PNG/JPEG/WebP, ≤5 MB), a `kind` (`portfolio-card` → 800×450, or `post-cover` → 1200×675; defaults to `portfolio-card`) and the matching id field (`cardId` / `postId`, both UUID). The route resizes via `sharp` to WebP and stores at `<tenantId>/<kind>-<id>.webp` in **Cloudflare R2** (S3-compatible). SVG uploads are rejected.
+
+**The R2 key is deterministic — replacing an image overwrites the object in place.** This is deliberate. The live site is static HTML on R2 that keeps pointing at the *old* URL until the next **Publikuj**; if each upload wrote a new key, the previous file would have to be deleted, and deleting it before publishing would break the image on the running site (404). Overwriting in place removes that window entirely and means there are no orphaned objects to garbage-collect.
+
+Cache is handled in the URL, not the key: the route returns `{ url }` as `R2_PUBLIC_BASE_URL/<key>?v=<random>`, so a replaced image is a new URL for the browser/CDN and the stale-image bug does not come back. `deleteUploadBestEffort()` (`src/lib/cms/upload-client.ts`, shared by both panel editors) strips the query string before calling `DELETE /api/upload?filename=<name>`.
+
+**Only call the DELETE path when removing an entity for good** (deleting a portfolio card or clearing a cover) — never after replacing an image, since nothing was orphaned. Deletion failures are accepted (best-effort, `keepalive: true`).
 
 ### Static export
 

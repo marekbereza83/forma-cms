@@ -41,3 +41,6 @@ prisma/prisma/
 # uploaded tenant assets
 public/uploads/*
 !public/uploads/.gitkeep
+
+# TypeScript incremental build artifact — churns on every build, must not be tracked
+tsconfig.tsbuildinfo

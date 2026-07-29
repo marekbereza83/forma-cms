@@ -3,24 +3,11 @@ import { useState, useTransition, useRef } from 'react'
 import type { SiteModel, PricingPackage, ProcessStep, StatCard, PortfolioCard, FaqItem, DeliverableItem } from '@/lib/cms/types'
 import type { Violation } from '@/lib/cms/validation/types'
 import { setFieldValue } from '@/lib/cms/fields'
+import { deleteUploadBestEffort } from '@/lib/cms/upload-client'
 import { saveFields } from './actions'
 
 interface Props {
   initialModel: SiteModel
-}
-
-// Best-effort delete of uploaded file from R2 (lub legacy /uploads/) — porzucony plik
-// akceptujemy, jesli sied polaczenie. DELETE endpoint waliduje format nazwy (FILENAME_RE)
-// i odrzuca nieprawidlowe klucze 400. Uzywane przy usuwaniu karty ORAZ przy podmianie
-// zdjecia na nowe (kazdy upload dostaje od 2026-07-29 unikalny klucz R2 — patrz
-// route.ts — wiec stare zdjecie nie jest juz nadpisywane automatycznie).
-async function deleteImageBestEffort(image: string | undefined): Promise<void> {
-  if (!image || image.length === 0) return
-  const filename = image.split('?')[0].split('/').pop() ?? ''
-  if (!filename) return
-  try {
-    await fetch(`/api/upload?filename=${encodeURIComponent(filename)}`, { method: 'DELETE' })
-  } catch { /* orphan accepted — known debt */ }
 }
 
 // ── Error matching ────────────────────────────────────────────────────────────
@@ -167,12 +154,20 @@ function PortfolioCardEditor({
   const [uploadError, setUploadError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // Zawsze wskazuje na NAJNOWSZA wersje karty. Upload jest asynchroniczny, a pola
+  // tekstowe pozostaja w tym czasie edytowalne — patrz uzycie w handleFileChange.
+  const cardRef = useRef(card)
+  cardRef.current = card
+
+  // Input pliku trzeba wyczyscic po KAZDEJ probie, takze nieudanej: bez tego ponowny
+  // wybor TEGO SAMEGO pliku nie generuje zdarzenia change i retry po bledzie nic nie robi.
+  function resetFileInput() {
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-
-    // Zapamietane PRZED uploadem — patrz komentarz przy deleteImageBestEffort.
-    const previousImage = card.image
 
     setUploadStatus('uploading')
     setUploadError('')
@@ -187,16 +182,21 @@ function PortfolioCardEditor({
       if (!res.ok) {
         setUploadStatus('error')
         setUploadError(json.error ?? 'Błąd uploadu')
+        resetFileInput()
         return
       }
-      onChange({ ...card, image: json.url! })
+      // cardRef, nie card: pola tekstowe NIE sa blokowane w trakcie uploadu, wiec
+      // uzytkownik moze w tym czasie zmienic tytul czy opis. Domkniecie po `card`
+      // (snapshot sprzed uploadu) cofneloby te zmiany po zakonczeniu wysylki.
+      onChange({ ...cardRef.current, image: json.url! })
       setUploadStatus('idle')
-      if (fileInputRef.current) fileInputRef.current.value = ''
-      // Dopiero PO udanym uploadzie — gdyby sie nie udal, stare zdjecie ma zostac.
-      void deleteImageBestEffort(previousImage)
+      resetFileInput()
+      // Bez kasowania starego pliku — klucz R2 jest deterministyczny, wiec obiekt
+      // zostal wlasnie nadpisany w miejscu (patrz api/upload/route.ts).
     } catch {
       setUploadStatus('error')
       setUploadError('Błąd połączenia')
+      resetFileInput()
     }
   }
 
@@ -281,9 +281,11 @@ function PortfolioCardsEditor({
     onChange(next)
   }
 
-  async function removeCard(i: number) {
+  function removeCard(i: number) {
     const card = cards[i]
-    await deleteImageBestEffort(card.image)
+    // Fire-and-forget (keepalive w helperze): sprzatanie R2 to najlepszy-jak-sie-da
+    // efekt uboczny, nie moze blokowac UI na round-trip do R2 przy kliknieciu "Usuń".
+    void deleteUploadBestEffort(card.image)
     onChange(cards.filter((_, idx) => idx !== i))
   }
 
@@ -310,7 +312,7 @@ function PortfolioCardsEditor({
             {cards.length > 1 && (
               <button
                 type="button"
-                onClick={() => void removeCard(i)}
+                onClick={() => removeCard(i)}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}
                 aria-label={`Usuń realizację ${i + 1}`}
               >
