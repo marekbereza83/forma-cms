@@ -42,18 +42,32 @@ function serve(obj: R2ObjectBody, status = 200): Response {
  * zniweczylby wiekszosc ochrony. Sensowne CSP wymaga najpierw wyniesienia tych skryptow
  * do plikow w /assets/js/ — osobne zadanie, patrz strategia-seo.md.
  *
- * HSTS bez 'preload' (wpis na liste wbudowana w przegladarki jest trudno odwracalny)
- * i bez 'includeSubDomains' — kanoniczne przekierowanie tego Workera obejmuje tylko
- * hosty z HOST_MAP, wiec ewentualna subdomena serwowana po HTTP (staging, narzedzie)
- * zostalaby zerwana na czas max-age. Dopisz includeSubDomains dopiero po potwierdzeniu,
- * ze wszystkie subdomeny chodza po HTTPS.
+ * HSTS bez 'preload' — wpis na liste wbudowana w przegladarki jest trudno odwracalny
+ * (miesiace), sam max-age nie.
+ *
+ * 'includeSubDomains' DOPISANE 2026-07-30 po weryfikacji w panelu Cloudflare (DNS +
+ * Workers Routes) wszystkich hostow web-owych pod formawizerunku.pl:
+ *   - formawizerunku.pl, www.formawizerunku.pl  -> ten Worker, TLS OK
+ *   - app.formawizerunku.pl                     -> Vercel (proxied), TLS OK
+ *   - kowalczyk.formawizerunku.pl, mazur.formawizerunku.pl
+ *                                                -> INNY Worker (panelforma,
+ *     poza tym repo) — strony klientow kancelarii, TLS OK
+ *   - ftp.formawizerunku.pl                     -> CNAME donikad, 522 (brak
+ *     origin), ale TLS na brzegu Cloudflare dziala — includeSubDomains nic
+ *     tu nie psuje, bo i tak nic nie odpowiada
+ * Reszta rekordow (DKIM, MX poczty OVH, SPF/DMARC/site-verification) to nie sa
+ * hosty HTTP, wiec HSTS ich nie dotyczy.
+ *
+ * includeSubDomains wymusza polityke na WSZYSTKICH subdomenach niezaleznie od
+ * tego, ktory Worker/origin je serwuje (RFC 6797) — stad koniecznosc sprawdzenia
+ * kowalczyk./mazur. mimo ze naleza do innego systemu.
  */
 const SECURITY_HEADERS: Record<string, string> = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
-  'Strict-Transport-Security': 'max-age=31536000',
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
 }
 
 /**
