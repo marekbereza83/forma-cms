@@ -212,7 +212,46 @@ w ogóle nie dotyka tego procesu.
 
 ---
 
-## 10. Checklista architektoniczna dla nowego projektu tego typu
+## 10. Onboarding kolejnej domeny tenanta na Cloudflare — powtórz to za KAŻDYM razem
+
+Odkryte 2026-07-30 przy pracy nad cache brzegowym: `kowalczyk.formawizerunku.pl` i
+`mazur.formawizerunku.pl` to subdomeny **przygotowane pod przyszłych klientów**
+(jeszcze nie realne, plan właściciela — hostować kolejnych klientów na Cloudflare).
+Sprawdzone wprost (`curl -D -`): **nie wysyłają żadnego `Cache-Control`** — więc
+ustawienie strefy „Browser Cache TTL" (patrz `strategia-seo.md` §12) nie ma tam
+czego respektować. Zero ryzyka, ale i zero korzyści, dopóki origin (Worker/serwer za
+tą subdomeną) nie zacznie same nagłówki wysyłać.
+
+**Dwie różne sytuacje, dwa różne działania — nie pomyl ich:**
+
+1. **Nowy klient jako subdomena TEJ SAMEJ strefy** (np. `nastepny.formawizerunku.pl`)
+   → ustawienia strefy (`Browser Cache TTL`, i inne z panelu Cloudflare) **already
+   apply automatically** — nic nie trzeba klikać ponownie. Do zrobienia jest tylko
+   kod: ten Worker (albo jego odpowiednik) musi faktycznie wysyłać `Cache-Control`,
+   inaczej „Respect Existing Headers" nie ma na czym pracować (dokładnie stan
+   `kowalczyk.`/`mazur.` dzisiaj).
+2. **Nowy klient na WŁASNEJ, osobnej domenie** (np. `kancelaria-xyz.pl`, nie
+   subdomena `formawizerunku.pl`) → to jest **osobna strefa Cloudflare**. Nic z tego,
+   co ustawiono dla `formawizerunku.pl` (`Browser Cache TTL`, nagłówki bezpieczeństwa
+   jeśli konfigurowane per-strefa) **nie przenosi się automatycznie**. Cała lista
+   niżej do przejścia od nowa, dla KAŻDEJ nowej strefy osobno.
+
+**Checklista per nowa domena/strefa:**
+- [ ] `HOST_MAP` w `wrangler.toml` ma wpis dla nowego hosta → nowy `tenantId`
+- [ ] Custom Domain podpięty w Cloudflare Dashboard (Worker → Settings → Domains
+      & Routes) — bez tego DNS wskazuje na Worker, ale routing go nie widzi
+- [ ] Origin (Worker obsługujący tę domenę) faktycznie wysyła `Cache-Control` —
+      zweryfikować `curl -D -`, nie zakładać
+- [ ] `Browser Cache TTL` w nowej strefie ustawione na `Respect Existing Headers`
+      (albo świadomy odpowiednik) — domyślna wartość strefy (często kilka godzin)
+      nadpisze cokolwiek origin wysyła, dokładnie jak `formawizerunku.pl` przed
+      2026-07-30
+- [ ] Nagłówki bezpieczeństwa (§9) obecne na TEJ strefie — nie zakładać, że
+      "skoro już to zrobiliśmy gdzie indziej, to działa wszędzie"
+
+---
+
+## 11. Checklista architektoniczna dla nowego projektu tego typu
 
 - [ ] Spisana i wyegzekwowana granica treść/forma (§1) — w pliku instrukcji, nie
       tylko w głowie
@@ -230,3 +269,5 @@ w ogóle nie dotyka tego procesu.
       publikacji" (§7) — to determinuje wszystkie tory wdrożenia
 - [ ] Klucz assetu w storage stabilny, cache przez wersję w URL, nie przez klucz (§8)
 - [ ] Nagłówki bezpieczeństwa tam, gdzie faktycznie płynie ruch produkcyjny (§9)
+- [ ] Przy każdej nowej domenie tenanta na Cloudflare: pełna checklista per-strefa
+      (§10) — ustawienia strefy NIE przenoszą się między osobnymi domenami
