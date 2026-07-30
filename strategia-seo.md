@@ -204,13 +204,26 @@ Podgląd pokazuje też **szkice** — to celowe, ma służyć ocenie treści prz
 
 ## 11. Łańcuch wdrożenia — kolejność ma znaczenie
 
-**Trzy** niezależne tory, mylone najczęściej:
+**Cztery** niezależne tory, mylone najczęściej:
 
 ```
 KOD:     git push → Vercel → panel i podgląd
 TREŚĆ:   przycisk "Publikuj" → R2 (sites/<tenantId>/) → żywa strona
 ZDJĘCIA: upload w panelu → R2 (<tenantId>/) → NATYCHMIAST, bez publikacji
+WORKER:  npm run deploy (w workers/site-router) → Cloudflare → serwowanie R2
 ```
+
+### Worker to jedyny tor bez automatycznego wdrożenia
+
+`workers/site-router` (nagłówki bezpieczeństwa, routing po hostname, przekierowania
+301, fallback 404) **nie jest częścią** `git push` → Vercel. To osobny deployment
+Cloudflare Workers, uruchamiany ręcznie: `cd workers/site-router && npm run deploy`.
+Zmiana w tym pliku, zacommitowana i wypchnięta na `main`, **nic nie robi** na
+produkcji, dopóki ktoś nie odpali `npm run deploy` z tego katalogu.
+
+To ma znaczenie akurat tutaj, bo Worker jest miejscem, gdzie żyją nagłówki
+bezpieczeństwa (§12) — zmiana w kodzie bez wdrożenia to fałszywe poczucie
+bezpieczeństwa: repo wygląda na naprawione, produkcja nadal nie.
 
 **Konsekwencje, które realnie wystąpiły:**
 
@@ -254,7 +267,49 @@ niech ustawi nagłówki na obiekcie, a nie usuwa `?v=` w przekonaniu, że to zb�
 
 ---
 
-## 12. Checklista dla nowego typu strony
+## 12. Nagłówki bezpieczeństwa żyją w Workerze, nie w Next.js
+
+Zewnętrzny audyt (2026-07-30) wykazał brak sześciu nagłówków bezpieczeństwa na
+produkcji — potwierdzone pomiarem (`curl -D -`), nie na słowo audytora. Żywa strona
+jest statycznym HTML-em serwowanym przez `workers/site-router`, nie przez Next.js —
+więc nagłówki dodaje się **tam**, nie w `next.config.js` czy middleware Vercela,
+bo ten kod w ogóle nie bierze udziału w obsłudze ruchu produkcyjnego.
+
+Wdrożone pięć (`SECURITY_HEADERS` w `workers/site-router/src/index.ts`):
+`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`,
+`Strict-Transport-Security`.
+
+**Musi być na każdej odpowiedzi, nie tylko na sukcesie.** Worker ma siedem ścieżek
+zwrotu (405, przekierowanie kanoniczne, „Unknown host", plik z R2, 301 ze slugu,
+strona 404, goły „Not found"). Dodanie nagłówków tylko w funkcji, która serwuje plik
+z R2, pokryłoby jedną z siedmiu. Rozwiązanie: jedna funkcja opakowująca `fetch()`
+w całości, budująca nową odpowiedź z tymi samymi `body`/`status` — konieczne, bo
+`Response.redirect()` zwraca odpowiedź **niemutowalną**, `headers.set()` na niej
+rzuca wyjątkiem.
+
+**Weryfikacja przez realne uruchomienie (`wrangler dev`), nie przez lekturę kodu.**
+`curl` na Windowsie nie radzi sobie z samopodpisanym certyfikatem lokalnego
+Miniflare — zadziałał Playwright (`ignoreHTTPSErrors: true`). Sprawdzone wprost:
+wszystkie siedem ścieżek zwraca komplet nagłówków, a serwowanie pliku z R2 zachowuje
+`etag`/`content-type` i strumieniuje `body` bez buforowania w pamięci Workera.
+
+**Content-Security-Policy świadomie pominięte.** Strona ma 3 skrypty inline (m.in.
+snippet GA z Consent Mode) i blok `<style>` — `script-src 'self'` by je zablokował,
+`'unsafe-inline'` zniweczyłby większość ochrony, jaką CSP miało dać. Wymaga
+najpierw wyniesienia tych skryptów do plików w `/assets/js/`. Nie robić CSP przez
+`'unsafe-inline'` tylko po to, żeby odhaczyć punkt audytu — to fasada bezpieczeństwa,
+nie bezpieczeństwo.
+
+**HSTS bez `preload` i bez `includeSubDomains`, obie decyzje odwracalne w różnym
+stopniu.** `preload` to wpis na listę wbudowaną w przeglądarki — cofnięcie trwa
+miesiące, sam `max-age` nie. `includeSubDomains` pominięte, bo kanoniczne
+przekierowanie Workera obejmuje tylko hosty z `HOST_MAP` — subdomena serwowana
+po HTTP (staging, jakieś narzędzie) zostałaby zerwana na czas `max-age`. Dopisać
+dopiero po potwierdzeniu, że wszystkie subdomeny danego tenanta chodzą po HTTPS.
+
+---
+
+## 13. Checklista dla nowego typu strony
 
 Przy dodawaniu kolejnego typu treści (np. „Case studies", „Wydarzenia") przejdź to
 w kolejności:
@@ -278,7 +333,7 @@ w kolejności:
 
 ---
 
-## 13. Czego świadomie NIE robimy
+## 14. Czego świadomie NIE robimy
 
 - **`noindex` per artykuł** — odrzucone. Przy blogu tej wielkości potrzeba marginalna,
   a ryzyko realne: klient może przypadkiem wyindeksować dobry tekst. Gdyby wracało — tylko
