@@ -44,3 +44,6 @@ public/uploads/*
 
 # TypeScript incremental build artifact — churns on every build, must not be tracked
 tsconfig.tsbuildinfo
+
+# lokalny stan miniflare, tworzony przez `wrangler dev` w workers/site-router
+.wrangler/
