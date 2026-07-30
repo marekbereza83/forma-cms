@@ -300,12 +300,25 @@ najpierw wyniesienia tych skryptów do plików w `/assets/js/`. Nie robić CSP p
 `'unsafe-inline'` tylko po to, żeby odhaczyć punkt audytu — to fasada bezpieczeństwa,
 nie bezpieczeństwo.
 
-**HSTS bez `preload` i bez `includeSubDomains`, obie decyzje odwracalne w różnym
-stopniu.** `preload` to wpis na listę wbudowaną w przeglądarki — cofnięcie trwa
-miesiące, sam `max-age` nie. `includeSubDomains` pominięte, bo kanoniczne
-przekierowanie Workera obejmuje tylko hosty z `HOST_MAP` — subdomena serwowana
-po HTTP (staging, jakieś narzędzie) zostałaby zerwana na czas `max-age`. Dopisać
-dopiero po potwierdzeniu, że wszystkie subdomeny danego tenanta chodzą po HTTPS.
+**HSTS bez `preload`.** Wpis na listę wbudowaną w przeglądarki — cofnięcie trwa
+miesiące, sam `max-age` nie.
+
+**`includeSubDomains` — dopisane 2026-07-30, po weryfikacji w panelu Cloudflare
+(DNS + Workers Routes).** `includeSubDomains` wymusza politykę na **wszystkich**
+subdomenach niezależnie od tego, który Worker/origin je faktycznie serwuje
+(RFC 6797) — dlatego weryfikacja musiała objąć subdomeny spoza tego repo. Wynik:
+poza dwoma hostami z `HOST_MAP`, pod domeną żyją jeszcze `app.` (Vercel, proxied),
+oraz **`kowalczyk.` i `mazur.` — realne strony klientów kancelarii, serwowane przez
+zupełnie inny Worker (`panelforma`)**, którego kod nie jest częścią `forma-cms`.
+Wszystkie miały ważny TLS. `ftp.` to CNAME donikąd (Cloudflare zwraca 522 — brak
+originu), ale TLS na brzegu Cloudflare działa, więc flaga nic tam nie psuje.
+
+**Automatyczne narzędzia (`crt.sh`, `nslookup` przez zewnętrzny resolver) zawiodły
+przy tej weryfikacji** — `crt.sh` był niedostępny, a `nslookup` dawał sprzeczne
+wyniki nawet dla domeny głównej, o której już wiadomo (z wcześniejszych żądań
+HTTP), że działa. Rozstrzygnięcie przyszło dopiero z panelu DNS Cloudflare — źródła
+prawdy, nie z prób odgadnięcia z zewnątrz. Przy kolejnym takim pytaniu: pytaj o
+dostęp do panelu providera zamiast ufać publicznym narzędziom enumeracyjnym.
 
 ---
 
