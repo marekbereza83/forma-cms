@@ -230,6 +230,18 @@ tą subdomeną) nie zacznie same nagłówki wysyłać.
    kod: ten Worker (albo jego odpowiednik) musi faktycznie wysyłać `Cache-Control`,
    inaczej „Respect Existing Headers" nie ma na czym pracować (dokładnie stan
    `kowalczyk.`/`mazur.` dzisiaj).
+
+   **Twarde ograniczenie na przyszłość, nie tylko dzisiaj:** `formawizerunku.pl`
+   wysyła HSTS z `includeSubDomains` (`strategia-seo.md` §12) — to reguła
+   zapamiętywana **w przeglądarce odwiedzającego** po wizycie na głównej domenie,
+   każąca jej łączyć się z **każdą** subdomeną wyłącznie po HTTPS, bez wyjątków,
+   przez rok. Efekt na nowej subdomenie bez jeszcze-nie-gotowego certyfikatu: nie
+   "wolniej" czy "gorzej" — **przeglądarka w ogóle nie wyświetli strony**, twardy
+   błąd połączenia bez opcji ominięcia, dla każdego kto wcześniej odwiedził stronę
+   główną. Nie da się tego wyłączyć punktowo dla jednej subdomeny — reguła dotyczy
+   całej strefy. Kolejność ma znaczenie: proxy Cloudflare (i certyfikat) musi
+   działać na nowej subdomenie **zanim** ktokolwiek dostanie do niej link, nie
+   "wdrożę, a HTTPS dogonię później".
 2. **Nowy klient na WŁASNEJ, osobnej domenie** (np. `kancelaria-xyz.pl`, nie
    subdomena `formawizerunku.pl`) → to jest **osobna strefa Cloudflare**. Nic z tego,
    co ustawiono dla `formawizerunku.pl` (`Browser Cache TTL`, nagłówki bezpieczeństwa
