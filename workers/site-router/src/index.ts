@@ -34,6 +34,36 @@ function serve(obj: R2ObjectBody, status = 200): Response {
   return new Response(obj.body, { status, headers })
 }
 
+// Cache brzegowy (Workers Cache API) — dodany 2026-07-30 po zmierzeniu, ze KAZDE
+// zadanie (bez wyjatku) odpytywalo R2 na zywo: brak Cache-Control, brak CF-Cache-Status
+// w odpowiedzi. TTL 5 minut — kompromis miedzy realna korzyscia (powtarzajace sie
+// wejscia w tym oknie nie dotykaja R2 w ogole) a oknem nieswiezosci po "Publikuj"
+// (nowa tresc moze byc widoczna do 5 min pozniej). Brak invalidacji przy publikacji —
+// swiadomie poza zakresem tej zmiany; jesli 5 min okaze sie za dlugie dla workflow
+// redakcyjnego, nastepny krok to purge cache z publishSite() po udanym uploadzie.
+const CACHE_TTL_SECONDS = 300
+
+// Klucz cache budowany z tenantId + sciezki zadania, NIE z pelnego URL — kanonizacja
+// nizej na sztywno wymusza hostname 'formawizerunku.pl' niezaleznie od tego, ktory host
+// z HOST_MAP faktycznie odpowiada (przedistniejacy stan, nie naprawiany tutaj). Klucz
+// oparty na URL kolidowalby miedzy tenantami, gdyby ta kanonizacja kiedys zostala
+// naprawiona pod wielu tenantow; klucz oparty na tenantId jest poprawny niezaleznie.
+function cacheKeyFor(tenantId: string, path: string): Request {
+  return new Request(`https://cache.internal/${tenantId}${path}`)
+}
+
+// Serwuje z R2 I zapisuje do cache w tle (ctx.waitUntil — nie opoznia odpowiedzi).
+// response.clone() przed dopisaniem Cache-Control, bo obj.body to strumien
+// jednorazowego odczytu — oryginal wraca do klienta, klon idzie do cache.put().
+async function serveAndCache(obj: R2ObjectBody, cache: Cache, cacheKey: Request, ctx: ExecutionContext, status = 200): Promise<Response> {
+  const response = serve(obj, status)
+  const cacheable = response.clone()
+  cacheable.headers.set('Cache-Control', `public, max-age=${CACHE_TTL_SECONDS}`)
+  ctx.waitUntil(cache.put(cacheKey, cacheable))
+  response.headers.set('x-forma-cache', 'MISS')
+  return response
+}
+
 /**
  * Naglowki bezpieczenstwa doklejane do KAZDEJ odpowiedzi (patrz withSecurityHeaders).
  *
@@ -102,12 +132,12 @@ async function resolveRedirect(bucket: R2Bucket, base: string, path: string): Pr
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    return withSecurityHeaders(await handle(request, env))
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    return withSecurityHeaders(await handle(request, env, ctx))
   },
 }
 
-async function handle(request: Request, env: Env): Promise<Response> {
+async function handle(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
   if (request.method !== 'GET' && request.method !== 'HEAD') {
     return new Response('Method not allowed', { status: 405 })
   }
@@ -132,6 +162,15 @@ async function handle(request: Request, env: Env): Promise<Response> {
   let path = decodeURIComponent(url.pathname)
   if (path === '/' || path === '') path = '/index.html'
 
+  const cache = caches.default
+  const cacheKey = cacheKeyFor(tenantId, path)
+  const cached = await cache.match(cacheKey)
+  if (cached) {
+    const res = new Response(cached.body, cached)
+    res.headers.set('x-forma-cache', 'HIT')
+    return res
+  }
+
   // Try the exact key, then extensionless fallbacks (foo -> foo.html, foo/ -> foo/index.html).
   const last = path.split('/').pop() ?? ''
   const candidates = [`${base}${path}`]
@@ -142,7 +181,7 @@ async function handle(request: Request, env: Env): Promise<Response> {
 
   for (const key of candidates) {
     const obj = await env.SITE_BUCKET.get(key)
-    if (obj) return serve(obj)
+    if (obj) return serveAndCache(obj, cache, cacheKey, ctx)
   }
 
   const redirectTo = await resolveRedirect(env.SITE_BUCKET, base, path)
@@ -152,6 +191,6 @@ async function handle(request: Request, env: Env): Promise<Response> {
   }
 
   const notFound = await env.SITE_BUCKET.get(`${base}/404.html`)
-  if (notFound) return serve(notFound, 404)
+  if (notFound) return serveAndCache(notFound, cache, cacheKey, ctx, 404)
   return new Response('Not found', { status: 404 })
 }
