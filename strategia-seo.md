@@ -204,14 +204,15 @@ Podgląd pokazuje też **szkice** — to celowe, ma służyć ocenie treści prz
 
 ## 11. Łańcuch wdrożenia — kolejność ma znaczenie
 
-Dwa niezależne tory, mylone najczęściej:
+**Trzy** niezależne tory, mylone najczęściej:
 
 ```
-KOD:    git push → Vercel → panel i podgląd
-TREŚĆ:  przycisk "Publikuj" → R2 → żywa strona
+KOD:     git push → Vercel → panel i podgląd
+TREŚĆ:   przycisk "Publikuj" → R2 (sites/<tenantId>/) → żywa strona
+ZDJĘCIA: upload w panelu → R2 (<tenantId>/) → NATYCHMIAST, bez publikacji
 ```
 
-**Konsekwencje, które realnie wystąpiły dziś:**
+**Konsekwencje, które realnie wystąpiły:**
 
 1. Zmiana w rendererze **musi** być wdrożona na Vercela **zanim** klikniesz „Publikuj" —
    publikacja używa **wdrożonego** renderera, nie tego z Twojego dysku.
@@ -219,6 +220,37 @@ TREŚĆ:  przycisk "Publikuj" → R2 → żywa strona
    renderer generuje ją tylko gdy `publishedPosts.length > 0`.
 3. Dodanie pozycji do nawigacji (migracja) **przed** opublikowaniem treści daje żywy link
    prowadzący na 404. Kolejność: najpierw treść, potem nawigacja, potem publikacja.
+
+### Zdjęcia to trzeci tor — i najbardziej podstępny
+
+Zdjęcia lądują w R2 **od razu przy uploadzie**, ale opublikowany HTML wskazuje na
+**stary URL aż do następnego „Publikuj"**. Te dwa zegary nie są zsynchronizowane i to
+jest źródło całej klasy błędów.
+
+**Zasada: nigdy nie kasuj pliku, na który może jeszcze wskazywać żywa strona.**
+
+Naruszenie tej zasady kosztowało regresję (2026-07-29): próba naprawy cache'u nadała
+każdemu uploadowi losowy klucz R2, przez co stary plik przestał być nadpisywany i trzeba
+było go kasować zaraz po podmianie. Efekt: **404 na obrazku działającej strony** przez
+całe okno między podmianą a publikacją. W przypadku okładek publikacji zamknięcie karty
+bez zapisu zostawiało w bazie URL do nieistniejącego pliku, bez możliwości odzyskania.
+
+Obowiązujące rozwiązanie:
+- **Klucz R2 jest deterministyczny** (`<tenantId>/<kind>-<id>.webp`) — podmiana nadpisuje
+  obiekt w miejscu. Nie ma osieroconych plików i nie ma czego kasować.
+- **Cache rozwiązany w URL, nie w kluczu**: zwracany adres to `<klucz>?v=<losowy>`.
+  Przeglądarka i CDN widzą nowy zasób, R2 widzi ten sam obiekt.
+- `DELETE` wolno wołać **wyłącznie przy trwałym usuwaniu encji** (kasowanie karty
+  portfolio, wyczyszczenie okładki) — **nigdy** po podmianie zdjęcia, bo nic nie
+  zostało osierocone.
+
+Efekt uboczny, tym razem pożądany: `coverImage` trafia do `og:image`, więc zmiana `?v=`
+wymusza na platformach społecznościowych ponowne pobranie miniatury zamiast serwowania
+starej z ich własnego cache'u.
+
+**Dług do świadomości:** przyczyną źródłową był brak jakiegokolwiek `Cache-Control` przy
+`PutObject` do R2. `?v=` to obejście, nie rozwiązanie — kto będzie to kiedyś porządkował,
+niech ustawi nagłówki na obiekcie, a nie usuwa `?v=` w przekonaniu, że to zbędny bałagan.
 
 ---
 
@@ -241,6 +273,8 @@ w kolejności:
 - [ ] Kontrast tekstu ≥ 4.5:1 — zmierzony, nie oceniony
 - [ ] Hierarchia nagłówków bez przeskoków (test w `renderer.test.ts` to sprawdza)
 - [ ] Brak stron archiwum dopóki nie ma czego archiwizować
+- [ ] Jeśli typ ma zdjęcia: klucz R2 deterministyczny, `DELETE` tylko przy trwałym
+      usuwaniu encji — nigdy po podmianie pliku (§11)
 
 ---
 
