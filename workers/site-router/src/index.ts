@@ -36,12 +36,12 @@ function serve(obj: R2ObjectBody, status = 200): Response {
 
 // Cache brzegowy (Workers Cache API) — dodany 2026-07-30 po zmierzeniu, ze KAZDE
 // zadanie (bez wyjatku) odpytywalo R2 na zywo: brak Cache-Control, brak CF-Cache-Status
-// w odpowiedzi. TTL 5 minut — kompromis miedzy realna korzyscia (powtarzajace sie
-// wejscia w tym oknie nie dotykaja R2 w ogole) a oknem nieswiezosci po "Publikuj"
-// (nowa tresc moze byc widoczna do 5 min pozniej). Brak invalidacji przy publikacji —
-// swiadomie poza zakresem tej zmiany; jesli 5 min okaze sie za dlugie dla workflow
-// redakcyjnego, nastepny krok to purge cache z publishSite() po udanym uploadzie.
-const CACHE_TTL_SECONDS = 300
+// w odpowiedzi. TTL 60s — skrocone z pierwotnych 5 min (2026-07-30) na prosbe
+// uzytkownika: krotsze okno nieswiezosci po "Publikuj" wazniejsze niz dodatkowa
+// redukcja odczytow R2. Nadal brak invalidacji przy publikacji — swiadomie poza
+// zakresem tej zmiany; jesli nawet 60s okaze sie za dlugie, nastepny krok to purge
+// cache z publishSite() po udanym uploadzie.
+const CACHE_TTL_SECONDS = 60
 
 // Klucz cache budowany z tenantId + sciezki zadania, NIE z pelnego URL — kanonizacja
 // nizej na sztywno wymusza hostname 'formawizerunku.pl' niezaleznie od tego, ktory host
@@ -57,8 +57,11 @@ function cacheKeyFor(tenantId: string, path: string): Request {
 // jednorazowego odczytu — oryginal wraca do klienta, klon idzie do cache.put().
 async function serveAndCache(obj: R2ObjectBody, cache: Cache, cacheKey: Request, ctx: ExecutionContext, status = 200): Promise<Response> {
   const response = serve(obj, status)
+  // Ten sam Cache-Control na ODPOWIEDZI co na kopii w cache.put() — bez tego MISS
+  // wracal do klienta bez zadnego Cache-Control, wiec przegladarka/posrednie proxy
+  // mogly stosowac wlasne, nieprzewidywalne domyslne zasady zamiast naszego 60s.
+  response.headers.set('Cache-Control', `public, max-age=${CACHE_TTL_SECONDS}`)
   const cacheable = response.clone()
-  cacheable.headers.set('Cache-Control', `public, max-age=${CACHE_TTL_SECONDS}`)
   ctx.waitUntil(cache.put(cacheKey, cacheable))
   response.headers.set('x-forma-cache', 'MISS')
   return response
