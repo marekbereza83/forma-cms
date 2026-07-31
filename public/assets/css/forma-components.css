@@ -828,7 +828,14 @@
   margin-bottom: var(--space-4);
 }
 .pub-article-title { margin-bottom: var(--space-4); }
-.pub-article-lead { color: var(--text-secondary); font-size: 1.1rem; line-height: 1.6; }
+/* Zajawka to juz ciagly tekst — ta sama miara co tresc, inaczej przy 896px daje
+   linie po ok. 130 znakow, dwa razy dluzsze niz akapity ponizej. */
+.pub-article-lead {
+  max-width: var(--pub-measure);
+  color: var(--text-secondary);
+  font-size: 1.15rem;
+  line-height: 1.65;
+}
 
 .pub-author-badge {
   display: flex;
@@ -874,15 +881,152 @@
 .pub-takeaways li { display: flex; align-items: baseline; gap: var(--space-2); }
 .pub-takeaways-num { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; color: var(--accent); }
 
-.pub-article-body { margin-bottom: var(--space-8); }
-.pub-article-body h2 { margin-top: var(--space-10); margin-bottom: var(--space-3); }
-.pub-article-body h3 { margin-top: var(--space-6); margin-bottom: var(--space-2); }
+/* ── Tresc artykulu: typografia dlugiego tekstu ───────────────
+   Zmienne trzymane na sekcji, nie globalnie — dotycza wylacznie strony artykulu
+   i nie moga wyciec na liste publikacji ani reszte serwisu. */
+.pub-article-page {
+  /* Kolumna czytania. Jednostka ch, nie px: miara skaluje sie razem z krokiem pisma
+     ustawionym nizej, wiec zawsze wypada ok. 65-70 znakow w linii niezaleznie od ekranu. */
+  --pub-measure: 68ch;
+  /* Osobny kolor dlugiego tekstu, ciut ZMIEKCZONY wzgledem --text-primary (#F0F6FC).
+     Uwaga: tresc artykulu nigdy nie byla szara — dziedziczyla --text-primary, czyli
+     niemal czysta biel. Przy dluzszej lekturze na prawie czarnym tle taka biel meczy
+     (halacja), dlatego jasnosc jest tu OBNIZONA, a nie podniesiona. Kontrast zostaje
+     ok. 13:1 na --background, czyli mocno powyzej progu AAA. */
+  --pub-reading: #D8E0E8;
+}
+
+.pub-article-body {
+  max-width: var(--pub-measure);
+  margin-bottom: var(--space-10);
+  color: var(--pub-reading);
+  /* 16px na telefonie -> 18px na duzym ekranie. */
+  font-size: clamp(1rem, 0.95rem + 0.22vw, 1.125rem);
+  line-height: 1.75;
+}
+
+/* Naglowek sekcji: krok pisma z rodziny display, nad nim krotka kreska w akcencie.
+   Kreska jest dekoracja (::before), wiec nie trafia do drzewa dostepnosci ani do
+   spisu tresci budowanego z tekstu naglowka. */
+.pub-article-body h2 {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 1.24rem + 1.1vw, 2rem);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin-top: var(--space-12);
+  margin-bottom: var(--space-4);
+  padding-top: var(--space-5);
+  /* Kotwica ze spisu tresci nie moze wpasc pod przyklejona nawigacje. */
+  scroll-margin-top: 96px;
+}
+.pub-article-body h2::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 44px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+/* Pierwszy naglowek stoi tuz pod okladka/wnioskami — nie potrzebuje odstepu z gory. */
+.pub-article-body > h2:first-child { margin-top: 0; }
+
+.pub-article-body h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.125rem, 1.05rem + 0.32vw, 1.3125rem);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+  color: var(--accent-hover);
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-3);
+  scroll-margin-top: 96px;
+}
+/* H3 zaraz po H2 to nadal ta sama sekcja — pelny odstep robilby dziure. */
+.pub-article-body h2 + h3 { margin-top: var(--space-5); }
+
 .pub-article-body p { margin-bottom: var(--space-5); }
 .pub-article-body ul,
 .pub-article-body ol { margin: 0 0 var(--space-5) var(--space-6); }
 .pub-article-body li { margin-bottom: var(--space-2); }
+/* Zagniezdzona lista nalezy do punktu nad nia — margines dolny robilby luke w srodku. */
+.pub-article-body li > ul,
+.pub-article-body li > ol { margin-top: var(--space-2); margin-bottom: 0; }
 .pub-article-body a { color: var(--accent); text-decoration: underline; }
 .pub-article-body a:hover { color: var(--accent-hover); }
+.pub-article-body strong { color: var(--text-primary); font-weight: var(--weight-semibold); }
+/* Ostatni element nie dokłada odstepu przed sekcja zrodel/tagami. */
+.pub-article-body > *:last-child { margin-bottom: 0; }
+
+/* ── Bloki wyroznione: callout "W praktyce" + przyklady komunikatow ────────────
+   Klase nadaje klient jednym przyciskiem w edytorze (zamknieta lista rol, patrz
+   src/lib/cms/post-blocks.ts); caly wyglad — tlo, kreska, etykieta — pochodzi stad. */
+.pub-article-body blockquote {
+  margin: var(--space-8) 0;
+  padding: var(--space-5) var(--space-6);
+  border-left: 3px solid var(--border);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  background: rgba(22, 27, 34, 0.5);
+}
+.pub-article-body blockquote > *:last-child { margin-bottom: 0; }
+
+.pub-article-body .f-callout {
+  border-left-color: var(--accent);
+  background: rgba(99, 102, 241, 0.09);
+}
+/* Etykieta bloku jest GENEROWANA z klasy, nie wpisywana przez klienta — dzieki temu
+   brzmi tak samo w kazdym artykule i nie da sie jej przekrecic literowka. */
+.pub-article-body .f-callout::before {
+  content: "W praktyce";
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: var(--space-3);
+}
+
+/* Para przykladow: ryzykowny vs bezpieczniejszy. --danger jest w design systemie
+   opisany jako kolor walidacji formularzy; uzycie go tutaj to swiadome rozszerzenie
+   na ostrzezenie o RYZYKU (ta sama semantyka), a nie dekoracja. Znaczenie niesie
+   przede wszystkim etykieta tekstowa, wiec komunikat nie opiera sie na samym kolorze. */
+.pub-article-body .f-chat--risk,
+.pub-article-body .f-chat--safe {
+  font-style: normal;
+}
+.pub-article-body .f-chat--risk::before,
+.pub-article-body .f-chat--safe::before {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-3);
+}
+.pub-article-body .f-chat--risk {
+  border-left-color: var(--danger);
+  background: rgba(248, 81, 73, 0.08);
+}
+.pub-article-body .f-chat--risk::before {
+  content: "Ryzykowny komunikat";
+  color: var(--danger);
+}
+.pub-article-body .f-chat--safe {
+  border-left-color: var(--success);
+  background: rgba(63, 185, 80, 0.08);
+}
+.pub-article-body .f-chat--safe::before {
+  content: "Bezpieczniejsze brzmienie";
+  color: var(--success);
+}
+/* Bezposrednio po sobie czytaja sie jako para — mniejsza przerwa je wiaze. */
+.pub-article-body .f-chat--risk + .f-chat--safe { margin-top: var(--space-3); }
 
 /* ── Tabele w tresci artykulu ─────────────────────────────────
    display:block + overflow-x:auto — tabela wklejona z Worda/arkusza bywa szersza
@@ -894,21 +1038,29 @@
   overflow-x: auto;
   max-width: 100%;
   border-collapse: collapse;
-  margin-bottom: var(--space-5);
-  font-size: 0.9rem;
+  margin: var(--space-8) 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 .pub-article-body th,
 .pub-article-body td {
   border: 1px solid var(--border);
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-4);
   text-align: left;
   vertical-align: top;
 }
+/* Wiersz naglowkowy odcina sie od tresci krokiem pisma i podwojna linia u dolu,
+   a nie samym tlem — samo tlo gubilo sie przy naprzemiennym cieniowaniu wierszy. */
 .pub-article-body th {
   background: var(--surface);
-  font-family: var(--font-display);
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--text-primary);
+  border-bottom: 2px solid var(--accent);
+  vertical-align: bottom;
 }
 .pub-article-body tbody tr:nth-child(even) {
   background: rgba(22, 27, 34, 0.4);
@@ -923,6 +1075,156 @@
 /* Word pakuje tresc komorki w <p> — bez tego kazda komorka niesie margines akapitu. */
 .pub-article-body td p:last-child,
 .pub-article-body th p:last-child { margin-bottom: 0; }
+
+/* Tabela jako karty na waskim ekranie. Wlacza sie WYLACZNIE przy [data-pub-cards],
+   ktore dopisuje publications.js po przepisaniu naglowkow kolumn do data-label na
+   komorkach. Bez JS atrybutu nie ma, wiec zostaje zwykla tabela z przewijaniem w bok —
+   nigdy nie powstanie stos komorek bez etykiet, ktorego nie da sie odczytac. */
+@media (max-width: 639px) {
+  .pub-article-body table[data-pub-cards] {
+    display: block;
+    overflow-x: visible;
+    font-size: 1rem;
+  }
+  /* Naglowki zyja dalej w drzewie dostepnosci — ich tresc jest powtorzona wizualnie
+     w ::before kazdej komorki, ale czytnik ekranu ma korzystac z prawdziwego <th>. */
+  .pub-article-body table[data-pub-cards] thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .pub-article-body table[data-pub-cards] tbody { display: block; }
+  .pub-article-body table[data-pub-cards] tbody tr,
+  .pub-article-body table[data-pub-cards] tbody tr:nth-child(even) {
+    display: block;
+    padding: var(--space-1) var(--space-4);
+    margin-bottom: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: rgba(22, 27, 34, 0.5);
+  }
+  .pub-article-body table[data-pub-cards] td {
+    display: block;
+    border: none;
+    border-top: 1px solid var(--border);
+    padding: var(--space-3) 0;
+  }
+  .pub-article-body table[data-pub-cards] tr td:first-child { border-top: none; }
+  .pub-article-body table[data-pub-cards] td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 0.3rem;
+  }
+}
+
+/* ── Spis tresci ──────────────────────────────────────────────
+   <details>, zeby zwijanie na waskim ekranie dzialalo bez JS. Na duzym ekranie blok
+   stoi w przyklejonej kolumnie obok tresci i nie ma byc zwijany — patrz forma-layout.css. */
+.pub-toc {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: rgba(22, 27, 34, 0.5);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-8);
+}
+.pub-toc-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  cursor: pointer;
+  list-style: none;
+}
+.pub-toc-label::-webkit-details-marker { display: none; }
+/* Strzalka z dwoch krawedzi zamiast znaku — nie zalezy od dostepnosci glifu w foncie. */
+.pub-toc-label::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin-left: var(--space-3);
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+.pub-toc[open] .pub-toc-label::after { transform: translateY(1px) rotate(-135deg); }
+
+.pub-toc-list {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.pub-toc-list a {
+  display: block;
+  padding: 0.35rem 0 0.35rem var(--space-3);
+  border-left: 2px solid var(--border);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+.pub-toc-list a:hover { color: var(--text-primary); border-left-color: var(--text-muted); }
+.pub-toc-list a.is-active { color: var(--accent); border-left-color: var(--accent); }
+
+/* ── Sekcja zrodel ────────────────────────────────────────── */
+.pub-sources {
+  max-width: var(--pub-measure);
+  margin-top: var(--space-10);
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: rgba(22, 27, 34, 0.4);
+}
+.pub-sources-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-4);
+}
+.pub-sources-list {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.pub-sources-list li::marker {
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+/* anywhere, nie break-word: dlugi adres bez spacji musi sie lamac, inaczej rozpycha
+   panel i wywoluje poziomy scroll na telefonie. */
+.pub-sources-list a {
+  color: var(--accent);
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
+.pub-sources-list a:hover { color: var(--accent-hover); }
+
+.pub-article-main > .pub-card-tags { margin-top: var(--space-8); }
 
 .pub-article-footer {
   display: flex;

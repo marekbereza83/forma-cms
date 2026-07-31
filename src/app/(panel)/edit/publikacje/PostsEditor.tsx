@@ -362,6 +362,49 @@ export default function PostsEditor({ initialPosts, meta }: { initialPosts: Post
                 </button>
               </div>
 
+              <div className="field-row">
+                <label className="field-label">
+                  Źródła (opcjonalnie — sekcja na końcu artykułu)
+                  <FieldHelp
+                    label="Źródła"
+                    text="Podstawa prawna, orzecznictwo, publikacje. Każda pozycja w osobnym polu. Adresy zaczynające się od http:// lub https:// zamienią się w klikalne linki. Numerację i wygląd sekcji nadaje CMS."
+                  />
+                </label>
+                {/* textarea, nie input jak przy wnioskach: sygnatura wyroku z adresem
+                    publikacji potrafi miec ponad 100 znakow i w jednej linii jest
+                    nieczytelna przy edycji. */}
+                {(active.sources ?? []).map((source, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
+                    <textarea
+                      rows={2}
+                      value={source}
+                      placeholder="np. Wyrok SN z 12.03.2024, sygn. II CSK 123/23, https://sn.pl/..."
+                      onChange={e => {
+                        const next = [...(active.sources ?? [])]
+                        next[i] = e.target.value
+                        update({ sources: next })
+                      }}
+                      style={{ flex: 1 }}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      onClick={() => update({ sources: (active.sources ?? []).filter((_, idx) => idx !== i) })}
+                    >
+                      Usuń
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => update({ sources: [...(active.sources ?? []), ''] })}
+                >
+                  + Dodaj źródło
+                </button>
+                {errorFor('sources') && <p className="field-error">{errorFor('sources')}</p>}
+              </div>
+
               <details className="posts-advanced">
                 <summary>Zaawansowane ustawienia SEO</summary>
 

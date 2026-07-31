@@ -1,5 +1,6 @@
 import sanitizeHtml from 'sanitize-html'
 import type { EventItem, PostItem } from '../types'
+import { POST_BLOCK_CLASSES } from '../post-blocks'
 import type { Violation } from './types'
 
 const MAX_TAGS = 8
@@ -26,15 +27,29 @@ const DANGEROUS_SCHEME_RE = /javascript:/i
 // o wyglad dba renderer (patrz strategia-seo.md §2). colspan/rowspan sa dopuszczone, bo
 // bez nich scalone komorki rozjezdzaja tabele; to jedyne atrybuty strukturalne, cala reszta
 // (width, border, cellpadding, style, class z Worda) nadal wylatuje.
+//
+// Bloki wyroznione (2026-07-31): <blockquote> z klasa z zamknietej listy POST_BLOCK_CLASSES
+// ("W praktyce", przyklady ryzykownego/bezpieczniejszego komunikatu). Klasa niesie ROLE
+// tresci, nie wyglad — patrz post-blocks.ts. <blockquote>, a nie <p class>, bo callout
+// czesto ma kilka akapitow albo liste, a p opakowuje tylko jeden akapit.
+//
+// allowedClasses samo przepuszcza atrybut class na wskazanym tagu i filtruje wartosci do
+// listy — dlatego class NIE ma go w allowedAttributes (zweryfikowane na sanitize-html
+// 2.17: klasa spoza listy jest wycinana razem z atrybutem, klasa na <p> nie przechodzi
+// wcale, bo <p> nie wystepuje w mapie).
 const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
   allowedTags: [
     'p', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'h2', 'h3', 'br',
     'table', 'thead', 'tbody', 'tr', 'th', 'td', 'caption',
+    'blockquote',
   ],
   allowedAttributes: {
     a: ['href', 'target', 'rel'],
     th: ['colspan', 'rowspan'],
     td: ['colspan', 'rowspan'],
+  },
+  allowedClasses: {
+    blockquote: POST_BLOCK_CLASSES,
   },
   allowedSchemes: ['http', 'https', 'mailto'],
   disallowedTagsMode: 'discard',
@@ -256,6 +271,23 @@ export function validatePostMetaLengths(posts: PostItem[]): Violation[] {
   return errors
 }
 
+// ── C13: PostItem.sources — kazda pozycja niepusta po trim ─────────────────────
+// Wzorem C11: pusty wpis to nie blad tresci, tylko pusta kropka na liscie zrodel,
+// ktora klient zobaczylby dopiero na opublikowanej stronie.
+export function validatePostSources(posts: PostItem[]): Violation[] {
+  const errors: Violation[] = []
+  posts.forEach((post, i) => {
+    if (post.sources?.some(s => s.trim() === '')) {
+      errors.push({
+        rule: 'C13',
+        field: `collections.posts[${i}].sources`,
+        message: `Publikacja "${post.title}" ma pustą pozycję w źródłach`,
+      })
+    }
+  })
+  return errors
+}
+
 export function validateCollections(
   events: EventItem[],
   posts: PostItem[],
@@ -272,5 +304,6 @@ export function validateCollections(
     ...validatePostTags(posts),
     ...validatePostKeyTakeaways(posts),
     ...validatePostMetaLengths(posts),
+    ...validatePostSources(posts),
   ]
 }

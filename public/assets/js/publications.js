@@ -173,6 +173,86 @@ document.querySelectorAll('[data-pub-bookmark]').forEach(btn => {
   });
 });
 
+/* ── Spis treści: stan zwinięcia + podświetlanie aktywnej sekcji ───────────────────
+   Renderer wypuszcza <details open>, wiec bez JS spis jest rozwiniety wszedzie — na
+   desktopie to stan docelowy, na telefonie tylko zajmuje miejsce. Tu ustawiamy go
+   zgodnie z szerokoscia ekranu i pilnujemy przy zmianie breakpointu: powyzej 1280px
+   CSS blokuje klikanie w naglowek (pointer-events: none), wiec gdyby stan zostal
+   zamkniety po powrocie z waskiego ekranu, nie dalo by sie go otworzyc. */
+const pubToc = document.querySelector('[data-pub-toc]');
+
+if (pubToc) {
+  const tocWide = window.matchMedia('(min-width: 1280px)');
+  const syncTocOpen = e => { pubToc.open = e.matches; };
+  syncTocOpen(tocWide);
+  tocWide.addEventListener('change', syncTocOpen);
+
+  const tocLinks = Array.from(pubToc.querySelectorAll('[data-pub-toc-link]'));
+  const headings = tocLinks
+    .map(link => document.getElementById(decodeURIComponent(link.getAttribute('href').slice(1))))
+    .filter(Boolean);
+
+  if (headings.length > 0 && 'IntersectionObserver' in window) {
+    // Mapa naglowek -> link, zeby nie przeszukiwac listy przy kazdym przewinieciu.
+    const linkFor = new Map(headings.map((h, i) => [h, tocLinks[i]]));
+    const visible = new Set();
+
+    function paintActive() {
+      // Aktywny jest PIERWSZY widoczny naglowek w kolejnosci dokumentu. Gdy zaden nie
+      // jest widoczny (dlugi akapit miedzy sekcjami), zostawiamy poprzednie
+      // podswietlenie — miganie przy kazdym przewinieciu byloby gorsze niz drobna
+      // nieprecyzyjnosc.
+      if (visible.size === 0) return;
+      const current = headings.find(h => visible.has(h));
+      tocLinks.forEach(l => l.classList.remove('is-active'));
+      linkFor.get(current)?.classList.add('is-active');
+    }
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) visible.add(entry.target);
+        else visible.delete(entry.target);
+      });
+      paintActive();
+    }, {
+      // Górna krawedz przesunieta pod przyklejona nawigacje, dolna wysoko, zeby
+      // aktywna byla sekcja czytana teraz, a nie ta ledwo wchodzaca od dolu.
+      rootMargin: '-96px 0px -65% 0px',
+    });
+
+    headings.forEach(h => observer.observe(h));
+  }
+}
+
+/* ── Tabele w treści: etykiety kolumn dla widoku kart na telefonie ─────────────────
+   CSS sam nie siegnie z komorki do naglowka jej kolumny, wiec nazwe kolumny trzeba
+   przepisac do data-label. Atrybut [data-pub-cards] na tabeli jest przelacznikiem dla
+   CSS — dopisujemy go DOPIERO gdy komplet etykiet sie udal, zeby bez JS (albo przy
+   tabeli bez naglowkow) zostal zwykly widok z przewijaniem w bok, a nie stos komorek
+   bez opisu. */
+document.querySelectorAll('.pub-article-body table').forEach(table => {
+  const headerCells = Array.from(table.querySelectorAll('thead th'));
+  if (headerCells.length === 0) return;
+
+  const labels = headerCells.map(th => th.textContent.trim());
+  if (labels.some(l => l === '')) return;
+
+  let labelled = false;
+  table.querySelectorAll('tbody tr').forEach(row => {
+    Array.from(row.children).forEach((cell, i) => {
+      // Scalone komorki rozjezdzaja proste mapowanie indeks -> kolumna; taka tabela
+      // zostaje w widoku przewijanym, bo etykiety byłyby nietrafione.
+      if (cell.colSpan > 1) return;
+      if (cell.tagName !== 'TD') return;
+      if (!labels[i]) return;
+      cell.setAttribute('data-label', labels[i]);
+      labelled = true;
+    });
+  });
+
+  if (labelled) table.setAttribute('data-pub-cards', '');
+});
+
 /* ── Kopiuj link (strona artykułu) ─────────────────────────────────────────────── */
 const pubCopyBtn = document.querySelector('[data-pub-copy-link]');
 if (pubCopyBtn) {

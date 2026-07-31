@@ -880,15 +880,50 @@
    w tamtej aplikacji demo, nie pelna strona, wiec 1:1 dopasowanie nie mialo sensu tutaj).
    Sama tresc (naglowek, tresc, wnioski) dostaje osobny, wezszy limit ponizej —
    pelna szerokosc na 1280px zrobilaby z akapitow niewygodnie dlugie linie tekstu. */
+/* .pub-article-body celowo NIE jest juz na tej liscie — sama kolumna ciaglego tekstu
+   dostala wezszy limit (--pub-measure, forma-components.css), bo linia po ~110 znakow
+   przy 896px czytala sie zle. 896px zostaje dla elementow, ktore moga byc szerokie:
+   naglowka, okladki, wnioskow i stopki. */
 .pub-article-header,
 .pub-article-cover,
 .pub-takeaways,
-.pub-article-body,
+.pub-article-layout,
 .pub-article-footer,
 .pub-adjacent-nav {
   max-width: 896px;
 }
 .pub-back-link { display: inline-block; }
+
+/* Uklad tresci + spisu tresci. Ponizej 1280px zwykly przeplyw — spis stoi NAD trescia,
+   bo w HTML wystepuje przed nia. Od 1280px przechodzi do prawej kolumny i sie przykleja;
+   jawne grid-column/grid-row sprawiaja, ze kolejnosc w DOM (spis pierwszy, korzystna dla
+   mobile i dla czytnikow ekranu) nie wymusza kolejnosci wizualnej. */
+.pub-article-layout { display: block; }
+
+@media (min-width: 1280px) {
+  .pub-article-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 240px;
+    gap: var(--space-10);
+    align-items: start;
+  }
+  /* min-width: 0 — bez tego szeroka tabela w tresci rozepchnelaby kolumne 1fr
+     (domyslne min-width: auto elementu gridu ignoruje overflow-x tabeli). */
+  .pub-article-main { grid-column: 1; grid-row: 1; min-width: 0; }
+  .pub-article-aside { grid-column: 2; grid-row: 1; }
+  .pub-article-aside .pub-toc {
+    position: sticky;
+    top: calc(var(--space-8) + 64px);
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    margin-bottom: 0;
+  }
+  /* Na tej szerokosci spis jest stale widoczny — zwijanie nie ma sensu. Stan `open`
+     pilnuje publications.js przez matchMedia, wiec po powrocie z waskiego ekranu
+     blok nie zostaje zamkniety mimo zablokowanego klikniecia. */
+  .pub-article-aside .pub-toc-label { cursor: default; pointer-events: none; }
+  .pub-article-aside .pub-toc-label::after { display: none; }
+}
 
 /* Karty glowne w stylu edytorskim (referencja: border-b + pb-10, bez ramki/tla) —
    sekwencja artykulow rozdzielona kreska zamiast kafelkow. */

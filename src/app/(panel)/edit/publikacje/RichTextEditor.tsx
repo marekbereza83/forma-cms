@@ -1,17 +1,23 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
+import { POST_BLOCK_ROLES, POST_BLOCK_CLASSES } from '@/lib/cms/post-blocks'
 
 /**
  * Minimalny edytor WYSIWYG dla tresci publikacji.
  *
  * Zakres formatowania celowo pokrywa sie 1:1 z allowlista sanitizePostBody
- * (p, strong, em, ul, ol, li, a, h2, h3, br + tabele) — klient nie moze wprowadzic
- * znacznika, ktory i tak zostalby usuniety przy zapisie.
+ * (p, strong, em, ul, ol, li, a, h2, h3, br, tabele, blockquote z rola) — klient nie
+ * moze wprowadzic znacznika, ktory i tak zostalby usuniety przy zapisie.
  *
- * Tabel nie da sie wstawic z paska narzedzi (brak przycisku) — wchodza wylacznie
- * przez wklejenie z Worda/arkusza. Tworzenie tabeli od zera w contentEditable
- * wymagaloby wlasnego UI (dodaj wiersz/kolumne, scalanie), co jest nieproporcjonalne
- * do potrzeby; kto ma tabele, ma ja juz w zrodle.
+ * Tabele (2026-07-31) maja juz przycisk w pasku: wstawiamy szkielet o zadanym rozmiarze
+ * i pozwalamy dopisywac wiersze. Wczesniej wchodzily wylacznie przez wklejenie z
+ * Worda/arkusza. Nadal NIE ma scalania komorek ani usuwania kolumn — to wymagaloby
+ * pelnego UI tabelarycznego, nieproporcjonalnego do potrzeby.
+ *
+ * Bloki wyroznione (2026-07-31): przyciski nadaja zaznaczeniu ROLE z zamknietej listy
+ * (post-blocks.ts) przez <blockquote class="...">. Klient wybiera znaczenie, nie wyglad —
+ * kolory i etykiety ("Ryzykowny komunikat", "Bezpieczniejsze brzmienie") dokleja CSS
+ * renderera, wiec nie da sie ich przekrecic literowka ani zrobic wlasnego koloru.
  *
  * Wklejanie normalizuje HTML (2026-07-28, patrz normalizePastedHtml ponizej) do tej
  * samej allowlisty zamiast kasowac je do czystego tekstu — klient nadal edytuje
@@ -40,6 +46,7 @@ const PASTE_TAG_ALIASES: Record<string, string> = {
 const PASTE_ALLOWED_TAGS = new Set([
   'P', 'STRONG', 'EM', 'UL', 'OL', 'LI', 'A', 'H2', 'H3', 'BR',
   'TABLE', 'THEAD', 'TBODY', 'TR', 'TH', 'TD', 'CAPTION',
+  'BLOCKQUOTE',
 ])
 
 // Jedyne atrybuty strukturalne przepuszczane poza href linku — bez nich scalone komorki
@@ -86,6 +93,12 @@ function normalizePastedHtml(html: string): string {
             if (v && /^[1-9]\d*$/.test(v.trim())) clean.setAttribute(attr, v.trim())
           }
         }
+        // Rola bloku przezywa kopiowanie miedzy artykulami; kazda inna klasa (np. cytat
+        // z Worda) odpada, bo sanitizer serwera i tak przepuszcza tylko te wartosci.
+        if (tagName === 'BLOCKQUOTE') {
+          const role = Array.from(el.classList).find(c => POST_BLOCK_CLASSES.includes(c))
+          if (role) clean.className = role
+        }
         walk(el, clean)
         target.appendChild(clean)
         return
@@ -102,6 +115,24 @@ function normalizePastedHtml(html: string): string {
   return wrapper.innerHTML
 }
 
+/** Najblizszy przodek o jednym ze wskazanych tagow, zatrzymujac sie na korzeniu edytora. */
+function ancestorWithTag(node: Node | null, root: HTMLElement, tags: string[]): HTMLElement | null {
+  let el: Element | null = node instanceof Element ? node : node?.parentElement ?? null
+  while (el && el !== root) {
+    if (tags.includes(el.tagName)) return el as HTMLElement
+    el = el.parentElement
+  }
+  return null
+}
+
+/** Zdejmuje znacznik, zostawiajac jego dzieci w tym samym miejscu drzewa. */
+function unwrapElement(el: HTMLElement): void {
+  const parent = el.parentNode
+  if (!parent) return
+  while (el.firstChild) parent.insertBefore(el.firstChild, el)
+  parent.removeChild(el)
+}
+
 type Props = {
   value: string
   onChange: (html: string) => void
@@ -111,7 +142,7 @@ const BLOCK_BUTTONS = [
   { cmd: 'bold',                 label: 'B',  title: 'Pogrubienie',      style: { fontWeight: 700 } },
   { cmd: 'italic',               label: 'I',  title: 'Kursywa',          style: { fontStyle: 'italic' } },
   { cmd: 'formatBlock', arg: 'p',  label: 'Akapit', title: 'Zwykły akapit' },
-  { cmd: 'formatBlock', arg: 'h2', label: 'H2',     title: 'Nagłówek sekcji' },
+  { cmd: 'formatBlock', arg: 'h2', label: 'H2',     title: 'Nagłówek sekcji — trafia do spisu treści artykułu' },
   { cmd: 'formatBlock', arg: 'h3', label: 'H3',     title: 'Nagłówek niższego poziomu' },
   { cmd: 'insertUnorderedList',  label: '• Lista',   title: 'Lista punktowana' },
   { cmd: 'insertOrderedList',    label: '1. Lista',  title: 'Lista numerowana' },
@@ -122,6 +153,9 @@ export default function RichTextEditor({ value, onChange }: Props) {
   const savedRange = useRef<Range | null>(null)
   const [showLinkInput, setShowLinkInput] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
+  const [showTableInput, setShowTableInput] = useState(false)
+  const [tableCols, setTableCols] = useState(3)
+  const [tableRows, setTableRows] = useState(2)
 
   // Bez tego przegladarka wstawia <div> na Enter — a <div> nie jest na allowlist,
   // wiec sanitizer usunalby znacznik i skleil akapity w jeden blok tekstu.
@@ -150,14 +184,78 @@ export default function RichTextEditor({ value, onChange }: Props) {
     emitChange()
   }
 
+  function placeCaretIn(el: HTMLElement) {
+    const range = document.createRange()
+    range.setStart(el, 0)
+    range.collapse(true)
+    const selection = window.getSelection()
+    selection?.removeAllRanges()
+    selection?.addRange(range)
+  }
+
+  /**
+   * Nadaje zaznaczonym blokom role z zamknietej listy (callout / przyklad komunikatu).
+   *
+   * Celowo BEZ execCommand('formatBlock', 'blockquote'): przegladarki roznie interpretuja
+   * te komende dla cytatu (jedna zawija blok, druga go podmienia), a klasy i tak nie da sie
+   * nia ustawic. Range API daje ten sam wynik wszedzie.
+   */
+  function applyBlockRole(className: string) {
+    const root = editorRef.current
+    const selection = window.getSelection()
+    if (!root || !selection || selection.rangeCount === 0) return
+
+    const existing = ancestorWithTag(selection.anchorNode, root, ['BLOCKQUOTE'])
+    if (existing) {
+      // Ponowne klikniecie tej samej roli zdejmuje wyroznienie; inna rola je podmienia.
+      if (existing.classList.contains(className)) unwrapElement(existing)
+      else existing.className = className
+      root.focus()
+      emitChange()
+      return
+    }
+
+    // Zawijamy CALE bloki najwyzszego poziomu objete zaznaczeniem, nie sam zaznaczony
+    // fragment — callout obejmujacy pol akapitu nie mialby sensu.
+    const blocks = Array.from(root.children).filter(child =>
+      selection.getRangeAt(0).intersectsNode(child),
+    ) as HTMLElement[]
+
+    const quote = document.createElement('blockquote')
+    quote.className = className
+
+    if (blocks.length === 0) {
+      // Pusty edytor — nie ma czego zawijac, wiec zakladamy pusty blok i wchodzimy do srodka.
+      const paragraph = document.createElement('p')
+      paragraph.appendChild(document.createElement('br'))
+      quote.appendChild(paragraph)
+      root.appendChild(quote)
+      root.focus()
+      placeCaretIn(paragraph)
+    } else {
+      blocks[0].before(quote)
+      blocks.forEach(block => quote.appendChild(block))
+      root.focus()
+    }
+    emitChange()
+  }
+
   // 'removeFormat' czysci TYLKO inline formatowanie (bold/italic/link) — udokumentowane
   // zachowanie tej komendy w kazdej przegladarce, nie usuwa formatBlock (h2/h3). Bez
   // dolozenia formatBlock('p') przycisk "Wyczysc" nie potrafil sprowadzic naglowka
-  // z powrotem do zwyklego akapitu, mimo ze do tego mial sluzyc.
+  // z powrotem do zwyklego akapitu, mimo ze do tego mial sluzyc. Zdjecie wyroznienia
+  // doszlo razem z blokami — inaczej tresc raz wlozona do calloutu nie mialaby wyjscia
+  // poza ponownym trafieniem w ten sam przycisk roli.
   function clearFormatting() {
+    const root = editorRef.current
+    const selection = window.getSelection()
+    const quote = root && selection ? ancestorWithTag(selection.anchorNode, root, ['BLOCKQUOTE']) : null
+
     document.execCommand('removeFormat')
     document.execCommand('formatBlock', false, 'p')
-    editorRef.current?.focus()
+    if (quote) unwrapElement(quote)
+
+    root?.focus()
     emitChange()
   }
 
@@ -193,6 +291,64 @@ export default function RichTextEditor({ value, onChange }: Props) {
     emitChange()
   }
 
+  function openTableInput() {
+    const selection = window.getSelection()
+    if (selection && selection.rangeCount > 0) {
+      savedRange.current = selection.getRangeAt(0).cloneRange()
+    }
+    setShowTableInput(true)
+  }
+
+  function insertTable() {
+    const cols = Math.min(6, Math.max(1, tableCols))
+    const rows = Math.min(20, Math.max(1, tableRows))
+
+    const headRow = `<tr>${Array.from({ length: cols }, (_, i) => `<th>Kolumna ${i + 1}</th>`).join('')}</tr>`
+    const bodyRow = `<tr>${Array.from({ length: cols }, () => '<td>&nbsp;</td>').join('')}</tr>`
+    // Pusty akapit ZA tabela jest konieczny: gdy tabela konczy tresc, nie ma gdzie
+    // ustawic karetki, zeby pisac dalej — w contentEditable nie da sie wyjsc "za" ostatni
+    // element blokowy, ktory nie przyjmuje tekstu bezposrednio.
+    const html = `<table><thead>${headRow}</thead><tbody>${Array.from({ length: rows }, () => bodyRow).join('')}</tbody></table><p><br></p>`
+
+    const selection = window.getSelection()
+    if (selection && savedRange.current) {
+      selection.removeAllRanges()
+      selection.addRange(savedRange.current)
+    }
+    editorRef.current?.focus()
+    document.execCommand('insertHTML', false, html)
+    setShowTableInput(false)
+    emitChange()
+  }
+
+  function addTableRow() {
+    const root = editorRef.current
+    const selection = window.getSelection()
+    if (!root || !selection || selection.rangeCount === 0) return
+
+    const table = ancestorWithTag(selection.anchorNode, root, ['TABLE'])
+    if (!table) {
+      alert('Ustaw kursor w tabeli, żeby dodać wiersz.')
+      return
+    }
+
+    const body = table.querySelector('tbody') ?? table
+    const template = body.querySelector('tr')
+    const colCount = template?.children.length || table.querySelectorAll('thead th').length || 2
+
+    const row = document.createElement('tr')
+    for (let i = 0; i < colCount; i++) {
+      const cell = document.createElement('td')
+      cell.innerHTML = '&nbsp;'
+      row.appendChild(cell)
+    }
+    body.appendChild(row)
+
+    root.focus()
+    placeCaretIn(row.firstElementChild as HTMLElement)
+    emitChange()
+  }
+
   return (
     <div className="rte">
       <div className="rte-toolbar">
@@ -222,7 +378,41 @@ export default function RichTextEditor({ value, onChange }: Props) {
         </button>
         <button
           type="button"
-          title="Usuń formatowanie z zaznaczenia (w tym nagłówki — wraca do zwykłego akapitu)"
+          title="Wstaw tabelę"
+          className="rte-btn"
+          onMouseDown={e => e.preventDefault()}
+          onClick={openTableInput}
+        >
+          Tabela
+        </button>
+        <button
+          type="button"
+          title="Dodaj wiersz do tabeli, w której stoi kursor"
+          className="rte-btn"
+          onMouseDown={e => e.preventDefault()}
+          onClick={addTableRow}
+        >
+          + Wiersz
+        </button>
+
+        <span className="rte-toolbar-sep" aria-hidden="true" />
+
+        {POST_BLOCK_ROLES.map(role => (
+          <button
+            key={role.className}
+            type="button"
+            title={role.title}
+            className="rte-btn"
+            onMouseDown={e => e.preventDefault()}
+            onClick={() => applyBlockRole(role.className)}
+          >
+            {role.label}
+          </button>
+        ))}
+
+        <button
+          type="button"
+          title="Usuń formatowanie z zaznaczenia — nagłówek wraca do zwykłego akapitu, wyróżniony blok traci wyróżnienie"
           className="rte-btn"
           onMouseDown={e => e.preventDefault()}
           onClick={clearFormatting}
@@ -246,6 +436,34 @@ export default function RichTextEditor({ value, onChange }: Props) {
           />
           <button type="button" className="btn btn-ghost" onClick={applyLink}>Wstaw</button>
           <button type="button" className="btn btn-ghost" onClick={() => setShowLinkInput(false)}>Anuluj</button>
+        </div>
+      )}
+
+      {showTableInput && (
+        <div className="rte-link-row">
+          <label className="rte-table-field">
+            Kolumny
+            <input
+              type="number"
+              min={1}
+              max={6}
+              autoFocus
+              value={tableCols}
+              onChange={e => setTableCols(Number(e.target.value))}
+            />
+          </label>
+          <label className="rte-table-field">
+            Wiersze
+            <input
+              type="number"
+              min={1}
+              max={20}
+              value={tableRows}
+              onChange={e => setTableRows(Number(e.target.value))}
+            />
+          </label>
+          <button type="button" className="btn btn-ghost" onClick={insertTable}>Wstaw</button>
+          <button type="button" className="btn btn-ghost" onClick={() => setShowTableInput(false)}>Anuluj</button>
         </div>
       )}
 

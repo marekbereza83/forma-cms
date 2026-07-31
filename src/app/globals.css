@@ -6,6 +6,9 @@
   --accent: #0d0d0d;
   --accent-fg: #fff;
   --error: #b00020;
+  /* Zielen tylko do podgladu bloku "Bezpieczniejsze brzmienie" w edytorze tresci —
+     panel poza tym jest celowo monochromatyczny. */
+  --ok: #1a7f37;
   --warning-bg: #fffbe6;
   --warning-text: #6b4c00;
   --warning-border: #e8d48b;
@@ -737,4 +740,96 @@ input[readonly] {
 
 .rte-surface a {
   text-decoration: underline;
+}
+
+/* Pionowa kreska rozdzielajaca grupy przyciskow (formatowanie | bloki wyroznione). */
+.rte-toolbar-sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 0 4px;
+  background: var(--border);
+}
+
+.rte-table-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.rte-table-field input {
+  width: 64px;
+}
+
+/* Tabela w podgladzie edytora — same krawedzie i wyrozniony wiersz naglowkowy, zeby
+   klient widzial STRUKTURE. Docelowy wyglad (odstepy, wersalki, karty na telefonie)
+   nadaje forma-components.css przy renderze strony. */
+.rte-surface table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+  font-size: 0.9rem;
+}
+
+.rte-surface th,
+.rte-surface td {
+  border: 1px solid var(--border);
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.rte-surface th {
+  background: var(--surface);
+  font-weight: 600;
+}
+
+/* Bloki wyroznione: w edytorze pokazujemy TE SAMA etykiete co na stronie, zeby klient
+   wiedzial, co dokladnie nadal — ale bez tla i zaokraglen, bo panel nie udaje strony. */
+.rte-surface blockquote {
+  margin: 12px 0;
+  padding: 8px 0 8px 12px;
+  border-left: 3px solid var(--border);
+}
+
+.rte-surface blockquote > *:last-child {
+  margin-bottom: 0;
+}
+
+.rte-surface blockquote::before {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.rte-surface .f-callout {
+  border-left-color: var(--fg);
+}
+
+.rte-surface .f-callout::before {
+  content: "W praktyce";
+  color: var(--fg);
+}
+
+.rte-surface .f-chat--risk {
+  border-left-color: var(--error);
+}
+
+.rte-surface .f-chat--risk::before {
+  content: "Ryzykowny komunikat";
+  color: var(--error);
+}
+
+.rte-surface .f-chat--safe {
+  border-left-color: var(--ok);
+}
+
+.rte-surface .f-chat--safe::before {
+  content: "Bezpieczniejsze brzmienie";
+  color: var(--ok);
 }

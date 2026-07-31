@@ -152,6 +152,11 @@ export interface PostItem {
   /** Nadpisuje meta description + BlogPosting.description (domyslnie: excerpt). Twardy limit
    *  200 znakow (C12), zalecane 120-160 (W7). */
   metaDescription?: string
+  /** Pozycje sekcji "Źródła" na koncu artykulu — sygnatura wyroku, tytul ustawy, adres
+   *  publikacji. Wolny tekst; numeracje, mniejszy krok pisma i separacje od tresci nadaje
+   *  renderer. Osobne pole, a nie naglowek w body, zeby sekcja wygladala tak samo w kazdym
+   *  artykule i nie zalezala od tego, jak klient nazwal naglowek (decyzja 2026-07-31). */
+  sources?: string[]
 }
 
 export interface SiteMeta {

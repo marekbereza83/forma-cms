@@ -5,7 +5,8 @@ import { renderNav } from './sections/nav'
 import { renderFooter } from './sections/footer'
 import { buildBaseRenderContext, renderShell } from './shell'
 import { resolveImageSrc } from './image'
-import { pageHref, rootHref } from './utils'
+import { escapeHtml, pageHref, rootHref } from './utils'
+import { injectHeadingIds, renderPostToc } from './post-toc'
 import { buildBlogPostingJsonLd, buildBreadcrumbListJsonLd } from './post-jsonld'
 
 const ARROW_ICON_SM = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`
@@ -54,6 +55,38 @@ function renderNavAndFooter(model: SiteModel, basePath: string, linkMode: 'stati
 // Kategorie sa wylaczone w UI (decyzja 2026-07-28: brak ustalonej taksonomii tematow).
 // Pole PostItem.category, walidator i atrybut data-category zostaja — wlaczenie z
 // powrotem to przywrocenie pigulki i grupy przyciskow, bez migracji danych.
+
+// Sekcja zrodel. W przeciwienstwie do reszty pol modelu tekst jest ESCAPOWANY — to pole
+// dodane 2026-07-31 i nie ma powodu, zeby sygnatura wyroku mogla wniesc znacznik.
+// Adresy http(s) zamieniamy na klikalne linki: dzielimy tekst SUROWY po wzorcu URL i
+// escapujemy kazdy kawalek osobno, wiec do href trafia adres, a nie fragment znacznika.
+const SOURCE_URL_RE = /(https?:\/\/[^\s]+)/g
+
+function renderSourceItem(raw: string): string {
+  return raw
+    .split(SOURCE_URL_RE)
+    .map((part, i) => {
+      if (i % 2 === 0) return escapeHtml(part)
+      // Kropka/przecinek na koncu zdania nie naleza do adresu — zostawiamy je poza linkiem.
+      const url = part.replace(/[.,;:!?)\]}]+$/, '')
+      const trailing = part.slice(url.length)
+      const href = escapeHtml(url)
+      return `<a href="${href}" target="_blank" rel="noopener nofollow">${href}</a>${escapeHtml(trailing)}`
+    })
+    .join('')
+}
+
+function renderSources(sources: string[] | undefined): string {
+  const list = (sources ?? []).filter(s => s.trim() !== '')
+  if (list.length === 0) return ''
+
+  return `<footer class="pub-sources" aria-labelledby="pub-sources-heading">
+        <h2 id="pub-sources-heading" class="pub-sources-label">Źródła</h2>
+        <ol class="pub-sources-list">
+          ${list.map(s => `<li>${renderSourceItem(s)}</li>`).join('\n          ')}
+        </ol>
+      </footer>`
+}
 
 function renderTags(tags: string[] | undefined, max?: number): string {
   const list = max ? (tags ?? []).slice(0, max) : (tags ?? [])
@@ -283,6 +316,11 @@ export function renderPostPage(model: SiteModel, post: PostItem, basePath = '', 
       </aside>`
     : ''
 
+  // Kotwice w naglowkach i spis tresci licza sie z tresci przy renderze — nic z tego
+  // nie jest zapisywane w modelu, wiec zmiana tytulu sekcji od razu przestawia oba.
+  const { html: bodyHtml, headings } = injectHeadingIds(post.body)
+  const tocHtml = renderPostToc(headings)
+
   const sorted = publishedPostsSortedDesc(model)
   const idx = sorted.findIndex(p => p.id === post.id)
   const newerPost = idx > 0 ? sorted[idx - 1] : undefined
@@ -329,11 +367,17 @@ export function renderPostPage(model: SiteModel, post: PostItem, basePath = '', 
       ${coverHtml}
       ${takeawaysHtml}
 
-      <div class="pub-article-body">
-        ${post.body}
-      </div>
+      <div class="pub-article-layout">
+        ${tocHtml ? `<aside class="pub-article-aside">${tocHtml}</aside>` : ''}
+        <div class="pub-article-main">
+          <div class="pub-article-body">
+            ${bodyHtml}
+          </div>
 
-      ${renderTags(post.tags)}
+          ${renderSources(post.sources)}
+          ${renderTags(post.tags)}
+        </div>
+      </div>
     </article>
 
     <div class="pub-article-footer">
