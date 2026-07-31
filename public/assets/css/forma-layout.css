@@ -917,7 +917,18 @@
     max-height: calc(100vh - 160px);
     overflow-y: auto;
     margin-bottom: 0;
+    /* Cienka piorowa linia zamiast domyslnego (grubego na Windows/Chrome) paska —
+       Firefox przez scrollbar-width/-color, reszta przegladarek przez ::-webkit-*. */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
   }
+  .pub-article-aside .pub-toc::-webkit-scrollbar { width: 4px; }
+  .pub-article-aside .pub-toc::-webkit-scrollbar-track { background: transparent; }
+  .pub-article-aside .pub-toc::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 2px;
+  }
+  .pub-article-aside .pub-toc::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
   /* Na tej szerokosci spis jest stale widoczny — zwijanie nie ma sensu. Stan `open`
      pilnuje publications.js przez matchMedia, wiec po powrocie z waskiego ekranu
      blok nie zostaje zamkniety mimo zablokowanego klikniecia. */

@@ -133,6 +133,24 @@ function unwrapElement(el: HTMLElement): void {
   parent.removeChild(el)
 }
 
+/**
+ * Blok najwyzszego poziomu (bezposrednie dziecko root) zawierajacy dany wezel —
+ * np. konkretny <p> albo <h2>, w ktorym aktualnie stoi kursor.
+ *
+ * Uzywane do wstawiania tabeli: execCommand('insertHTML') wstawia dokladnie tam,
+ * gdzie stoi kursor, WEWNATRZ biezacego znacznika. Jesli klient usunal tekst
+ * naglowka i kursor zostal w pustym <h2>, insertHTML sadzalo tabele W SRODKU
+ * <h2> — sanitizer nie waliduje modelu tresci (h2 z table w srodku przechodzi
+ * tag po tagu), a spis tresci regexem lapal cala tabele jako "tekst naglowka"
+ * (patrz post-toc.ts). Wstawianie PO tym bloku, nie w jego srodku, eliminuje
+ * to u zrodla.
+ */
+function topLevelBlockAt(root: HTMLElement, node: Node | null): HTMLElement | null {
+  let el: Node | null = node
+  while (el && el.parentNode && el.parentNode !== root) el = el.parentNode
+  return el instanceof HTMLElement && el.parentNode === root ? el : null
+}
+
 type Props = {
   value: string
   onChange: (html: string) => void
@@ -299,24 +317,71 @@ export default function RichTextEditor({ value, onChange }: Props) {
     setShowTableInput(true)
   }
 
+  /**
+   * Wstawia tabele PO bloku, w ktorym stoi kursor — nigdy w jego srodku.
+   * Budowana przez DOM, nie execCommand('insertHTML', ...): insertHTML wstawia
+   * doslownie w punkcie karetki, wiec kursor zostawiony w pustym <h2> (po
+   * usunieciu jego tekstu) sadzal tam cala tabele — patrz komentarz przy
+   * topLevelBlockAt.
+   */
   function insertTable() {
+    const root = editorRef.current
+    if (!root) return
+
     const cols = Math.min(6, Math.max(1, tableCols))
     const rows = Math.min(20, Math.max(1, tableRows))
 
-    const headRow = `<tr>${Array.from({ length: cols }, (_, i) => `<th>Kolumna ${i + 1}</th>`).join('')}</tr>`
-    const bodyRow = `<tr>${Array.from({ length: cols }, () => '<td>&nbsp;</td>').join('')}</tr>`
+    const table = document.createElement('table')
+    const thead = document.createElement('thead')
+    const headRow = document.createElement('tr')
+    for (let i = 0; i < cols; i++) {
+      const th = document.createElement('th')
+      th.textContent = `Kolumna ${i + 1}`
+      headRow.appendChild(th)
+    }
+    thead.appendChild(headRow)
+    table.appendChild(thead)
+
+    const tbody = document.createElement('tbody')
+    for (let r = 0; r < rows; r++) {
+      const row = document.createElement('tr')
+      for (let i = 0; i < cols; i++) {
+        const cell = document.createElement('td')
+        cell.innerHTML = '&nbsp;'
+        row.appendChild(cell)
+      }
+      tbody.appendChild(row)
+    }
+    table.appendChild(tbody)
+
     // Pusty akapit ZA tabela jest konieczny: gdy tabela konczy tresc, nie ma gdzie
     // ustawic karetki, zeby pisac dalej — w contentEditable nie da sie wyjsc "za" ostatni
     // element blokowy, ktory nie przyjmuje tekstu bezposrednio.
-    const html = `<table><thead>${headRow}</thead><tbody>${Array.from({ length: rows }, () => bodyRow).join('')}</tbody></table><p><br></p>`
+    const trailing = document.createElement('p')
+    trailing.appendChild(document.createElement('br'))
 
     const selection = window.getSelection()
     if (selection && savedRange.current) {
       selection.removeAllRanges()
       selection.addRange(savedRange.current)
     }
-    editorRef.current?.focus()
-    document.execCommand('insertHTML', false, html)
+    root.focus()
+
+    const block = topLevelBlockAt(root, selection?.anchorNode ?? null)
+    if (block) {
+      block.after(table, trailing)
+      // Naglowek, w ktorym stal kursor, mogl zostac PUSTY po usunieciu jego tresci
+      // (dokladnie scenariusz, ktory wczesniej prowadzil do zagniezdzenia tabeli
+      // wewnatrz <h2>). Pusty naglowek zostawiony w tresci trafilby do spisu tresci
+      // jako pozycja bez etykiety — usuwamy go, zamiast zostawiac smiec.
+      if ((block.tagName === 'H2' || block.tagName === 'H3') && block.textContent?.trim() === '') {
+        block.remove()
+      }
+    } else {
+      root.appendChild(table)
+      root.appendChild(trailing)
+    }
+
     setShowTableInput(false)
     emitChange()
   }
