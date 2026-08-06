@@ -180,7 +180,7 @@ export const UI = {
       pricePrefix: 'From ',
       priceSuffix: ', excl. VAT.',
       ctaPrimaryAriaSuffix: ' — fill in the contact form',
-      ctaSecondaryAriaSuffix: ' — Kancelaria Wojtas case study',
+      ctaSecondaryAriaSuffix: ' — client case studies',
       visualAria: 'PACTA system demo — redesign process animation',
     },
     solution: {
@@ -193,7 +193,7 @@ export const UI = {
       thumbAlt: (title: string) => `${title} website screenshot — hero section`,
       gridThumbAlt: (title: string) => `${title} website screenshot`,
       details: 'Details',
-      detailsAriaSingle: 'View the full case study — Kancelaria Wojtas',
+      detailsAriaSingle: 'View the full case study',
       detailsAria: (title: string) => `View the full case study — ${title}`,
       allProjectsAria: 'Go to the portfolio page with full project details',
       allProjects: 'All projects',
