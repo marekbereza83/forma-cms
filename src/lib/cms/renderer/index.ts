@@ -31,31 +31,31 @@ const SECTION_REGISTRY: Record<string, (s: Section, ctx: RenderContext) => strin
   'nav':               (s, ctx) => renderNav(s, ctx),
   'hero':              (s, ctx) => renderHero(s, ctx),
   'problem':           (s, _)   => renderProblem(s),
-  'solution':          (s, _)   => renderSolution(s),
-  'portfolio':         (s, ctx) => renderPortfolio(s, ctx.basePath, ctx.linkMode),
-  'process':           (s, ctx) => renderProcess(s, ctx.linkMode),
-  'pricing':           (s, ctx) => renderPricing(s, ctx.linkMode),
+  'solution':          (s, ctx) => renderSolution(s, ctx),
+  'portfolio':         (s, ctx) => renderPortfolio(s, ctx.basePath, ctx.linkMode, ctx.lang),
+  'process':           (s, ctx) => renderProcess(s, ctx.linkMode, ctx.lang),
+  'pricing':           (s, ctx) => renderPricing(s, ctx.linkMode, ctx.lang),
   'cta-finale':        (s, ctx) => renderCtaFinale(s, ctx),
   'footer':            (s, ctx) => renderFooter(s, ctx),
   // ── portfolio ────────────────────────────────────────────────────────────────
   'portfolio-hero':    (s, _)   => renderPortfolioHero(s),
-  'portfolio-grid':    (s, ctx) => renderPortfolioGrid(s, ctx.basePath, ctx.linkMode),
+  'portfolio-grid':    (s, ctx) => renderPortfolioGrid(s, ctx.basePath, ctx.linkMode, ctx.lang),
   // ── kontakt ──────────────────────────────────────────────────────────────────
   'kontakt-hero':      (s, _)   => renderKontaktHero(s),
   'formularz':         (s, ctx) => renderKontaktFormularz(s, ctx),
   // ── proces ───────────────────────────────────────────────────────────────────
   'proces-hero':       (s, _)   => renderProcesHero(s),
-  'timeline':          (s, _)   => renderTimeline(s),
-  'deliverables':      (s, _)   => renderDeliverables(s),
-  'technologie':       (s, _)   => renderTechnologie(s),
-  'cennik-detail':     (s, ctx) => renderCennikDetail(s, ctx.linkMode, ctx.indexPricing),
-  'faq':               (s, _)   => renderFaq(s),
+  'timeline':          (s, ctx) => renderTimeline(s, ctx),
+  'deliverables':      (s, ctx) => renderDeliverables(s, ctx),
+  'technologie':       (s, ctx) => renderTechnologie(s, ctx),
+  'cennik-detail':     (s, ctx) => renderCennikDetail(s, ctx.linkMode, ctx.indexPricing, ctx.lang),
+  'faq':               (s, ctx) => renderFaq(s, ctx),
   // ── strony prawne (hardcoded content, variant: 'legal') ──────────────────────
   'legal-notice':      (s, ctx) => renderLegalNotice(s, ctx),
   'privacy-policy':    (s, ctx) => renderPrivacyPolicy(s, ctx),
   'regulamin':         (s, ctx) => renderTermsOfService(s, ctx),
   // ── strona błędu (hardcoded content, variant: '404') ─────────────────────────
-  'not-found':         (s, ctx) => renderNotFound(s, ctx.linkMode),
+  'not-found':         (s, ctx) => renderNotFound(s, ctx.linkMode, ctx.lang),
 }
 
 export function renderPage(model: SiteModel, slug: string, basePath = '', linkMode: 'static' | 'preview' = 'static'): string {
@@ -87,10 +87,11 @@ export function renderPage(model: SiteModel, slug: string, basePath = '', linkMo
     basePath, linkMode, currentPage: slug, showCurrentInFooter, pricingStandardAmount,
   })
 
+  const notFoundTitle = ctx.lang === 'en' ? '404 — Page not found | FORMA' : '404 — Strona nie istnieje | FORMA'
   const head = isLegal
     ? renderLegalHead(page.meta?.title ?? 'FORMA Wizerunku', basePath, 'noindex, follow', model.meta.gaId)
     : is404
-      ? renderLegalHead(page.meta?.title ?? '404 — Strona nie istnieje | FORMA', basePath, 'noindex, nofollow', model.meta.gaId)
+      ? renderLegalHead(page.meta?.title ?? notFoundTitle, basePath, 'noindex, nofollow', model.meta.gaId)
       : renderHead(model.meta, page.meta, pricingStandardAmount, basePath)
 
   let navHtml = ''
@@ -116,7 +117,7 @@ export function renderPage(model: SiteModel, slug: string, basePath = '', linkMo
   }
 
   const extraScripts: string[] = []
-  if (slug === 'index') extraScripts.push(redesignAnimatorScript)
+  if (slug === 'index') extraScripts.push(redesignAnimatorScript(ctx.lang))
   if (slug === 'kontakt' || slug === '404') extraScripts.push(formaGenesisScript)
 
   // proces.html reference ma dot-grid-bg + role=progressbar (identycznie jak index).
@@ -130,6 +131,6 @@ export function renderPage(model: SiteModel, slug: string, basePath = '', linkMo
 
   return renderShell({
     head, navHtml, mainInner, footerHtml, preMainVariant, basePath, linkMode,
-    gaId: model.meta.gaId, extraScripts,
+    lang: ctx.lang, gaId: model.meta.gaId, extraScripts,
   })
 }

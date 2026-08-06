@@ -1,4 +1,5 @@
 import type { SiteMeta, PageMeta } from '../types'
+import { t } from './i18n'
 
 /**
  * Uproszczony <head> dla stron utility (legal-notice, privacy-policy, 404).
@@ -43,22 +44,25 @@ export function renderHead(
   const ogDescription = pageMeta?.ogDescription ?? siteMeta.ogDescription
   const ogUrl = pageMeta?.ogUrl ?? siteMeta.canonical
 
+  const strings = t(siteMeta.lang)
+
   let schemaOrg = ''
   if (pricingAmount !== undefined) {
     const schemaOrgUrl = siteMeta.canonical.replace(/\/$/, '')
-    const priceRange = `od ${pricingAmount.replace(/ /g, '')} zł`
+    const pricePrefix = siteMeta.lang === 'en' ? 'from' : 'od'
+    const priceRange = `${pricePrefix} ${pricingAmount.replace(/ /g, '')} ${strings.head.priceUnit}`
     schemaOrg = `<script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
   "name": "${siteMeta.brandName}",
-  "description": "Projektowanie stron internetowych dla kancelarii prawnych. System PACTA.",
+  "description": "${strings.head.schemaOrgDescription}",
   "url": "${schemaOrgUrl}",
   "email": "${siteMeta.contactEmail}",
   "priceRange": "${priceRange}",
-  "areaServed": "PL",
+  "areaServed": "${strings.head.schemaOrgAreaServed}",
   "serviceType": "Web Design",
-  "knowsAbout": ["strony dla kancelarii", "web design prawniczy", "SEO dla prawników"]
+  "knowsAbout": ["${strings.head.schemaOrgKnowsAbout.join('", "')}"]
 }
 </script>`
   }

@@ -1,6 +1,9 @@
 import type { Section, TimelineItem } from '../../types'
+import type { RenderContext } from '../context'
+import { t } from '../i18n'
 
-export function renderTimeline(section: Section): string {
+export function renderTimeline(section: Section, ctx: RenderContext): string {
+  const s = t(ctx.lang)
   const headline = section.fields['headline']?.value as string
   const steps    = section.fields['steps']?.value as TimelineItem[]
 
@@ -25,11 +28,11 @@ export function renderTimeline(section: Section): string {
 <section id="timeline" class="section bg-base reveal" aria-labelledby="timeline-heading">
   <div class="container">
     <div class="section-header">
-      <span class="section-label">Etapy</span>
+      <span class="section-label">${s.timeline.label}</span>
       <h2 id="timeline-heading" class="f-headline">${headline}</h2>
     </div>
 
-    <ol class="process-timeline stagger-reveal" aria-label="Etapy procesu z harmonogramem">
+    <ol class="process-timeline stagger-reveal" aria-label="${s.timeline.stepsAria}">
 ${stepsHtml}
     </ol>
   </div>

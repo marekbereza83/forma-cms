@@ -1,4 +1,6 @@
 import type { Section, FaqItem } from '../../types'
+import type { RenderContext } from '../context'
+import { t } from '../i18n'
 
 function faqJsonLd(items: FaqItem[]): string {
   const schema = {
@@ -15,7 +17,8 @@ ${JSON.stringify(schema, null, 2)}
 </script>`
 }
 
-export function renderFaq(section: Section): string {
+export function renderFaq(section: Section, ctx: RenderContext): string {
+  const s = t(ctx.lang)
   const headline = section.fields['headline']?.value as string
   const items    = section.fields['items']?.value as FaqItem[]
 
@@ -40,7 +43,7 @@ export function renderFaq(section: Section): string {
       <h2 id="faq-heading" class="f-headline">${headline}</h2>
     </div>
 
-    <div class="max-prose" aria-label="Najczęściej zadawane pytania">
+    <div class="max-prose" aria-label="${s.faq.questionsAria}">
 ${itemsHtml}
     </div>
   </div>

@@ -1,8 +1,10 @@
 import type { Section } from '../../types'
 import type { RenderContext } from '../context'
 import { pageHref } from '../utils'
+import { t } from '../i18n'
 
 export function renderHero(section: Section, ctx: RenderContext): string {
+  const s = t(ctx.lang)
   const tag = section.fields['tag']?.value as string
   const headline = section.fields['headline']?.value as string
   const subheadlinePrefix = section.fields['subheadlinePrefix']?.value as string
@@ -12,7 +14,7 @@ export function renderHero(section: Section, ctx: RenderContext): string {
 
   // single source: "4 500" -> "4 500 zł" to match &nbsp; in reference HTML
   const pricingAmount = ctx.pricingStandardAmount ?? '4 500'
-  const formattedAmount = pricingAmount.replace(/ /g, ' ') + ' zł'
+  const formattedAmount = pricingAmount.replace(/ /g, ' ') + ' ' + s.hero.priceUnit
 
   const ctaPrimaryHref   = pageHref('kontakt',   ctx.linkMode)
   const ctaSecondaryHref = pageHref('portfolio',  ctx.linkMode)
@@ -33,25 +35,25 @@ export function renderHero(section: Section, ctx: RenderContext): string {
         </h1>
 
         <p class="f-lead max-52 stagger-item stagger-2">
-          ${subheadlinePrefix} Od <span class="mono-text accent-text">${formattedAmount}</span> netto.
+          ${subheadlinePrefix} ${s.hero.pricePrefix}<span class="mono-text accent-text">${formattedAmount}</span>${s.hero.priceSuffix}
         </p>
 
         <div class="hero-cta-row stagger-item stagger-3">
           <a href="${ctaPrimaryHref}" class="btn-primary btn-shimmer btn-pulse btn-magnetic"
-            aria-label="${ctaPrimaryLabel} — wypełnij formularz kontaktowy">
+            aria-label="${ctaPrimaryLabel}${s.hero.ctaPrimaryAriaSuffix}">
             ${ctaPrimaryLabel}
           </a>
           <a href="${ctaSecondaryHref}" class="btn-ghost"
-            aria-label="${ctaSecondaryLabel} — case study Kancelaria Wojtas">
+            aria-label="${ctaSecondaryLabel}${s.hero.ctaSecondaryAriaSuffix}">
             ${ctaSecondaryLabel}
           </a>
         </div>
         <p class="btn-micro">${ctaMicrocopy}</p>
-        <p class="hero-tel-row">Zadzwoń: <a href="tel:${ctx.contactPhone}" aria-label="Zadzwoń pod numer ${ctx.contactPhoneDisplay}">${ctx.contactPhoneDisplay}</a></p>
+        <p class="hero-tel-row">${s.shared.callAriaPrefix}<a href="tel:${ctx.contactPhone}" aria-label="${s.shared.callAtNumberAriaPrefix}${ctx.contactPhoneDisplay}">${ctx.contactPhoneDisplay}</a></p>
       </div>
 
       <div class="hero-visual stagger-item stagger-3 interactive-card"
-        aria-label="Demonstracja systemu PACTA — animacja procesu redesignu">
+        aria-label="${s.hero.visualAria}">
         <redesign-animator class="w-full h-full"></redesign-animator>
       </div>
 

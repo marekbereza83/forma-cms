@@ -1,9 +1,12 @@
 import type { Section } from '../../types'
+import type { RenderContext } from '../context'
+import { t } from '../i18n'
 
 const CHECK_ICON = `<svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="20 6 9 17 4 12"/></svg>`
 const TAG_CHECK_ICON = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true" focusable="false"><polyline points="20 6 9 17 4 12"/></svg>`
 
-export function renderSolution(section: Section): string {
+export function renderSolution(section: Section, ctx: RenderContext): string {
+  const s = t(ctx.lang)
   const headline = section.fields['headline']?.value as string
   const body1 = section.fields['body1']?.value as string
   const body2 = section.fields['body2']?.value as string
@@ -23,7 +26,7 @@ export function renderSolution(section: Section): string {
     <div class="solution-inner">
 
       <div>
-        <span class="section-label">Rozwiązanie</span>
+        <span class="section-label">${s.solution.label}</span>
         <h2 id="solution-heading" class="f-headline mb-6">
           ${headline}
         </h2>
@@ -40,7 +43,7 @@ export function renderSolution(section: Section): string {
           ${TAG_CHECK_ICON}
           ${checklistTag}
         </span>
-        <ul class="solution-checklist" aria-label="Elementy systemu PACTA">
+        <ul class="solution-checklist" aria-label="${s.solution.checklistAria}">
 ${checklistHtml}
         </ul>
         <p class="btn-micro mt-6">

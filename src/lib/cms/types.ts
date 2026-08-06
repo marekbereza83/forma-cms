@@ -170,6 +170,11 @@ export interface SiteMeta {
   contactPhone: string
   contactPhoneDisplay: string
   gaId?: string
+  /** UI language for hardcoded renderer strings (nav labels, aria-labels, form
+   *  copy, ...). Editable content (headline, body, etc.) is unaffected — that
+   *  already varies per tenant via the fixture. Defaults to 'pl' when absent
+   *  so every pre-existing tenant model keeps rendering in Polish untouched. */
+  lang?: 'pl' | 'en'
   /** Belka autora na stronie artykulu — tylko gdy oba pola ustawione. Site-level, nie
    *  per-post: CMS jest multi-tenant, wiec autor to ten sam czlowiek/kancelaria dla
    *  wszystkich postow danego tenanta, nie osobne pole na kazdym PostItem. */

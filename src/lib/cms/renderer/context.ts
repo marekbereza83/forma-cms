@@ -1,5 +1,7 @@
 import type { PricingPackage } from '../types'
 
+export type Lang = 'pl' | 'en'
+
 export interface RenderContext {
   basePath: string
   pricingStandardAmount: string | undefined
@@ -12,4 +14,5 @@ export interface RenderContext {
   contactPhoneDisplay: string
   contactEmail: string
   contactEmailHref: string
+  lang: Lang
 }

@@ -1,7 +1,10 @@
 import type { Section, PricingPackage } from '../../types'
+import type { Lang } from '../context'
 import { pageHref } from '../utils'
+import { t } from '../i18n'
 
-function renderPackage(pkg: PricingPackage, featured: boolean, linkMode: 'static' | 'preview'): string {
+function renderPackage(pkg: PricingPackage, featured: boolean, linkMode: 'static' | 'preview', lang: Lang): string {
+  const s = t(lang)
   const cardClass = featured
     ? 'pricing-card featured interactive-card'
     : 'pricing-card interactive-card'
@@ -19,19 +22,20 @@ function renderPackage(pkg: PricingPackage, featured: boolean, linkMode: 'static
       <div class="${cardClass}">
         <span class="${labelClass}">${pkg.label}</span>
         <div class="pricing-price" aria-label="${pkg.ariaLabel}">${pkg.amount}</div>
-        <p class="pricing-note">zł netto &mdash; dostawa: ${pkg.deliveryNote}</p>
-        <ul class="pricing-features" aria-label="Zawartość pakietu ${pkg.label}">
+        <p class="pricing-note">${s.pricing.noteSuffix(pkg.deliveryNote)}</p>
+        <ul class="pricing-features" aria-label="${s.pricing.packageContentsAria(pkg.label)}">
 ${featuresHtml}
         </ul>
         <a href="${ctaHref}" class="btn-primary btn-shimmer btn-magnetic"
-          aria-label="Zamów stronę w pakiecie ${pkg.label === 'Rozszerzony' ? 'Rozszerzonym' : pkg.label}">
+          aria-label="${s.pricing.orderPackageAria(pkg.label)}">
           ${pkg.ctaLabel}
         </a>
         <p class="btn-micro mt-3">${pkg.ctaMicrocopy}</p>
       </div>`
 }
 
-export function renderPricing(section: Section, linkMode: 'static' | 'preview' = 'static'): string {
+export function renderPricing(section: Section, linkMode: 'static' | 'preview' = 'static', lang: Lang = 'pl'): string {
+  const s = t(lang)
   const sectionHeadline = section.fields['sectionHeadline']?.value as string
   const sectionLead = section.fields['sectionLead']?.value as string
   const standard = section.fields['standard']?.value as PricingPackage
@@ -43,7 +47,7 @@ export function renderPricing(section: Section, linkMode: 'static' | 'preview' =
 <section id="pricing" class="section bg-surface reveal" aria-labelledby="pricing-heading">
   <div class="container">
     <div class="section-header">
-      <span class="section-label">Cennik</span>
+      <span class="section-label">${s.pricing.label}</span>
       <h2 id="pricing-heading" class="f-headline">${sectionHeadline}</h2>
       <p class="f-lead mt-4">
         ${sectionLead}
@@ -51,14 +55,14 @@ export function renderPricing(section: Section, linkMode: 'static' | 'preview' =
     </div>
 
     <div class="grid-2 stagger-reveal">
-${renderPackage(standard, false, linkMode)}
-${renderPackage(extended, true, linkMode)}
+${renderPackage(standard, false, linkMode, lang)}
+${renderPackage(extended, true, linkMode, lang)}
     </div>
 
     <p class="pricing-note-center">
-      Większy projekt lub niestandardowy zakres?
+      ${s.pricing.biggerProject}
       <a href="${kontaktHref}" class="accent-text"
-        aria-label="Napisz po indywidualną wycenę">Napisz — wycenię indywidualnie.</a>
+        aria-label="${s.pricing.quoteAria}">${s.pricing.quoteLink}</a>
     </p>
   </div>
 </section>`

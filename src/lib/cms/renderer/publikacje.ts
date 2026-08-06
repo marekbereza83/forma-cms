@@ -257,7 +257,7 @@ export function renderPostsListPage(model: SiteModel, basePath = '', linkMode: '
   return renderShell({
     head, navHtml, mainInner, footerHtml,
     preMainVariant: 'plain', basePath, linkMode,
-    gaId: model.meta.gaId,
+    lang: model.meta.lang ?? 'pl', gaId: model.meta.gaId,
     extraScripts: [`<script src="${basePath}assets/js/publications.js" defer></script>`],
   })
 }
@@ -394,7 +394,7 @@ export function renderPostPage(model: SiteModel, post: PostItem, basePath = '', 
   return renderShell({
     head, navHtml, mainInner, footerHtml,
     preMainVariant: 'rich', basePath, linkMode,
-    gaId: model.meta.gaId,
+    lang: model.meta.lang ?? 'pl', gaId: model.meta.gaId,
     extraScripts: [`<script src="${basePath}assets/js/publications.js" defer></script>`],
   })
 }

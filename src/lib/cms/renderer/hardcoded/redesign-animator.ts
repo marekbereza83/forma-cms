@@ -1,30 +1,61 @@
-export const redesignAnimatorScript = `<!-- redesign-animator Web Component -->
+import type { Lang } from '../context'
+
+const STAGES_PL = [
+  {
+    label: '01 Diagnoza',
+    desc:  'Tak klienci widzą przestarzałą stronę.',
+    html: '<div class="ra-stage ra-stage--old"><div class="ra-label-top">Strona kancelarii — stan obecny</div><div class="ra-bars"><div class="ra-bar ra-bar--bad ra-bar--35"></div><div class="ra-bar ra-bar--bad ra-bar--22"></div><div class="ra-bar ra-bar--bad ra-bar--50"></div></div><div class="ra-label-bot ra-label-bot--danger">COPYRIGHT 2017 &bull; BRAK HTTPS &bull; ŁADOWANIE 4.2s</div></div>'
+  },
+  {
+    label: '02 Audyt',
+    desc:  'Znajduję to, co odstrasza klientów.',
+    html: '<div class="ra-stage ra-stage--audit"><div class="ra-label-top">Pełny audyt obecnej strony</div><div class="ra-spinners"><div class="ra-spinner-row"><div class="ra-spinner"></div><div class="ra-progress"><div class="ra-fill ra-fill--70"></div></div></div><div class="ra-spinner-row"><div class="ra-spinner ra-spinner--slow"></div><div class="ra-progress"><div class="ra-fill ra-fill--45"></div></div></div></div><div class="ra-label-bot">TREŚĆ &bull; UX &bull; SEO &bull; SZYBKOŚĆ</div></div>'
+  },
+  {
+    label: '03 System PACTA',
+    desc:  'Design, który buduje zaufanie do prawnika.',
+    html: '<div class="ra-stage ra-stage--pacta"><div class="ra-pacta-title">PACTA</div><div class="ra-label-bot ra-label-bot--muted">SYSTEM AKTYWNY &bull; ZAUFANIE POTWIERDZONE</div></div>'
+  },
+  {
+    label: '04 Wdrożenie',
+    desc:  'Nowa strona gotowa w 14 dni.',
+    html: '<div class="ra-stage ra-stage--done"><div class="ra-scores"><div class="ra-score"><span class="ra-score-num">95</span><div class="ra-score-bar"></div><span class="ra-score-lbl">PERF</span></div><div class="ra-score"><span class="ra-score-num">97</span><div class="ra-score-bar"></div><span class="ra-score-lbl">A11Y</span></div><div class="ra-score"><span class="ra-score-num">100</span><div class="ra-score-bar"></div><span class="ra-score-lbl">SEO</span></div><div class="ra-score"><span class="ra-score-num">98</span><div class="ra-score-bar"></div><span class="ra-score-lbl">BP</span></div></div><div class="ra-label-bot ra-label-bot--success">GOTOWE W 14 DNI &bull; LIGHTHOUSE &#10003;</div></div>'
+  }
+]
+
+const STAGES_EN = [
+  {
+    label: '01 Diagnosis',
+    desc:  'This is how clients see an outdated website.',
+    html: '<div class="ra-stage ra-stage--old"><div class="ra-label-top">Law firm website — current state</div><div class="ra-bars"><div class="ra-bar ra-bar--bad ra-bar--35"></div><div class="ra-bar ra-bar--bad ra-bar--22"></div><div class="ra-bar ra-bar--bad ra-bar--50"></div></div><div class="ra-label-bot ra-label-bot--danger">COPYRIGHT 2017 &bull; NO HTTPS &bull; LOAD TIME 4.2s</div></div>'
+  },
+  {
+    label: '02 Audit',
+    desc:  'I find what drives clients away.',
+    html: '<div class="ra-stage ra-stage--audit"><div class="ra-label-top">Full audit of the current website</div><div class="ra-spinners"><div class="ra-spinner-row"><div class="ra-spinner"></div><div class="ra-progress"><div class="ra-fill ra-fill--70"></div></div></div><div class="ra-spinner-row"><div class="ra-spinner ra-spinner--slow"></div><div class="ra-progress"><div class="ra-fill ra-fill--45"></div></div></div></div><div class="ra-label-bot">CONTENT &bull; UX &bull; SEO &bull; SPEED</div></div>'
+  },
+  {
+    label: '03 The PACTA System',
+    desc:  'Design that builds trust in the lawyer.',
+    html: '<div class="ra-stage ra-stage--pacta"><div class="ra-pacta-title">PACTA</div><div class="ra-label-bot ra-label-bot--muted">SYSTEM ACTIVE &bull; TRUST CONFIRMED</div></div>'
+  },
+  {
+    label: '04 Launch',
+    desc:  'New website ready in 14 days.',
+    html: '<div class="ra-stage ra-stage--done"><div class="ra-scores"><div class="ra-score"><span class="ra-score-num">95</span><div class="ra-score-bar"></div><span class="ra-score-lbl">PERF</span></div><div class="ra-score"><span class="ra-score-num">97</span><div class="ra-score-bar"></div><span class="ra-score-lbl">A11Y</span></div><div class="ra-score"><span class="ra-score-num">100</span><div class="ra-score-bar"></div><span class="ra-score-lbl">SEO</span></div><div class="ra-score"><span class="ra-score-num">98</span><div class="ra-score-bar"></div><span class="ra-score-lbl">BP</span></div></div><div class="ra-label-bot ra-label-bot--success">READY IN 14 DAYS &bull; LIGHTHOUSE &#10003;</div></div>'
+  }
+]
+
+export function redesignAnimatorScript(lang: Lang = 'pl'): string {
+  const phaseAriaLabel = lang === 'en' ? 'Phase' : 'Faza'
+  const stagesJson = JSON.stringify(lang === 'en' ? STAGES_EN : STAGES_PL)
+  return `<!-- redesign-animator Web Component -->
 <script>
 (function() {
   'use strict';
   const INTERVAL_MS = 5000;
-  const stages = [
-    {
-      label: '01 Diagnoza',
-      desc:  'Tak klienci widzą przestarzałą stronę.',
-      html: '<div class="ra-stage ra-stage--old"><div class="ra-label-top">Strona kancelarii — stan obecny</div><div class="ra-bars"><div class="ra-bar ra-bar--bad ra-bar--35"></div><div class="ra-bar ra-bar--bad ra-bar--22"></div><div class="ra-bar ra-bar--bad ra-bar--50"></div></div><div class="ra-label-bot ra-label-bot--danger">COPYRIGHT 2017 &bull; BRAK HTTPS &bull; ŁADOWANIE 4.2s</div></div>'
-    },
-    {
-      label: '02 Audyt',
-      desc:  'Znajduję to, co odstrasza klientów.',
-      html: '<div class="ra-stage ra-stage--audit"><div class="ra-label-top">Pełny audyt obecnej strony</div><div class="ra-spinners"><div class="ra-spinner-row"><div class="ra-spinner"></div><div class="ra-progress"><div class="ra-fill ra-fill--70"></div></div></div><div class="ra-spinner-row"><div class="ra-spinner ra-spinner--slow"></div><div class="ra-progress"><div class="ra-fill ra-fill--45"></div></div></div></div><div class="ra-label-bot">TREŚĆ &bull; UX &bull; SEO &bull; SZYBKOŚĆ</div></div>'
-    },
-    {
-      label: '03 System PACTA',
-      desc:  'Design, który buduje zaufanie do prawnika.',
-      html: '<div class="ra-stage ra-stage--pacta"><div class="ra-pacta-title">PACTA</div><div class="ra-label-bot ra-label-bot--muted">SYSTEM AKTYWNY &bull; ZAUFANIE POTWIERDZONE</div></div>'
-    },
-    {
-      label: '04 Wdrożenie',
-      desc:  'Nowa strona gotowa w 14 dni.',
-      html: '<div class="ra-stage ra-stage--done"><div class="ra-scores"><div class="ra-score"><span class="ra-score-num">95</span><div class="ra-score-bar"></div><span class="ra-score-lbl">PERF</span></div><div class="ra-score"><span class="ra-score-num">97</span><div class="ra-score-bar"></div><span class="ra-score-lbl">A11Y</span></div><div class="ra-score"><span class="ra-score-num">100</span><div class="ra-score-bar"></div><span class="ra-score-lbl">SEO</span></div><div class="ra-score"><span class="ra-score-num">98</span><div class="ra-score-bar"></div><span class="ra-score-lbl">BP</span></div></div><div class="ra-label-bot ra-label-bot--success">GOTOWE W 14 DNI &bull; LIGHTHOUSE &#10003;</div></div>'
-    }
-  ];
+  const PHASE_LABEL = ${JSON.stringify(phaseAriaLabel)};
+  const stages = ${stagesJson};
 
   const CSS = \`
     :host{display:block;width:100%;height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:#F0F6FC}
@@ -167,7 +198,7 @@ export const redesignAnimatorScript = `<!-- redesign-animator Web Component -->
     _render() {
       const s = stages[0];
       const dotsHTML = stages.map((_, i) =>
-        \`<button class="\${i===0?'dot active':'dot'}" aria-label="Faza \${i+1}: \${stages[i].label}"></button>\`
+        \`<button class="\${i===0?'dot active':'dot'}" aria-label="\${PHASE_LABEL} \${i+1}: \${stages[i].label}"></button>\`
       ).join('');
 
       this.shadowRoot.innerHTML = \`
@@ -194,3 +225,4 @@ export const redesignAnimatorScript = `<!-- redesign-animator Web Component -->
   }
 })();
 </script>`
+}

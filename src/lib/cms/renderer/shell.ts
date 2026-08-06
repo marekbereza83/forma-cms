@@ -2,6 +2,7 @@ import type { SiteModel, PricingPackage } from '../types'
 import type { RenderContext } from './context'
 import { cookieConsentBanner } from './hardcoded/cookie-consent'
 import { pageHref } from './utils'
+import { t } from './i18n'
 
 /**
  * Czesc RenderContext wspolna dla kazdej strony (navPages, ceny, kontakt) — wydzielona
@@ -35,6 +36,8 @@ export function buildBaseRenderContext(
     .filter((p): p is typeof p & { navLabel: string } => p.navLabel !== undefined)
     .map(p => ({ slug: p.slug, navLabel: p.navLabel }))
 
+  const lang = model.meta.lang ?? 'pl'
+
   // Jedyne źródło prawdy dla kontaktu — czytane zawsze z model.meta.
   if (!model.meta.contactPhone || !model.meta.contactEmail) {
     throw new Error('meta.contactPhone i meta.contactEmail są wymagane')
@@ -56,6 +59,7 @@ export function buildBaseRenderContext(
     contactPhoneDisplay,
     contactEmail,
     contactEmailHref,
+    lang,
   }
 }
 
@@ -69,6 +73,7 @@ export interface ShellOptions {
   preMainVariant: PreMainVariant
   basePath: string
   linkMode: 'static' | 'preview'
+  lang: RenderContext['lang']
   gaId?: string
   /** Skrypty page-specific (np. redesignAnimatorScript, formaGenesisScript, tag
    *  publications.js) — w tej samej kolejnosci co dawniej w renderPage(), wstawiane
@@ -103,11 +108,11 @@ export function renderShell(opts: ShellOptions): string {
       : `<div id="scroll-progress" aria-hidden="true"></div>\n\n<div class="custom-cursor" id="custom-cursor" aria-hidden="true"></div>`
 
   return `<!DOCTYPE html>
-<html lang="pl">
+<html lang="${opts.lang}">
 ${opts.head}
 <body>
 
-<a href="#main" class="skip-link">Przejdź do treści</a>
+<a href="#main" class="skip-link">${t(opts.lang).shell.skipToContent}</a>
 
 ${preMain}
 

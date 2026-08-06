@@ -1,8 +1,10 @@
 import type { Section } from '../../types'
 import type { RenderContext } from '../context'
 import { pageHref } from '../utils'
+import { t } from '../i18n'
 
 export function renderCtaFinale(section: Section, ctx: RenderContext): string {
+  const s = t(ctx.lang)
   const headline  = section.fields['headline']?.value as string
   const lead      = section.fields['lead']?.value as string
   const ctaLabel  = section.fields['ctaLabel']?.value as string
@@ -14,7 +16,7 @@ export function renderCtaFinale(section: Section, ctx: RenderContext): string {
   // Obecność microcopy = wariant tekstowy (portfolio, proces).
   const microcopyHtml = microcopy
     ? microcopy
-    : `lub zadzwoń: <a href="tel:${ctx.contactPhone}" class="cta-tel-link" aria-label="Zadzwoń: ${ctx.contactPhoneDisplay}">${ctx.contactPhoneDisplay}</a> — Odpowiadam w ciągu 24h.`
+    : s.ctaFinale.defaultMicrocopy(ctx.contactPhone, ctx.contactPhoneDisplay)
 
   return `<!-- SEKCJA: cta-finale -->
 <section id="cta-finale" class="section bg-surface reveal" aria-labelledby="cta-finale-heading">

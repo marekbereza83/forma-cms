@@ -18,9 +18,12 @@
  *   opcja B — miękka walidacja W-soft porównująca lead z pricing.standard.amount
  */
 import type { Section, PricingPackage } from '../../types'
+import type { Lang } from '../context'
 import { pageHref } from '../utils'
+import { t } from '../i18n'
 
-function renderPackage(pkg: PricingPackage, featured: boolean, linkMode: 'static' | 'preview'): string {
+function renderPackage(pkg: PricingPackage, featured: boolean, linkMode: 'static' | 'preview', lang: Lang): string {
+  const s = t(lang)
   const cardClass  = featured ? 'pricing-card featured interactive-card' : 'pricing-card interactive-card'
   const labelClass = featured ? 'section-label accent-text mb-3'         : 'section-label mb-3'
 
@@ -34,12 +37,12 @@ function renderPackage(pkg: PricingPackage, featured: boolean, linkMode: 'static
       <div class="${cardClass}">
         <span class="${labelClass}">${pkg.label}</span>
         <div class="pricing-price" aria-label="${pkg.ariaLabel}">${pkg.amount}</div>
-        <p class="pricing-note">zł netto &mdash; dostawa: ${pkg.deliveryNote}</p>
-        <ul class="pricing-features" aria-label="Zawartość pakietu ${pkg.label}">
+        <p class="pricing-note">${s.pricing.noteSuffix(pkg.deliveryNote)}</p>
+        <ul class="pricing-features" aria-label="${s.pricing.packageContentsAria(pkg.label)}">
 ${featuresHtml}
         </ul>
         <a href="${ctaHref}" class="btn-primary btn-shimmer btn-magnetic"
-          aria-label="Zamów stronę w pakiecie ${pkg.label === 'Rozszerzony' ? 'Rozszerzonym' : pkg.label} — formularz kontaktowy">
+          aria-label="${s.cennikDetail.orderPackageAriaWithForm(pkg.label)}">
           ${pkg.ctaLabel}
         </a>
         <p class="btn-micro mt-3">${pkg.ctaMicrocopy}</p>
@@ -50,7 +53,9 @@ export function renderCennikDetail(
   section: Section,
   linkMode: 'static' | 'preview' = 'static',
   pricing?: { standard: PricingPackage; extended: PricingPackage },
+  lang: Lang = 'pl',
 ): string {
+  const s = t(lang)
   // Fail-fast: cennik-detail nie ma własnych pól price — zależy od ctx.indexPricing.
   // Jeśli index nie ma sekcji pricing, błąd jest głośny (nie cicha pusta kwota).
   if (!pricing) {
@@ -70,7 +75,7 @@ export function renderCennikDetail(
 <section id="cennik" class="section bg-surface reveal" aria-labelledby="cennik-heading">
   <div class="container">
     <div class="section-header">
-      <span class="section-label">Cennik</span>
+      <span class="section-label">${s.pricing.label}</span>
       <h2 id="cennik-heading" class="f-headline">${sectionHeadline}</h2>
       <p class="f-lead mt-4">
         ${sectionLead}
@@ -78,14 +83,14 @@ export function renderCennikDetail(
     </div>
 
     <div class="grid-2 stagger-reveal">
-${renderPackage(standard, false, linkMode)}
-${renderPackage(extended, true, linkMode)}
+${renderPackage(standard, false, linkMode, lang)}
+${renderPackage(extended, true, linkMode, lang)}
     </div>
 
     <p class="pricing-note-center">
-      Większy projekt lub zakres poza pakietami?
+      ${s.cennikDetail.biggerProject}
       <a href="${kontaktHref}" class="accent-text"
-        aria-label="Napisz po indywidualną wycenę">Napisz — wycenię indywidualnie.</a>
+        aria-label="${s.pricing.quoteAria}">${s.pricing.quoteLink}</a>
     </p>
   </div>
 </section>`

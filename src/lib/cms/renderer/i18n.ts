@@ -1,0 +1,283 @@
+import type { Lang } from './context'
+
+/**
+ * UI strings hardcoded into section renderers (buttons, aria-labels, form copy).
+ * Editable content (headline, body, portfolio card text, ...) is NOT here — it
+ * already varies per tenant through the fixture and needs no code change.
+ *
+ * Keyed by section file for easy cross-reference while translating.
+ */
+export const UI = {
+  pl: {
+    shell: {
+      skipToContent: 'Przejdź do treści',
+    },
+    shared: {
+      logoHomeSuffix: ' — strona główna',
+      callAriaPrefix: 'Zadzwoń: ',
+      callAtNumberAriaPrefix: 'Zadzwoń pod numer ',
+      writeAriaPrefix: 'Napisz: ',
+      writeAtAddressAriaPrefix: 'Napisz na adres ',
+    },
+    nav: {
+      mainNavAria: 'Główna nawigacja',
+      openMenuAria: 'Otwórz menu nawigacyjne',
+      openMenuAriaShort: 'Otwórz menu',
+      overlayAria: 'Menu nawigacyjne',
+      closeMenuAria: 'Zamknij menu nawigacyjne',
+      closeMenuAriaShort: 'Zamknij menu',
+      ctaAriaSuffix: ' — przejdź do formularza kontaktowego',
+      ctaAriaSuffixShort: ' — kontakt',
+      responseTime: 'Odpowiadam w 24h',
+    },
+    footer: {
+      footerNavAria: 'Nawigacja stopki',
+      footerAria: 'Stopka strony',
+      keywordLabel: 'Strony internetowe dla kancelarii prawnych',
+    },
+    head: {
+      schemaOrgDescription: 'Projektowanie stron internetowych dla kancelarii prawnych. System PACTA.',
+      schemaOrgAreaServed: 'PL',
+      schemaOrgKnowsAbout: ['strony dla kancelarii', 'web design prawniczy', 'SEO dla prawników'],
+      priceUnit: 'zł',
+    },
+    hero: {
+      priceUnit: 'zł',
+      pricePrefix: 'Od ',
+      priceSuffix: ' netto.',
+      ctaPrimaryAriaSuffix: ' — wypełnij formularz kontaktowy',
+      ctaSecondaryAriaSuffix: ' — case study Kancelaria Wojtas',
+      visualAria: 'Demonstracja systemu PACTA — animacja procesu redesignu',
+    },
+    solution: {
+      label: 'Rozwiązanie',
+      checklistAria: 'Elementy systemu PACTA',
+    },
+    portfolio: {
+      viewLive: 'Zobacz na żywo',
+      viewLiveAria: (title: string) => `Otwórz stronę ${title} na żywo (nowa karta)`,
+      thumbAlt: (title: string) => `Screenshot strony ${title} — hero section`,
+      gridThumbAlt: (title: string) => `Screenshot strony ${title}`,
+      details: 'Szczegóły',
+      detailsAriaSingle: 'Przejdź do pełnego case study — Kancelaria Wojtas',
+      detailsAria: (title: string) => `Przejdź do pełnego case study — ${title}`,
+      allProjectsAria: 'Przejdź do strony portfolio z pełnym opisem realizacji',
+      allProjects: 'Wszystkie realizacje',
+    },
+    timeline: {
+      label: 'Etapy',
+      stepsAria: 'Etapy procesu z harmonogramem',
+    },
+    deliverables: {
+      label: 'Co dostajesz',
+    },
+    technologie: {
+      label: 'Stack',
+      tagsAria: 'Lista technologii',
+    },
+    cennikDetail: {
+      biggerProject: 'Większy projekt lub zakres poza pakietami?',
+      orderPackageAriaWithForm: (label: string) => `Zamów stronę w pakiecie ${label === 'Rozszerzony' ? 'Rozszerzonym' : label} — formularz kontaktowy`,
+    },
+    process: {
+      label: 'Jak pracuję',
+      stepsAria: 'Etapy procesu',
+      fullProcessAria: 'Przejdź do pełnego opisu procesu i cennika',
+      fullProcess: 'Pełny opis procesu',
+    },
+    pricing: {
+      label: 'Cennik',
+      noteSuffix: (deliveryNote: string) => `zł netto — dostawa: ${deliveryNote}`,
+      packageContentsAria: (label: string) => `Zawartość pakietu ${label}`,
+      orderPackageAria: (label: string) => `Zamów stronę w pakiecie ${label === 'Rozszerzony' ? 'Rozszerzonym' : label}`,
+      biggerProject: 'Większy projekt lub niestandardowy zakres?',
+      quoteAria: 'Napisz po indywidualną wycenę',
+      quoteLink: 'Napisz — wycenię indywidualnie.',
+    },
+    ctaFinale: {
+      defaultMicrocopy: (phone: string, phoneDisplay: string) =>
+        `lub zadzwoń: <a href="tel:${phone}" class="cta-tel-link" aria-label="Zadzwoń: ${phoneDisplay}">${phoneDisplay}</a> — Odpowiadam w ciągu 24h.`,
+    },
+    faq: {
+      questionsAria: 'Najczęściej zadawane pytania',
+    },
+    notFound: {
+      heading: 'Strona nie istnieje',
+      body: 'Strona, której szukasz, mogła zostać przeniesiona, usunięta lub adres URL jest niepoprawny. Wróć na stronę główną lub przejdź do kontaktu.',
+      homeAria: 'Przejdź do strony głównej Forma Wizerunku',
+      home: 'Strona główna',
+      contactAria: 'Przejdź do formularza kontaktowego',
+      contact: 'Kontakt',
+    },
+    kontaktFormularz: {
+      reassurance1Default: 'Odpowiadam osobiście — bez automatycznych odpowiedzi',
+      reassurance2Default: 'Wstępna wycena bezpłatnie, w ciągu 24 godzin',
+      reassurance3Default: 'Specjalizuję się wyłącznie w stronach dla kancelarii prawnych',
+      formHeading: 'Napisz do mnie',
+      formAria: 'Formularz kontaktowy',
+      required: '(wymagane)',
+      optional: '(opcjonalne)',
+      nameLabel: 'Imię i nazwisko',
+      namePlaceholder: 'np. Anna Kowalska',
+      emailLabel: 'Adres e-mail',
+      emailPlaceholder: 'np. anna@kancelaria.pl',
+      phoneLabel: 'Numer telefonu',
+      phonePlaceholder: 'np. +48 500 100 200',
+      urlLabel: 'Adres obecnej strony',
+      urlPlaceholder: 'np. https://twoja-kancelaria.pl',
+      projectLabel: 'Opisz swój projekt',
+      projectPlaceholder: 'Czym zajmuje się Twoja kancelaria? Jakie masz oczekiwania wobec nowej strony? Co nie działa w obecnej? Nie musisz wiedzieć wszystkiego — po prostu opisz sytuację.',
+      rodoTextPrefix: 'Wyrażam zgodę na przetwarzanie moich danych osobowych przez Forma Wizerunku w celu udzielenia odpowiedzi na wiadomość. Dane nie będą przekazywane podmiotom trzecim. Mogę wycofać zgodę w dowolnym momencie. Zapoznałem/am się z ',
+      rodoTextSuffix: '.',
+      privacyPolicyLinkText: 'Polityką Prywatności',
+      submitLabel: 'Wyślij wiadomość',
+      submitMicrocopy: 'Odpowiadam w ciągu 24h. Bez zobowiązań.',
+      successTitle: 'Dziękuję za wiadomość!',
+      successBody: 'Odezwę się w możliwie najszybszym czasie.',
+      successBackHome: 'Wróć na stronę główną',
+      contactInfoAria: 'Bezpośrednie dane kontaktowe',
+      contactInfoHeading: 'Dane kontaktowe',
+      emailFieldLabel: 'E-mail',
+      phoneFieldLabel: 'Telefon',
+      whyWriteLabel: 'Dlaczego warto napisać',
+    },
+  },
+  en: {
+    shell: {
+      skipToContent: 'Skip to content',
+    },
+    shared: {
+      logoHomeSuffix: ' — home',
+      callAriaPrefix: 'Call: ',
+      callAtNumberAriaPrefix: 'Call at ',
+      writeAriaPrefix: 'Email: ',
+      writeAtAddressAriaPrefix: 'Email at ',
+    },
+    nav: {
+      mainNavAria: 'Main navigation',
+      openMenuAria: 'Open navigation menu',
+      openMenuAriaShort: 'Open menu',
+      overlayAria: 'Navigation menu',
+      closeMenuAria: 'Close navigation menu',
+      closeMenuAriaShort: 'Close menu',
+      ctaAriaSuffix: ' — go to the contact form',
+      ctaAriaSuffixShort: ' — contact',
+      responseTime: 'I reply within 24h',
+    },
+    footer: {
+      footerNavAria: 'Footer navigation',
+      footerAria: 'Site footer',
+      keywordLabel: 'Websites for Law Firms',
+    },
+    head: {
+      schemaOrgDescription: 'Website design for law firms. The PACTA system.',
+      schemaOrgAreaServed: 'EU',
+      schemaOrgKnowsAbout: ['law firm websites', 'legal web design', 'SEO for lawyers'],
+      priceUnit: 'PLN',
+    },
+    hero: {
+      priceUnit: 'PLN',
+      pricePrefix: 'From ',
+      priceSuffix: ', excl. VAT.',
+      ctaPrimaryAriaSuffix: ' — fill in the contact form',
+      ctaSecondaryAriaSuffix: ' — Kancelaria Wojtas case study',
+      visualAria: 'PACTA system demo — redesign process animation',
+    },
+    solution: {
+      label: 'Solution',
+      checklistAria: 'PACTA system elements',
+    },
+    portfolio: {
+      viewLive: 'View live',
+      viewLiveAria: (title: string) => `Open ${title} live (new tab)`,
+      thumbAlt: (title: string) => `${title} website screenshot — hero section`,
+      gridThumbAlt: (title: string) => `${title} website screenshot`,
+      details: 'Details',
+      detailsAriaSingle: 'View the full case study — Kancelaria Wojtas',
+      detailsAria: (title: string) => `View the full case study — ${title}`,
+      allProjectsAria: 'Go to the portfolio page with full project details',
+      allProjects: 'All projects',
+    },
+    timeline: {
+      label: 'Timeline',
+      stepsAria: 'Process timeline with schedule',
+    },
+    deliverables: {
+      label: 'What You Get',
+    },
+    technologie: {
+      label: 'Stack',
+      tagsAria: 'Technology list',
+    },
+    cennikDetail: {
+      biggerProject: 'Bigger project or scope outside these packages?',
+      orderPackageAriaWithForm: (label: string) => `Order the ${label} package — contact form`,
+    },
+    process: {
+      label: 'How I work',
+      stepsAria: 'Process steps',
+      fullProcessAria: 'View the full process and pricing details',
+      fullProcess: 'Full process details',
+    },
+    pricing: {
+      label: 'Pricing',
+      noteSuffix: (deliveryNote: string) => `PLN, excl. VAT — delivery ${deliveryNote}`,
+      packageContentsAria: (label: string) => `Contents of the ${label} package`,
+      orderPackageAria: (label: string) => `Order the ${label} package`,
+      biggerProject: 'Bigger project or a custom scope?',
+      quoteAria: 'Get in touch for a custom quote',
+      quoteLink: "Get in touch — I'll prepare an individual quote.",
+    },
+    ctaFinale: {
+      defaultMicrocopy: (phone: string, phoneDisplay: string) =>
+        `or call: <a href="tel:${phone}" class="cta-tel-link" aria-label="Call: ${phoneDisplay}">${phoneDisplay}</a> — I reply within 24h.`,
+    },
+    faq: {
+      questionsAria: 'Frequently asked questions',
+    },
+    notFound: {
+      heading: 'Page not found',
+      body: "The page you're looking for may have been moved, removed, or the URL is incorrect. Go back home or get in touch.",
+      homeAria: 'Go to the Forma Wizerunku homepage',
+      home: 'Home',
+      contactAria: 'Go to the contact form',
+      contact: 'Contact',
+    },
+    kontaktFormularz: {
+      reassurance1Default: 'I reply personally — no automated responses',
+      reassurance2Default: 'Free initial quote within 24 hours',
+      reassurance3Default: 'I specialize exclusively in websites for law firms',
+      formHeading: 'Get in Touch',
+      formAria: 'Contact form',
+      required: '(required)',
+      optional: '(optional)',
+      nameLabel: 'Full name',
+      namePlaceholder: 'e.g. Anna Smith',
+      emailLabel: 'Email address',
+      emailPlaceholder: 'e.g. anna@lawfirm.com',
+      phoneLabel: 'Phone number',
+      phonePlaceholder: 'e.g. +1 555 100 200',
+      urlLabel: 'Current website address',
+      urlPlaceholder: 'e.g. https://your-lawfirm.com',
+      projectLabel: 'Describe your project',
+      projectPlaceholder: "What does your firm focus on? What do you expect from a new website? What isn't working on your current one? You don't need to know everything — just describe your situation.",
+      rodoTextPrefix: 'I consent to Forma Wizerunku processing my personal data in order to respond to my message. My data will not be shared with third parties. I can withdraw consent at any time. I have read the ',
+      rodoTextSuffix: '.',
+      privacyPolicyLinkText: 'Privacy Policy',
+      submitLabel: 'Send Message',
+      submitMicrocopy: "I'll reply within 24 hours. No obligation.",
+      successTitle: 'Thank you for your message!',
+      successBody: "I'll get back to you as soon as possible.",
+      successBackHome: 'Back to homepage',
+      contactInfoAria: 'Direct contact details',
+      contactInfoHeading: 'Contact Details',
+      emailFieldLabel: 'Email',
+      phoneFieldLabel: 'Phone',
+      whyWriteLabel: 'Why get in touch',
+    },
+  },
+} as const satisfies Record<Lang, unknown>
+
+export function t(lang: Lang | undefined) {
+  return UI[lang ?? 'pl']
+}

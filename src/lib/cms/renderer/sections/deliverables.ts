@@ -1,8 +1,11 @@
 import type { Section, DeliverableItem } from '../../types'
+import type { RenderContext } from '../context'
+import { t } from '../i18n'
 
 const CHECK_ICON = `<svg class="deliverable-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="20 6 9 17 4 12"/></svg>`
 
-export function renderDeliverables(section: Section): string {
+export function renderDeliverables(section: Section, ctx: RenderContext): string {
+  const s = t(ctx.lang)
   const headline = section.fields['headline']?.value as string
   const items    = section.fields['items']?.value as DeliverableItem[]
 
@@ -21,7 +24,7 @@ export function renderDeliverables(section: Section): string {
 <section id="deliverables" class="section bg-surface reveal" aria-labelledby="deliverables-heading">
   <div class="container">
     <div class="section-header">
-      <span class="section-label">Co dostajesz</span>
+      <span class="section-label">${s.deliverables.label}</span>
       <h2 id="deliverables-heading" class="f-headline">${headline}</h2>
     </div>
 

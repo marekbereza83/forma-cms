@@ -1,6 +1,13 @@
 import type { Section } from '../../types'
 import type { RenderContext } from '../context'
 import { pageHref } from '../utils'
+import { t } from '../i18n'
+
+// EN tenant does not yet ship its own privacy-policy page (out of scope for v1) — cross-link
+// to the existing Polish page on the main domain rather than a broken relative link.
+function privacyPolicyHref(ctx: RenderContext): string {
+  return ctx.lang === 'en' ? 'https://formawizerunku.pl/privacy-policy.html' : pageHref('privacy-policy', ctx.linkMode)
+}
 
 const EMAIL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                   fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -29,9 +36,10 @@ const CHECK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20
                   </svg>`
 
 export function renderKontaktFormularz(section: Section, ctx: RenderContext): string {
-  const r1 = section.fields['reassurance1']?.value as string ?? 'Odpowiadam osobiście — bez automatycznych odpowiedzi'
-  const r2 = section.fields['reassurance2']?.value as string ?? 'Wstępna wycena bezpłatnie, w ciągu 24 godzin'
-  const r3 = section.fields['reassurance3']?.value as string ?? 'Specjalizuję się wyłącznie w stronach dla kancelarii prawnych'
+  const s = t(ctx.lang)
+  const r1 = section.fields['reassurance1']?.value as string ?? s.kontaktFormularz.reassurance1Default
+  const r2 = section.fields['reassurance2']?.value as string ?? s.kontaktFormularz.reassurance2Default
+  const r3 = section.fields['reassurance3']?.value as string ?? s.kontaktFormularz.reassurance3Default
 
   return `<!-- SEKCJA: formularz i dane kontaktowe -->
 <section class="section bg-surface" id="formularz" aria-labelledby="formularz-heading">
@@ -40,13 +48,13 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
 
       <!-- Formularz -->
       <div class="reveal">
-        <h2 id="formularz-heading" class="f-headline mb-5">Napisz do mnie</h2>
-        <form class="form" action="https://formspree.io/f/xaqzdazj" method="POST" novalidate aria-label="Formularz kontaktowy">
+        <h2 id="formularz-heading" class="f-headline mb-5">${s.kontaktFormularz.formHeading}</h2>
+        <form class="form" action="https://formspree.io/f/xaqzdazj" method="POST" novalidate aria-label="${s.kontaktFormularz.formAria}">
 
           <div class="form-group">
             <label class="form-label" for="imie-nazwisko">
-              Imię i nazwisko <span aria-hidden="true">*</span>
-              <span class="visually-hidden">(wymagane)</span>
+              ${s.kontaktFormularz.nameLabel} <span aria-hidden="true">*</span>
+              <span class="visually-hidden">${s.kontaktFormularz.required}</span>
             </label>
             <input
               class="form-input"
@@ -56,13 +64,13 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
               autocomplete="name"
               required
               aria-required="true"
-              placeholder="np. Anna Kowalska">
+              placeholder="${s.kontaktFormularz.namePlaceholder}">
           </div>
 
           <div class="form-group">
             <label class="form-label" for="email">
-              Adres e-mail <span aria-hidden="true">*</span>
-              <span class="visually-hidden">(wymagane)</span>
+              ${s.kontaktFormularz.emailLabel} <span aria-hidden="true">*</span>
+              <span class="visually-hidden">${s.kontaktFormularz.required}</span>
             </label>
             <input
               class="form-input"
@@ -72,13 +80,13 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
               autocomplete="email"
               required
               aria-required="true"
-              placeholder="np. anna@kancelaria.pl">
+              placeholder="${s.kontaktFormularz.emailPlaceholder}">
           </div>
 
           <div class="form-group">
             <label class="form-label" for="telefon">
-              Numer telefonu
-              <span class="form-optional">(opcjonalne)</span>
+              ${s.kontaktFormularz.phoneLabel}
+              <span class="form-optional">${s.kontaktFormularz.optional}</span>
             </label>
             <input
               class="form-input"
@@ -86,13 +94,13 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
               id="telefon"
               name="telefon"
               autocomplete="tel"
-              placeholder="np. +48 500 100 200">
+              placeholder="${s.kontaktFormularz.phonePlaceholder}">
           </div>
 
           <div class="form-group">
             <label class="form-label" for="url-strony">
-              Adres obecnej strony
-              <span class="form-optional">(opcjonalne)</span>
+              ${s.kontaktFormularz.urlLabel}
+              <span class="form-optional">${s.kontaktFormularz.optional}</span>
             </label>
             <input
               class="form-input"
@@ -100,13 +108,13 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
               id="url-strony"
               name="url-strony"
               autocomplete="url"
-              placeholder="np. https://twoja-kancelaria.pl">
+              placeholder="${s.kontaktFormularz.urlPlaceholder}">
           </div>
 
           <div class="form-group">
             <label class="form-label" for="opis">
-              Opisz swój projekt <span aria-hidden="true">*</span>
-              <span class="visually-hidden">(wymagane)</span>
+              ${s.kontaktFormularz.projectLabel} <span aria-hidden="true">*</span>
+              <span class="visually-hidden">${s.kontaktFormularz.required}</span>
             </label>
             <textarea
               class="form-input form-textarea"
@@ -115,7 +123,7 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
               rows="5"
               required
               aria-required="true"
-              placeholder="Czym zajmuje się Twoja kancelaria? Jakie masz oczekiwania wobec nowej strony? Co nie działa w obecnej? Nie musisz wiedzieć wszystkiego — po prostu opisz sytuację."></textarea>
+              placeholder="${s.kontaktFormularz.projectPlaceholder}"></textarea>
           </div>
 
           <div class="form-checkbox-group">
@@ -127,18 +135,15 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
               required
               aria-required="true">
             <label class="form-checkbox-label" for="rodo">
-              Wyrażam zgodę na przetwarzanie moich danych osobowych przez Forma Wizerunku
-              w celu udzielenia odpowiedzi na wiadomość. Dane nie będą przekazywane
-              podmiotom trzecim. Mogę wycofać zgodę w dowolnym momencie.
-              Zapoznałem/am się z <a href="${pageHref('privacy-policy', ctx.linkMode)}">Polityką Prywatności</a>. <span aria-hidden="true">*</span>
+              ${s.kontaktFormularz.rodoTextPrefix}<a href="${privacyPolicyHref(ctx)}">${s.kontaktFormularz.privacyPolicyLinkText}</a>${s.kontaktFormularz.rodoTextSuffix} <span aria-hidden="true">*</span>
             </label>
           </div>
 
           <div class="form-submit-group">
-            <button type="submit" class="btn-primary btn-shimmer btn-pulse w-full" aria-label="Wyślij wiadomość">
-              Wyślij wiadomość
+            <button type="submit" class="btn-primary btn-shimmer btn-pulse w-full" aria-label="${s.kontaktFormularz.submitLabel}">
+              ${s.kontaktFormularz.submitLabel}
             </button>
-            <p class="btn-micro">Odpowiadam w ciągu 24h. Bez zobowiązań.</p>
+            <p class="btn-micro">${s.kontaktFormularz.submitMicrocopy}</p>
           </div>
 
         </form>
@@ -159,9 +164,9 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
                   var homeHref = '${pageHref('index', ctx.linkMode)}';
                   form.parentNode.innerHTML = '<div class="form-success" role="alert" aria-live="polite">'
                     + '<div class="form-success-icon" aria-hidden="true">&#10003;</div>'
-                    + '<h3 class="form-success-title">Dziękuję za wiadomość!</h3>'
-                    + '<p class="form-success-body">Odezwę się w możliwie najszybszym czasie.</p>'
-                    + '<a href="' + homeHref + '" class="btn-primary mt-6">Wróć na stronę główną</a>'
+                    + '<h3 class="form-success-title">${s.kontaktFormularz.successTitle}</h3>'
+                    + '<p class="form-success-body">${s.kontaktFormularz.successBody}</p>'
+                    + '<a href="' + homeHref + '" class="btn-primary mt-6">${s.kontaktFormularz.successBackHome}</a>'
                     + '</div>';
                 } else {
                   if (btn) btn.disabled = false;
@@ -175,8 +180,8 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
       </div>
 
       <!-- Dane kontaktowe -->
-      <aside class="reveal" aria-label="Bezpośrednie dane kontaktowe">
-        <h2 class="f-headline mb-5">Dane kontaktowe</h2>
+      <aside class="reveal" aria-label="${s.kontaktFormularz.contactInfoAria}">
+        <h2 class="f-headline mb-5">${s.kontaktFormularz.contactInfoHeading}</h2>
         <div class="contact-info">
 
           <div class="contact-info-item">
@@ -184,8 +189,8 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
               ${EMAIL_SVG}
             </span>
             <div>
-              <span class="contact-info-label">E-mail</span>
-              <a href="${ctx.contactEmailHref}" class="contact-info-value" aria-label="Napisz na adres ${ctx.contactEmail}">
+              <span class="contact-info-label">${s.kontaktFormularz.emailFieldLabel}</span>
+              <a href="${ctx.contactEmailHref}" class="contact-info-value" aria-label="${s.shared.writeAtAddressAriaPrefix}${ctx.contactEmail}">
                 ${ctx.contactEmail}
               </a>
             </div>
@@ -196,8 +201,8 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
               ${PHONE_SVG}
             </span>
             <div>
-              <span class="contact-info-label">Telefon</span>
-              <a href="tel:${ctx.contactPhone}" class="contact-info-value" aria-label="Zadzwoń pod numer ${ctx.contactPhoneDisplay}">
+              <span class="contact-info-label">${s.kontaktFormularz.phoneFieldLabel}</span>
+              <a href="tel:${ctx.contactPhone}" class="contact-info-value" aria-label="${s.shared.callAtNumberAriaPrefix}${ctx.contactPhoneDisplay}">
                 ${ctx.contactPhoneDisplay}
               </a>
             </div>
@@ -206,7 +211,7 @@ export function renderKontaktFormularz(section: Section, ctx: RenderContext): st
         </div>
 
         <div class="mt-10">
-          <p class="f-label mb-3">Dlaczego warto napisać</p>
+          <p class="f-label mb-3">${s.kontaktFormularz.whyWriteLabel}</p>
           <ul class="reassurance-list" role="list">
             <li class="reassurance-item">
               <span class="reassurance-icon" aria-hidden="true">
