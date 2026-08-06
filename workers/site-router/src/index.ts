@@ -15,6 +15,15 @@ export interface Env {
   SITE_BUCKET: R2Bucket
   /** JSON map of hostname -> tenantId, e.g. {"kancelaria.pl":"abc","www.kancelaria.pl":"abc"} */
   HOST_MAP: string
+  /**
+   * Optional JSON map of non-canonical hostname -> canonical hostname, e.g.
+   * {"www.formawizerunku.pl":"formawizerunku.pl"}. Only hosts listed here get
+   * redirected to their canonical counterpart; any other host present in
+   * HOST_MAP is already canonical and is served as-is. This is what lets
+   * multiple tenant hostnames (kancelaria.pl, en.formawizerunku.pl, ...) coexist
+   * without each being redirected to a single hardcoded domain.
+   */
+  CANONICAL_HOST_MAP?: string
 }
 
 function parseHostMap(raw: string): Record<string, string> {
@@ -43,11 +52,10 @@ function serve(obj: R2ObjectBody, status = 200): Response {
 // cache z publishSite() po udanym uploadzie.
 const CACHE_TTL_SECONDS = 60
 
-// Klucz cache budowany z tenantId + sciezki zadania, NIE z pelnego URL — kanonizacja
-// nizej na sztywno wymusza hostname 'formawizerunku.pl' niezaleznie od tego, ktory host
-// z HOST_MAP faktycznie odpowiada (przedistniejacy stan, nie naprawiany tutaj). Klucz
-// oparty na URL kolidowalby miedzy tenantami, gdyby ta kanonizacja kiedys zostala
-// naprawiona pod wielu tenantow; klucz oparty na tenantId jest poprawny niezaleznie.
+// Klucz cache budowany z tenantId + sciezki zadania, NIE z pelnego URL — nawet teraz,
+// gdy kanonizacja jest per-host (patrz CANONICAL_HOST_MAP), klucz oparty na URL
+// kolidowalby miedzy hostami wskazujacymi na tego samego tenanta (apex + www).
+// Klucz oparty na tenantId jest poprawny niezaleznie od tego, przez ktory host przyszlo zadanie.
 function cacheKeyFor(tenantId: string, path: string): Request {
   return new Request(`https://cache.internal/${tenantId}${path}`)
 }
@@ -149,9 +157,13 @@ async function handle(request: Request, env: Env, ctx: ExecutionContext): Promis
 
   // Canonical public URL. Apply every normalization in one response so that
   // combinations such as http + www + /index.html never form a redirect chain.
+  // Hostname is only rewritten when CANONICAL_HOST_MAP names an explicit target
+  // (e.g. www -> apex for one tenant) — any other host passes through unchanged,
+  // so multiple tenant hostnames can be served by the same Worker.
+  const canonicalHostMap = parseHostMap(env.CANONICAL_HOST_MAP ?? '{}')
   const canonicalUrl = new URL(url)
   canonicalUrl.protocol = 'https:'
-  canonicalUrl.hostname = 'formawizerunku.pl'
+  canonicalUrl.hostname = canonicalHostMap[url.hostname] ?? url.hostname
   if (canonicalUrl.pathname === '/index.html') canonicalUrl.pathname = '/'
 
   if (url.toString() !== canonicalUrl.toString()) {

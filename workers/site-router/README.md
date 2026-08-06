@@ -18,6 +18,10 @@ Prereq: `npm install` here, and `npx wrangler login` (or set `CLOUDFLARE_API_TOK
    - `bucket_name` → the same bucket as the app's `R2_BUCKET`.
    - `HOST_MAP` → `{"your-domain.pl":"<tenantId>","www.your-domain.pl":"<tenantId>"}`.
      The tenantId is the `Tenant.id` row (also printed by `scripts/create-tenant.ts`).
+   - `CANONICAL_HOST_MAP` (optional) → `{"www.your-domain.pl":"your-domain.pl"}` if you
+     want www redirected into the apex for SEO. Any host in `HOST_MAP` that is **not**
+     listed here is served as-is, with no redirect — that's what lets several tenant
+     hostnames coexist on this one Worker.
 
 2. **Deploy:**
    ```bash
