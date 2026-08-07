@@ -8,6 +8,8 @@ import { resolveImageSrc } from './image'
 import { escapeHtml, pageHref, rootHref } from './utils'
 import { injectHeadingIds, renderPostToc } from './post-toc'
 import { buildBlogPostingJsonLd, buildBreadcrumbListJsonLd } from './post-jsonld'
+import type { Lang } from './context'
+import { t } from './i18n'
 
 const ARROW_ICON_SM = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`
 const BOOKMARK_ICON = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`
@@ -21,10 +23,10 @@ export function computeReadTime(body: string): number {
   return Math.max(1, Math.ceil(words / 200))
 }
 
-function formatDate(dateStr: string | undefined): string {
+function formatDate(dateStr: string | undefined, lang: Lang): string {
   if (!dateStr) return ''
   const d = new Date(dateStr)
-  return d.toLocaleDateString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric' })
+  return d.toLocaleDateString(t(lang).publikacje.dateLocale, { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 function publishedPostsSortedDesc(model: SiteModel): PostItem[] {
@@ -76,12 +78,12 @@ function renderSourceItem(raw: string): string {
     .join('')
 }
 
-function renderSources(sources: string[] | undefined): string {
+function renderSources(sources: string[] | undefined, lang: Lang): string {
   const list = (sources ?? []).filter(s => s.trim() !== '')
   if (list.length === 0) return ''
 
   return `<footer class="pub-sources" aria-labelledby="pub-sources-heading">
-        <h2 id="pub-sources-heading" class="pub-sources-label">Źródła</h2>
+        <h2 id="pub-sources-heading" class="pub-sources-label">${t(lang).publikacje.sourcesHeading}</h2>
         <ol class="pub-sources-list">
           ${list.map(s => `<li>${renderSourceItem(s)}</li>`).join('\n          ')}
         </ol>
@@ -105,7 +107,8 @@ export const PUB_FEATURED_COUNT = 3
 // Jedna wspolna struktura karty dla obu kolumn — rozne wygladu (duzy hero z overlay
 // vs kompaktowy sidebar) daje wylacznie CSS przez modyfikator .pub-card--featured,
 // zeby nie duplikowac tresci posta w dwoch roznych znacznikach (SEO/a11y).
-function renderCard(post: PostItem, basePath: string, linkMode: 'static' | 'preview', opts: { onFirstPage: boolean; featured: boolean; authorHtml: string }): string {
+function renderCard(post: PostItem, basePath: string, linkMode: 'static' | 'preview', lang: Lang, opts: { onFirstPage: boolean; featured: boolean; authorHtml: string }): string {
+  const ui = t(lang).publikacje
   const href = pageHref(`publikacje/${post.slug}`, linkMode)
   const readTime = computeReadTime(post.body)
   const year = (post.publishedAt ?? '').slice(0, 4)
@@ -135,8 +138,8 @@ function renderCard(post: PostItem, basePath: string, linkMode: 'static' | 'prev
     ${thumbHtml}
     <div class="pub-card-body">
       <div class="pub-card-meta">
-        <time datetime="${post.publishedAt ?? ''}">${formatDate(post.publishedAt)}</time>
-        <span class="pub-read-time">${readTime} MIN</span>
+        <time datetime="${post.publishedAt ?? ''}">${formatDate(post.publishedAt, lang)}</time>
+        <span class="pub-read-time">${readTime} ${ui.readTimeUnit}</span>
         ${opts.authorHtml}
       </div>
       <h2 class="pub-card-title"><a href="${href}">${post.title}</a></h2>
@@ -145,9 +148,9 @@ function renderCard(post: PostItem, basePath: string, linkMode: 'static' | 'prev
         ${renderTags(post.tags, 3)}
         <div class="pub-card-actions">
           <button type="button" class="pub-bookmark" data-pub-bookmark="${post.id}"
-            aria-label="Zapisz w zakładkach" aria-pressed="false">${BOOKMARK_ICON}</button>
-          <a href="${href}" class="pub-card-link" aria-label="Czytaj: ${post.title}">
-            <span class="pub-card-link-long">CZYTAJ PUBLIKACJĘ</span><span class="pub-card-link-short">Otwórz</span>${ARROW_ICON_SM}
+            aria-label="${ui.bookmarkAria}" aria-pressed="false">${BOOKMARK_ICON}</button>
+          <a href="${href}" class="pub-card-link" aria-label="${ui.cardLinkAria(post.title)}">
+            <span class="pub-card-link-long">${ui.cardLinkLong}</span><span class="pub-card-link-short">${ui.cardLinkShort}</span>${ARROW_ICON_SM}
           </a>
         </div>
       </div>
@@ -156,6 +159,8 @@ function renderCard(post: PostItem, basePath: string, linkMode: 'static' | 'prev
 }
 
 export function renderPostsListPage(model: SiteModel, basePath = '', linkMode: 'static' | 'preview' = 'static'): string {
+  const lang = model.meta.lang ?? 'pl'
+  const ui = t(lang).publikacje
   const posts = publishedPostsSortedDesc(model)
   const siteRoot = model.meta.canonical.replace(/\/$/, '')
   const { navHtml, footerHtml } = renderNavAndFooter(model, basePath, linkMode)
@@ -163,11 +168,11 @@ export function renderPostsListPage(model: SiteModel, basePath = '', linkMode: '
   const head = renderHead(
     model.meta,
     {
-      title: `Publikacje | ${model.meta.brandName}`,
-      description: 'Artykuły, analizy i felietony o projektowaniu stron internetowych dla kancelarii prawnych.',
+      title: ui.listTitle(model.meta.brandName),
+      description: ui.listDescription,
       canonical: postsListUrl(siteRoot),
-      ogTitle: `Publikacje | ${model.meta.brandName}`,
-      ogDescription: 'Artykuły, analizy i felietony o projektowaniu stron internetowych dla kancelarii prawnych.',
+      ogTitle: ui.listTitle(model.meta.brandName),
+      ogDescription: ui.listDescription,
       ogUrl: postsListUrl(siteRoot),
     },
     undefined,
@@ -180,19 +185,19 @@ export function renderPostsListPage(model: SiteModel, basePath = '', linkMode: '
     <div class="pub-filter-row">
       <div class="pub-search-wrap">
         ${SEARCH_ICON}
-        <input type="search" class="pub-search" placeholder="Szukaj publikacji…" aria-label="Szukaj publikacji" data-pub-search>
+        <input type="search" class="pub-search" placeholder="${ui.searchPlaceholder}" aria-label="${ui.searchAria}" data-pub-search>
       </div>
     </div>
     <div class="pub-filter-row">
-      <div class="pub-filter-group" role="group" aria-label="Filtruj wg roku">
-        <button type="button" class="pub-filter-btn is-active" data-pub-year="WSZYSTKIE">WSZYSTKIE LATA</button>
+      <div class="pub-filter-group" role="group" aria-label="${ui.filterByYearAria}">
+        <button type="button" class="pub-filter-btn is-active" data-pub-year="WSZYSTKIE">${ui.allYears}</button>
         ${years.map(y => `<button type="button" class="pub-filter-btn" data-pub-year="${y}">${y}</button>`).join('\n        ')}
       </div>
       <div class="pub-controls-group">
-        <button type="button" class="pub-sort-btn" data-pub-sort aria-label="Zmień kolejność sortowania">Najnowsze</button>
-        <div class="pub-view-toggle" role="group" aria-label="Widok listy publikacji">
-          <button type="button" class="pub-view-btn is-active" data-pub-view="grid" aria-label="Widok siatki">Siatka</button>
-          <button type="button" class="pub-view-btn" data-pub-view="list" aria-label="Widok listy">Lista</button>
+        <button type="button" class="pub-sort-btn" data-pub-sort aria-label="${ui.sortAria}">${ui.sortNewest}</button>
+        <div class="pub-view-toggle" role="group" aria-label="${ui.viewToggleAria}">
+          <button type="button" class="pub-view-btn is-active" data-pub-view="grid" aria-label="${ui.viewGridAria}">${ui.viewGrid}</button>
+          <button type="button" class="pub-view-btn" data-pub-view="list" aria-label="${ui.viewListAria}">${ui.viewList}</button>
         </div>
       </div>
     </div>
@@ -209,46 +214,46 @@ export function renderPostsListPage(model: SiteModel, basePath = '', linkMode: '
   // zeby po przejsciu strony w kliencie podzial byl spojny — patrz publications.js.
   const featuredCards = posts
     .slice(0, PUB_FEATURED_COUNT)
-    .map((p, i) => renderCard(p, basePath, linkMode, { onFirstPage: i < PUB_PAGE_SIZE, featured: true, authorHtml }))
+    .map((p, i) => renderCard(p, basePath, linkMode, lang, { onFirstPage: i < PUB_PAGE_SIZE, featured: true, authorHtml }))
     .join('\n      ')
   const sidebarCards = posts
     .slice(PUB_FEATURED_COUNT)
-    .map((p, i) => renderCard(p, basePath, linkMode, { onFirstPage: (i + PUB_FEATURED_COUNT) < PUB_PAGE_SIZE, featured: false, authorHtml }))
+    .map((p, i) => renderCard(p, basePath, linkMode, lang, { onFirstPage: (i + PUB_FEATURED_COUNT) < PUB_PAGE_SIZE, featured: false, authorHtml }))
     .join('\n      ')
 
   const listBody = posts.length === 0
-    ? `<p class="pub-empty">Nie masz jeszcze żadnych publikacji.</p>`
+    ? `<p class="pub-empty">${ui.emptyAll}</p>`
     : `${filterBar}
-    <p class="pub-empty-filtered" data-pub-empty hidden>Brak artykułów spełniających podane kryteria. <button type="button" class="pub-reset-filters" data-pub-reset>Zresetuj filtry</button></p>
+    <p class="pub-empty-filtered" data-pub-empty hidden>${ui.emptyFiltered} <button type="button" class="pub-reset-filters" data-pub-reset>${ui.resetFilters}</button></p>
     <div class="pub-split" data-pub-split data-pub-view="grid" data-pub-page-size="${PUB_PAGE_SIZE}" data-pub-featured-count="${PUB_FEATURED_COUNT}">
       <div class="pub-featured-col" data-pub-featured-col>
         <div class="pub-split-header">
-          <span class="pub-split-label">GŁÓWNE PUBLIKACJE (<span data-pub-featured-total>${Math.min(PUB_FEATURED_COUNT, posts.length)}</span>)</span>
-          <span class="pub-split-tag">REKOMENDOWANE</span>
+          <span class="pub-split-label">${ui.featuredLabel} (<span data-pub-featured-total>${Math.min(PUB_FEATURED_COUNT, posts.length)}</span>)</span>
+          <span class="pub-split-tag">${ui.featuredTag}</span>
         </div>
         ${featuredCards}
       </div>
       <aside class="pub-sidebar-col" data-pub-sidebar-col>
         <div class="pub-split-header">
-          <span class="pub-split-label">POZOSTAŁE PUBLIKACJE</span>
+          <span class="pub-split-label">${ui.sidebarLabel}</span>
           <span class="pub-split-count" data-pub-sidebar-total>${Math.max(0, posts.length - PUB_FEATURED_COUNT)}</span>
         </div>
-        ${sidebarCards || '<p class="pub-sidebar-empty">Brak dodatkowych publikacji.</p>'}
+        ${sidebarCards || `<p class="pub-sidebar-empty">${ui.emptySidebar}</p>`}
       </aside>
     </div>
-    <nav class="pub-pagination" data-pub-pagination aria-label="Paginacja publikacji">
-      <button type="button" class="pub-page-prev" data-pub-prev aria-label="Poprzednia strona" disabled>← NOWSZE</button>
-      <span class="pub-page-status" data-pub-page-status>STRONA 1 Z ${totalPages}</span>
-      <button type="button" class="pub-page-next" data-pub-next aria-label="Następna strona"${totalPages <= 1 ? ' disabled' : ''}>STARSZE →</button>
+    <nav class="pub-pagination" data-pub-pagination aria-label="${ui.paginationAria}">
+      <button type="button" class="pub-page-prev" data-pub-prev aria-label="${ui.paginationPrevAria}" disabled>${ui.paginationPrev}</button>
+      <span class="pub-page-status" data-pub-page-status>${ui.paginationStatus(1, totalPages)}</span>
+      <button type="button" class="pub-page-next" data-pub-next aria-label="${ui.paginationNextAria}"${totalPages <= 1 ? ' disabled' : ''}>${ui.paginationNext}</button>
     </nav>`
 
   const mainInner = `<!-- SEKCJA: publikacje (lista) -->
 <section id="publikacje-lista" class="section bg-base reveal pub-list-page" aria-labelledby="publikacje-heading">
   <div class="container">
     <div class="section-header">
-      <span class="section-label">Publikacje</span>
-      <h1 id="publikacje-heading" class="f-display">Publikacje</h1>
-      <p class="f-lead max-54">Artykuły, analizy i felietony dotyczące nowoczesnego projektowania stron internetowych dla kancelarii prawnych.</p>
+      <span class="section-label">${ui.pageLabel}</span>
+      <h1 id="publikacje-heading" class="f-display">${ui.pageLabel}</h1>
+      <p class="f-lead max-54">${ui.heroLead}</p>
     </div>
     ${listBody}
   </div>
@@ -257,12 +262,14 @@ export function renderPostsListPage(model: SiteModel, basePath = '', linkMode: '
   return renderShell({
     head, navHtml, mainInner, footerHtml,
     preMainVariant: 'plain', basePath, linkMode,
-    lang: model.meta.lang ?? 'pl', gaId: model.meta.gaId,
+    lang, gaId: model.meta.gaId,
     extraScripts: [`<script src="${basePath}assets/js/publications.js" defer></script>`],
   })
 }
 
 export function renderPostPage(model: SiteModel, post: PostItem, basePath = '', linkMode: 'static' | 'preview' = 'static'): string {
+  const lang = model.meta.lang ?? 'pl'
+  const ui = t(lang).publikacje
   const siteRoot = model.meta.canonical.replace(/\/$/, '')
   const canonicalUrl = postUrl(siteRoot, post.slug)
   const { navHtml, footerHtml } = renderNavAndFooter(model, basePath, linkMode)
@@ -309,7 +316,7 @@ export function renderPostPage(model: SiteModel, post: PostItem, basePath = '', 
 
   const takeawaysHtml = post.keyTakeaways && post.keyTakeaways.length > 0
     ? `<aside class="pub-takeaways" aria-labelledby="pub-takeaways-heading">
-        <h2 id="pub-takeaways-heading" class="pub-takeaways-label">Kluczowe wnioski</h2>
+        <h2 id="pub-takeaways-heading" class="pub-takeaways-label">${ui.takeawaysHeading}</h2>
         <ul>
           ${post.keyTakeaways.map((k, i) => `<li><span class="pub-takeaways-num">0${i + 1}.</span> ${k}</li>`).join('\n          ')}
         </ul>
@@ -329,16 +336,16 @@ export function renderPostPage(model: SiteModel, post: PostItem, basePath = '', 
   // Bez prefiksu "publikacje/" — ta strona SAMA juz jest w /publikacje/, wiec sasiedni
   // artykul to plik w tym samym katalogu (pageHref('slug', linkMode) = "slug.html").
   const adjacentNavHtml = (newerPost || olderPost)
-    ? `<nav class="pub-adjacent-nav" aria-label="Nawigacja między artykułami">
+    ? `<nav class="pub-adjacent-nav" aria-label="${ui.adjacentNavAria}">
         ${olderPost
           ? `<a href="${pageHref(olderPost.slug, linkMode)}" class="pub-adjacent-link pub-adjacent-prev">
-              <span class="pub-adjacent-dir">← Poprzedni</span>
+              <span class="pub-adjacent-dir">${ui.prevArticle}</span>
               <span class="pub-adjacent-title">${olderPost.title}</span>
             </a>`
           : '<span></span>'}
         ${newerPost
           ? `<a href="${pageHref(newerPost.slug, linkMode)}" class="pub-adjacent-link pub-adjacent-next">
-              <span class="pub-adjacent-dir">Następny →</span>
+              <span class="pub-adjacent-dir">${ui.nextArticle}</span>
               <span class="pub-adjacent-title">${newerPost.title}</span>
             </a>`
           : '<span></span>'}
@@ -349,15 +356,15 @@ export function renderPostPage(model: SiteModel, post: PostItem, basePath = '', 
 <!-- SEKCJA: publikacje (artykuł) -->
 <section id="publikacje-artykul" class="section bg-base pub-article-page" aria-labelledby="pub-article-title">
   <div class="container">
-    <a href="${rootHref('publikacje', basePath, linkMode)}" class="pub-back-link">← Wróć do publikacji</a>
+    <a href="${rootHref('publikacje', basePath, linkMode)}" class="pub-back-link">${ui.backToList}</a>
 
     <article aria-labelledby="pub-article-title">
       <header class="pub-article-header">
         <div class="pub-article-meta">
-          <time datetime="${post.publishedAt ?? ''}">${formatDate(post.publishedAt)}</time>
-          <span class="pub-read-time">${readTime} MIN CZYTANIA</span>
+          <time datetime="${post.publishedAt ?? ''}">${formatDate(post.publishedAt, lang)}</time>
+          <span class="pub-read-time">${readTime} ${ui.readTimeUnitArticle}</span>
           <button type="button" class="pub-bookmark" data-pub-bookmark="${post.id}"
-            aria-label="Zapisz w zakładkach" aria-pressed="false">${BOOKMARK_ICON}</button>
+            aria-label="${ui.bookmarkAria}" aria-pressed="false">${BOOKMARK_ICON}</button>
         </div>
         <h1 id="pub-article-title" class="pub-article-title">${post.title}</h1>
         ${post.excerpt ? `<p class="pub-article-lead">${post.excerpt}</p>` : ''}
@@ -374,7 +381,7 @@ export function renderPostPage(model: SiteModel, post: PostItem, basePath = '', 
             ${bodyHtml}
           </div>
 
-          ${renderSources(post.sources)}
+          ${renderSources(post.sources, lang)}
           ${renderTags(post.tags)}
         </div>
       </div>
@@ -382,9 +389,9 @@ export function renderPostPage(model: SiteModel, post: PostItem, basePath = '', 
 
     <div class="pub-article-footer">
       <button type="button" class="pub-copy-link" data-pub-copy-link data-url="${canonicalUrl}">
-        Kopiuj link
+        ${ui.copyLink}
       </button>
-      <a href="${rootHref('kontakt', basePath, linkMode)}" class="btn-primary">Opisz swoją kancelarię</a>
+      <a href="${rootHref('kontakt', basePath, linkMode)}" class="btn-primary">${ui.describeFirmCta}</a>
     </div>
 
     ${adjacentNavHtml}
@@ -394,7 +401,7 @@ export function renderPostPage(model: SiteModel, post: PostItem, basePath = '', 
   return renderShell({
     head, navHtml, mainInner, footerHtml,
     preMainVariant: 'rich', basePath, linkMode,
-    lang: model.meta.lang ?? 'pl', gaId: model.meta.gaId,
+    lang, gaId: model.meta.gaId,
     extraScripts: [`<script src="${basePath}assets/js/publications.js" defer></script>`],
   })
 }
