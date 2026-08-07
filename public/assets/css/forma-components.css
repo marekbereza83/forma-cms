@@ -28,11 +28,12 @@
 .lang-switch {
   display: none;
   align-items: center;
-  border: 1px solid var(--border);
+  border: 1px solid var(--text-secondary);
   border-radius: var(--radius-sm);
   overflow: hidden;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.74rem;
+  font-weight: 700;
   letter-spacing: 0.04em;
   flex-shrink: 0;
 }
@@ -40,16 +41,15 @@
   .lang-switch { display: inline-flex; }
 }
 .lang-switch-btn {
-  padding: 0.35rem 0.65rem;
-  color: var(--text-secondary);
-  background: transparent;
+  padding: 0.4rem 0.7rem;
+  color: var(--text-primary);
+  background: var(--surface);
   transition: color var(--duration) var(--ease), background var(--duration) var(--ease);
 }
-.lang-switch-btn:hover { color: var(--text-primary); }
+.lang-switch-btn:hover { color: #fff; background: var(--border); }
 .lang-switch-btn.is-active {
   background: var(--accent);
   color: #fff;
-  font-weight: 700;
 }
 .lang-switch.lang-switch--overlay {
   display: inline-flex;
