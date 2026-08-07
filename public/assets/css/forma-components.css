@@ -21,6 +21,42 @@
   }
 }
 
+/* ─── Language switch (PL/EN sibling domains) ────────────────────────
+   Bar variant: hidden below 768px like nav-links, since the mobile nav-inner
+   only has room for logo + hamburger. Overlay variant repeats it inside the
+   mobile menu instead, always visible there regardless of viewport width. */
+.lang-switch {
+  display: none;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+@media (min-width: 768px) {
+  .lang-switch { display: inline-flex; }
+}
+.lang-switch-btn {
+  padding: 0.35rem 0.65rem;
+  color: var(--text-secondary);
+  background: transparent;
+  transition: color var(--duration) var(--ease), background var(--duration) var(--ease);
+}
+.lang-switch-btn:hover { color: var(--text-primary); }
+.lang-switch-btn.is-active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+.lang-switch.lang-switch--overlay {
+  display: inline-flex;
+  align-self: center;
+  margin-bottom: var(--space-2);
+}
+
 /* ─── Stat card ───────────────────────────────────────────── */
 .stat-card {
   padding: var(--space-6);

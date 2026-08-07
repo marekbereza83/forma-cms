@@ -25,6 +25,7 @@ import { renderNotFound } from './sections/not-found'
 import { redesignAnimatorScript } from './hardcoded/redesign-animator'
 import { formaGenesisScript } from './hardcoded/forma-genesis'
 import { buildBaseRenderContext, renderShell } from './shell'
+import { SHARED_PAGE_SLUGS, sharedSlugPath } from './lang-pairing'
 
 const SECTION_REGISTRY: Record<string, (s: Section, ctx: RenderContext) => string> = {
   // ── index ────────────────────────────────────────────────────────────────────
@@ -88,11 +89,17 @@ export function renderPage(model: SiteModel, slug: string, basePath = '', linkMo
   })
 
   const notFoundTitle = ctx.lang === 'en' ? '404 — Page not found | FORMA' : '404 — Strona nie istnieje | FORMA'
+  // hreflang only for pages with a genuine same-slug equivalent on the sibling
+  // tenant — never for legal pages (PL-only, no counterpart) or 404 (noindex,
+  // shouldn't carry hreflang regardless of whether a sibling 404 exists).
+  const hreflangAlt = (!isLegal && !is404 && model.meta.altLang && SHARED_PAGE_SLUGS.has(slug))
+    ? { lang: model.meta.altLang.lang, href: `${model.meta.altLang.homeUrl}${sharedSlugPath(slug)}` }
+    : undefined
   const head = isLegal
     ? renderLegalHead(page.meta?.title ?? 'FORMA Wizerunku', basePath, 'noindex, follow', model.meta.gaId)
     : is404
       ? renderLegalHead(page.meta?.title ?? notFoundTitle, basePath, 'noindex, nofollow', model.meta.gaId)
-      : renderHead(model.meta, page.meta, pricingStandardAmount, basePath)
+      : renderHead(model.meta, page.meta, pricingStandardAmount, basePath, undefined, hreflangAlt)
 
   let navHtml = ''
   if (navSection) {

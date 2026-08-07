@@ -10,6 +10,7 @@ import { injectHeadingIds, renderPostToc } from './post-toc'
 import { buildBlogPostingJsonLd, buildBreadcrumbListJsonLd } from './post-jsonld'
 import type { Lang } from './context'
 import { t } from './i18n'
+import { sharedSlugPath } from './lang-pairing'
 
 const ARROW_ICON_SM = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`
 const BOOKMARK_ICON = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`
@@ -40,16 +41,22 @@ function publishedPostsSortedDesc(model: SiteModel): PostItem[] {
 // migrate-add-publikacje-page.ts), ale sa identyczne site-wide wiec to bezpieczne
 // zrodlo. showCurrentInFooter: false — publikacje wygladaja jak reszta serwisu
 // (index/proces/portfolio), nie jak strony utility (kontakt/legal/404).
-function renderNavAndFooter(model: SiteModel, basePath: string, linkMode: 'static' | 'preview') {
+// langSwitchHrefOverride: precise nav-switcher target when the caller knows one
+// (a translated article, via PostItem.altLangSlug) — otherwise the switcher
+// falls back to its generic same-slug mapping (publikacje -> publikacje).
+function renderNavAndFooter(model: SiteModel, basePath: string, linkMode: 'static' | 'preview', langSwitchHrefOverride?: string) {
   const indexPage = model.pages.find(p => p.slug === 'index')
   if (!indexPage) throw new Error('Strona "index" jest wymagana (zrodlo nav/footer dla /publikacje)')
   const navSection = indexPage.sections.find(s => s.id === 'nav')
   const footerSection = indexPage.sections.find(s => s.id === 'footer')
   if (!navSection || !footerSection) throw new Error('Strona "index" nie ma sekcji nav/footer')
 
-  const ctx = buildBaseRenderContext(model, {
-    basePath, linkMode, currentPage: 'publikacje', showCurrentInFooter: false,
-  })
+  const ctx = {
+    ...buildBaseRenderContext(model, {
+      basePath, linkMode, currentPage: 'publikacje', showCurrentInFooter: false,
+    }),
+    langSwitchHref: langSwitchHrefOverride,
+  }
 
   return { navHtml: renderNav(navSection, ctx), footerHtml: renderFooter(footerSection, ctx) }
 }
@@ -165,6 +172,12 @@ export function renderPostsListPage(model: SiteModel, basePath = '', linkMode: '
   const siteRoot = model.meta.canonical.replace(/\/$/, '')
   const { navHtml, footerHtml } = renderNavAndFooter(model, basePath, linkMode)
 
+  // "publikacje" is always in SHARED_PAGE_SLUGS — a genuine list<->list equivalent
+  // whenever the tenant has a language sibling at all.
+  const hreflangAlt = model.meta.altLang
+    ? { lang: model.meta.altLang.lang, href: `${model.meta.altLang.homeUrl}${sharedSlugPath('publikacje')}` }
+    : undefined
+
   const head = renderHead(
     model.meta,
     {
@@ -177,6 +190,8 @@ export function renderPostsListPage(model: SiteModel, basePath = '', linkMode: '
     },
     undefined,
     basePath,
+    undefined,
+    hreflangAlt,
   )
 
   const years = Array.from(new Set(posts.map(p => (p.publishedAt ?? '').slice(0, 4)).filter(Boolean))).sort().reverse()
@@ -272,7 +287,15 @@ export function renderPostPage(model: SiteModel, post: PostItem, basePath = '', 
   const ui = t(lang).publikacje
   const siteRoot = model.meta.canonical.replace(/\/$/, '')
   const canonicalUrl = postUrl(siteRoot, post.slug)
-  const { navHtml, footerHtml } = renderNavAndFooter(model, basePath, linkMode)
+
+  // Only a genuine, hand-paired translation (PostItem.altLangSlug, set on BOTH
+  // sides) counts as an equivalent here — an untranslated post has none, and
+  // both the nav switcher and hreflang correctly fall back / stay silent below.
+  const altPost = (model.meta.altLang && post.altLangSlug)
+    ? { lang: model.meta.altLang.lang, href: `${model.meta.altLang.homeUrl}publikacje/${post.altLangSlug}.html` }
+    : undefined
+
+  const { navHtml, footerHtml } = renderNavAndFooter(model, basePath, linkMode, altPost?.href)
   const readTime = computeReadTime(post.body)
 
   // metaTitle/metaDescription nadpisuja domyslny tytul/opis (patrz C12 dlugosc,
@@ -293,6 +316,7 @@ export function renderPostPage(model: SiteModel, post: PostItem, basePath = '', 
     undefined,
     basePath,
     post.coverImage,
+    altPost,
   )
 
   const jsonLd = [

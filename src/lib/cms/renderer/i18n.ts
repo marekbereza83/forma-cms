@@ -29,6 +29,9 @@ export const UI = {
       ctaAriaSuffix: ' — przejdź do formularza kontaktowego',
       ctaAriaSuffixShort: ' — kontakt',
       responseTime: 'Odpowiadam w 24h',
+      langSwitchAria: 'Wersja językowa',
+      langSwitchToAria: (label: string) => `Przełącz na wersję: ${label}`,
+      langLabel: { pl: 'PL', en: 'EN' } as Record<'pl' | 'en', string>,
     },
     footer: {
       footerNavAria: 'Nawigacja stopki',
@@ -208,6 +211,9 @@ export const UI = {
       ctaAriaSuffix: ' — go to the contact form',
       ctaAriaSuffixShort: ' — contact',
       responseTime: 'I reply within 24h',
+      langSwitchAria: 'Language',
+      langSwitchToAria: (label: string) => `Switch to: ${label}`,
+      langLabel: { pl: 'PL', en: 'EN' } as Record<'pl' | 'en', string>,
     },
     footer: {
       footerNavAria: 'Footer navigation',

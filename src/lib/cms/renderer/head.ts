@@ -1,4 +1,5 @@
 import type { SiteMeta, PageMeta } from '../types'
+import type { Lang } from './context'
 import { t } from './i18n'
 
 /**
@@ -35,7 +36,15 @@ export function renderHead(
   pageMeta: PageMeta | undefined,
   pricingAmount: string | undefined,
   basePath = '',
-  ogImage?: string
+  ogImage?: string,
+  /** Only pass this when a genuine, hand-paired equivalent exists on the
+   *  language-sibling tenant — see lang-pairing.ts and PostItem.altLangSlug.
+   *  When set, emits a mutual, self-referencing hreflang pair (this page +
+   *  the alternate). Never pass a homepage/fallback URL here: hreflang must
+   *  only ever point at a true equivalent, unlike the nav switcher's UX
+   *  fallback. Absent entirely (no tags at all) for pages with no real
+   *  translated counterpart. */
+  altLang?: { lang: Lang; href: string }
 ): string {
   const title = pageMeta?.title ?? siteMeta.title
   const description = pageMeta?.description ?? siteMeta.description
@@ -43,6 +52,11 @@ export function renderHead(
   const ogTitle = pageMeta?.ogTitle ?? siteMeta.title
   const ogDescription = pageMeta?.ogDescription ?? siteMeta.ogDescription
   const ogUrl = pageMeta?.ogUrl ?? siteMeta.canonical
+
+  const hreflangTags = altLang
+    ? `<link rel="alternate" hreflang="${siteMeta.lang ?? 'pl'}" href="${canonical}">
+<link rel="alternate" hreflang="${altLang.lang}" href="${altLang.href}">`
+    : ''
 
   const strings = t(siteMeta.lang)
 
@@ -74,6 +88,7 @@ export function renderHead(
 <meta name="description" content="${description}">
 <link rel="icon" type="image/jpeg" href="${basePath}assets/images/favicon.jpeg">
 <link rel="canonical" href="${canonical}">
+${hreflangTags}
 <meta property="og:type" content="website">
 <meta property="og:title" content="${ogTitle}">
 <meta property="og:description" content="${ogDescription}">

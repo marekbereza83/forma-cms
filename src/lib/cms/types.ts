@@ -157,6 +157,14 @@ export interface PostItem {
    *  renderer. Osobne pole, a nie naglowek w body, zeby sekcja wygladala tak samo w kazdym
    *  artykule i nie zalezala od tego, jak klient nazwal naglowek (decyzja 2026-07-31). */
   sources?: string[]
+  /** Slug of the corresponding post on the language-sibling tenant (see
+   *  SiteMeta.altLang) — e.g. the PL post's altLangSlug is its EN translation's
+   *  slug, and vice versa. Explicit, hand-set pairing: individual post slugs are
+   *  translated and don't match 1:1 like page slugs do, so this can't be derived
+   *  automatically. Drives both the nav language switcher (links straight to the
+   *  translated article instead of falling back to the blog list) and hreflang
+   *  alternate tags (only emitted when a genuine pair exists on both sides). */
+  altLangSlug?: string
 }
 
 export interface SiteMeta {
@@ -180,6 +188,15 @@ export interface SiteMeta {
    *  wszystkich postow danego tenanta, nie osobne pole na kazdym PostItem. */
   authorName?: string
   authorRole?: string
+  /** Cross-domain language sibling (e.g. PL tenant -> EN tenant on a different
+   *  domain, or vice versa). When set, the nav renders a PL/EN switcher linking
+   *  to homeUrl (+ the current page's slug, for slugs that exist on both sites).
+   *  Absent for tenants without a translated sibling — switcher then renders
+   *  nothing, so this is safe for every other tenant on the platform. */
+  altLang?: {
+    lang: 'pl' | 'en'
+    homeUrl: string
+  }
 }
 
 export interface SiteModel {

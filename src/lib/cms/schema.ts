@@ -47,6 +47,10 @@ const SiteMetaSchema = z.object({
   authorName: z.string().optional(),
   authorRole: z.string().optional(),
   lang: z.enum(['pl', 'en']).optional(),
+  altLang: z.object({
+    lang: z.enum(['pl', 'en']),
+    homeUrl: z.string().url(),
+  }).optional(),
 })
 
 export const EventItemSchema = z.object({
@@ -74,6 +78,7 @@ export const PostItemSchema = z.object({
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   sources: z.array(z.string()).optional(),
+  altLangSlug: z.string().optional(),
 })
 
 export const SiteModelSchema = z.object({

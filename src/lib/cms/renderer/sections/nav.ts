@@ -2,6 +2,26 @@ import type { Section } from '../../types'
 import type { RenderContext } from '../context'
 import { rootHref } from '../utils'
 import { t } from '../i18n'
+import { SHARED_PAGE_SLUGS, sharedSlugPath } from '../lang-pairing'
+
+// Falls back to the sibling site's homepage/blog-list when there's no more
+// specific target — ctx.langSwitchHref (set by callers that know a precise
+// equivalent, e.g. a translated blog post, see renderer/publikacje.ts) always
+// wins over this generic same-slug mapping.
+function langSwitchHtml(ctx: RenderContext, variant: 'bar' | 'overlay'): string {
+  if (!ctx.altLang) return ''
+  const s = t(ctx.lang)
+  const targetHref = ctx.langSwitchHref ?? `${ctx.altLang.homeUrl}${
+    SHARED_PAGE_SLUGS.has(ctx.currentPage) ? sharedSlugPath(ctx.currentPage) : ''
+  }`
+  const targetLabel = s.nav.langLabel[ctx.altLang.lang]
+  const currentLabel = s.nav.langLabel[ctx.lang]
+  const cls = variant === 'bar' ? 'lang-switch' : 'lang-switch lang-switch--overlay'
+  return `<div class="${cls}" role="group" aria-label="${s.nav.langSwitchAria}">
+      <span class="lang-switch-btn is-active" aria-current="true">${currentLabel}</span>
+      <a href="${targetHref}" class="lang-switch-btn" aria-label="${s.nav.langSwitchToAria(targetLabel)}">${targetLabel}</a>
+    </div>`
+}
 
 export function renderNav(section: Section, ctx: RenderContext): string {
   const s = t(ctx.lang)
@@ -10,6 +30,8 @@ export function renderNav(section: Section, ctx: RenderContext): string {
 
   const logoHref = rootHref('index',   ctx.basePath, ctx.linkMode)
   const ctaHref  = rootHref('kontakt', ctx.basePath, ctx.linkMode)
+  const langSwitchBar = langSwitchHtml(ctx, 'bar')
+  const langSwitchOverlay = langSwitchHtml(ctx, 'overlay')
 
   const navLinksHtml = ctx.navPages
     .map(p => {
@@ -36,7 +58,7 @@ export function renderNav(section: Section, ctx: RenderContext): string {
       <ul class="nav-links" role="list">
 ${navLinksHtml}
       </ul>
-    </nav>
+    </nav>${langSwitchBar}
     <a href="${ctaHref}" class="btn-primary nav-cta" aria-label="${ctaLabel}${s.nav.ctaAriaSuffixShort}">${ctaLabel}</a>
     <button class="nav-hamburger" id="nav-toggle"
       aria-label="${s.nav.openMenuAriaShort}" aria-expanded="false" aria-controls="nav-overlay">
@@ -66,6 +88,7 @@ ${navLinksHtml}
 ${overlayLinksHtml}
   </ul>
   <div class="nav-overlay-bottom">
+    ${langSwitchOverlay}
     <a href="${ctaHref}" class="btn-primary" aria-label="${ctaLabel}">${ctaLabel}</a>
     <p class="btn-micro">${s.nav.responseTime}</p>
   </div>
@@ -88,7 +111,7 @@ ${overlayLinksHtml}
       <ul class="nav-links" role="list">
 ${navLinksHtml}
       </ul>
-    </nav>${navTelHtml}
+    </nav>${navTelHtml}${langSwitchBar}
     <a href="${ctaHref}" class="btn-primary nav-cta btn-shimmer btn-pulse btn-magnetic"
       aria-label="${ctaLabel}${s.nav.ctaAriaSuffix}">
       ${ctaLabel}
@@ -113,6 +136,7 @@ ${navLinksHtml}
 ${overlayLinksHtml}
   </ul>
   <div class="nav-overlay-bottom">
+    ${langSwitchOverlay}
     <a href="${ctaHref}" class="btn-primary btn-shimmer flex-center">${ctaLabel}</a>
     <p class="btn-micro text-center">${s.nav.responseTime}</p>
   </div>
