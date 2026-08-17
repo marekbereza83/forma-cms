@@ -1005,6 +1005,36 @@ describe('Renderer — publikacje artykuł', () => {
     expect(backLink).toBe('../publikacje.html')
   })
 
+  it('link stopki z bezwzględnym URL (np. wersja PL na podstronie EN) nie dostaje basePath', () => {
+    // Regresja: transformFooterHref sklejał basePath + href bez sprawdzenia, czy href
+    // jest już bezwzględny. Na stronach /publikacje/<slug>.html (basePath="../") dawało to
+    // href="../https://formawizerunku.pl/..." — przeglądarka/Google rozwiązywały to jako
+    // https://<host>/https://formawizerunku.pl/... (zgłoszone przez Search Console).
+    const withAbsoluteFooterLink: SiteModel = {
+      ...model,
+      pages: model.pages.map(p => p.slug !== 'index' ? p : {
+        ...p,
+        sections: p.sections.map(s => s.id !== 'footer' ? s : {
+          ...s,
+          fields: {
+            ...s.fields,
+            links: {
+              ...s.fields.links,
+              value: [
+                ...(s.fields.links.value as { label: string; href: string }[]),
+                { label: 'Legal Notice (PL)', href: 'https://formawizerunku.pl/legal-notice.html' },
+              ],
+            },
+          },
+        }),
+      }),
+    }
+    const d = new JSDOM(renderPostPage(withAbsoluteFooterLink, post, '../', 'static')).window.document
+    const links = Array.from(d.querySelectorAll('.footer-links a')).map(a => a.getAttribute('href'))
+    expect(links).toContain('https://formawizerunku.pl/legal-notice.html')
+    expect(links.some(h => h?.includes('../https://'))).toBe(false)
+  })
+
   it('treść posta obecna, bez polubień/komentarzy', () => {
     expect(doc.querySelector('.pub-article-body')?.innerHTML).toContain('ozdobników')
     const html = doc.documentElement.innerHTML

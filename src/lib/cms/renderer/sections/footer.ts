@@ -4,6 +4,10 @@ import { rootHref } from '../utils'
 import { t } from '../i18n'
 
 function transformFooterHref(href: string, basePath: string, linkMode: 'static' | 'preview'): string {
+  // Absolute URLs (np. linki do wersji PL z podstron EN) nigdy nie dostaja basePath —
+  // sklejenie '../' + 'https://...' tworzy blednie zagniezdzony adres, ktory przegladarka
+  // rozwiazuje jako https://<host>/https://<inny-host>/... (zgloszone przez Search Console).
+  if (/^https?:\/\//.test(href)) return href
   if (linkMode === 'static') return `${basePath}${href}`
   const match = href.match(/^([\w-]+)\.html$/)
   if (!match) return href
